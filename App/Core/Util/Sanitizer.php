@@ -42,7 +42,7 @@ class Sanitizer
      * @param bool   $useCleanPrefix
      * @return string
      */
-    public static function fixDirectorySeparator(string $path = '', $useCleanPrefix = false) : string
+    public static function fixDirectorySeparator(string $path, $useCleanPrefix = false) : string
     {
         /**
          * Trimming path string

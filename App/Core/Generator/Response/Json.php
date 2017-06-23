@@ -74,7 +74,8 @@ class Json extends ResponseGeneratorAbstract
         if ($response->hasHeader('Content-Length')) {
             $response = $response
                 ->withHeader(
-                    'Content-Length', $response->getBody()->getSize()
+                    'Content-Length',
+                    $response->getBody()->getSize()
                 );
         }
 

@@ -319,10 +319,10 @@ abstract class ResponseGeneratorAbstract
                 $this->mimeType = current($selectedContentTypes);
             }
             if (preg_match(
-                    '/(?:(?:[^/]*)(?:\\\+|\/+))?(html?|javascript|calendar|css|plain)/',
-                    $this->mimeType,
-                    $match
-                ) && !empty($match[1])
+                '/(?:(?:[^/]*)(?:\\\+|\/+))?(html?|javascript|calendar|css|plain)/',
+                $this->mimeType,
+                $match
+            ) && !empty($match[1])
             ) {
                 $this->mimeType = $this->mimeType == 'htm'
                     ? 'html'
@@ -334,10 +334,10 @@ abstract class ResponseGeneratorAbstract
             } elseif (strpos($this->mimeType, 'sgm') !== false) {
                 $this->mimeType = 'text/sgml';
             } elseif (preg_match(
-                    '/(?:(?:[^/]*)(?:\\\+|\/+))?(ja?son|xml|ogg|pdf|postscript|zip|ttf2?)/',
-                    $this->mimeType,
-                    $match
-                ) && !empty($match[1])
+                '/(?:(?:[^/]*)(?:\\\+|\/+))?(ja?son|xml|ogg|pdf|postscript|zip|ttf2?)/',
+                $this->mimeType,
+                $match
+            ) && !empty($match[1])
             ) {
                 if ($match[1] == 'jason') {
                     $match[1] = 'json';
@@ -346,10 +346,10 @@ abstract class ResponseGeneratorAbstract
                 }
                 $this->mimeType = 'application/' . $match[1];
             } elseif (preg_match(
-                    '/(?:(?:[^/]*)(?:\\\+|\/+))?(jpe?g?|png|w?bmp|gif|pbm|tif(?:f+)?|png|ppm|ras|xbm|xpm|xwd)/',
-                    $this->mimeType,
-                    $match
-                )
+                '/(?:(?:[^/]*)(?:\\\+|\/+))?(jpe?g?|png|w?bmp|gif|pbm|tif(?:f+)?|png|ppm|ras|xbm|xpm|xwd)/',
+                $this->mimeType,
+                $match
+            )
                 && !empty($match[1])
             ) {
                 if ($match[1] == 'wbmp') {

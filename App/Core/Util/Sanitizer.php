@@ -68,9 +68,9 @@ class Sanitizer
     public static function normalizePath($path) : string
     {
         $path = self::fixDirectorySeparator($path);
-        $path = preg_replace( '|(?<=.)/+|', DIRECTORY_SEPARATOR, $path );
-        if (':' === substr( $path, 1, 1 )) {
-            $path = ucfirst( $path );
+        $path = preg_replace('|(?<=.)/+|', DIRECTORY_SEPARATOR, $path);
+        if (':' === substr($path, 1, 1)) {
+            $path = ucfirst($path);
         }
 
         if (Validator::isAbsolutePath($path) && strpos($path, '.')) {

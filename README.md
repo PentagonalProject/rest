@@ -27,7 +27,7 @@ Use composer to install, go to script directory and run:
 composer install --no-dev --optimize-autoloader
 ```
 
-If there was additional file on App/(`Core` or `Model`) directory, please update composer autoload
+If there was additional file on App/(`Core`) directory, please update composer autoload
 
 
 ```bash

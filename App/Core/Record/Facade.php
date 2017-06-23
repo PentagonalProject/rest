@@ -66,6 +66,11 @@ class Facade
     protected $webRootPath;
 
     /**
+     * @var Arguments
+     */
+    protected $arguments;
+
+    /**
      * Facade constructor.
      * @param string $appName
      * @internal
@@ -83,6 +88,8 @@ class Facade
         }
 
         self::$routines[$appName] =& $this->createObjectAccessor($appName);
+        // set arguments Cached
+        $this->arguments = new Arguments();
     }
 
     /**
@@ -202,40 +209,142 @@ class Facade
      */
     public static function includeScope()
     {
-        if (func_num_args() < 1) {
+        /**
+         * closure include of scope to prevent access
+         * bind to @uses Arguments
+         * if inside of include call $this it wil be access as @uses Arguments object
+         */
+        $args = self::validateScope(func_get_args());
+        return \Closure::bind(
+            function ($file) {
+                /** @noinspection PhpIncludeInspection */
+                return include $file;
+            },
+            $args
+        )($args[0]);
+    }
+
+    /**
+     * Include Scope Once
+     *
+     * @param-read string $file
+     * @return mixed
+     * @throws FileNotFoundException
+     */
+    public static function includeScopeOnce()
+    {
+        /**
+         * closure include of scope to prevent access
+         * bind to @uses Arguments
+         * if inside of include call $this it wil be access as @uses Arguments object
+         */
+        $args = self::validateScope(func_get_args());
+        return \Closure::bind(
+            function ($file) {
+                /** @noinspection PhpIncludeInspection */
+                return include_once $file;
+            },
+            $args
+        )($args[0]);
+    }
+
+    /**
+     * @param array $args
+     * @return Arguments
+     * @throws FileNotFoundException
+     */
+    private static function validateScope(array $args)
+    {
+        if (count($args) < 1) {
             throw new InvalidArgumentException(
                 'Argument 1 could not be empty.',
                 E_USER_ERROR
             );
         }
 
-        if (!is_string(func_get_arg(0))) {
+        if (!is_string(reset($args))) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Argument 1 must be as a string %s given.',
-                    gettype(func_get_arg(0))
+                    gettype(reset($args))
                 ),
                 E_USER_ERROR
             );
         }
 
-        if (!($path = stream_resolve_include_path(func_get_arg(0)))) {
+        if (!($path = stream_resolve_include_path(reset($args)))) {
             throw new FileNotFoundException(
-                func_get_arg(0)
+                reset($args)
             );
         }
 
-        /**
-         * closure include of scope to prevent access @uses Application
-         * bind to @uses Arguments
-         * if inside of include call $this it wil be access as @uses Arguments object
-         */
-        $args = new Arguments(func_get_args());
-        $fn = (function ($file) {
-            /** @noinspection PhpIncludeInspection */
-            return include $file;
-        })->bindTo($args);
+        return new Arguments($args);
+    }
 
-        return $fn($args[0]);
+    /**
+     * @return Arguments
+     */
+    public function getArguments()
+    {
+        return $this->arguments;
+    }
+
+    /**
+     * Set Arguments
+     *
+     * @param mixed $key
+     * @param $value
+     * @return Facade
+     */
+    public function setArgument($key, $value) : Facade
+    {
+        $this->arguments->set($key, $value);
+        return $this;
+    }
+
+    /**
+     * Get Key From Arguments
+     *
+     * @param mixed $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getArgument($key, $default = null)
+    {
+        return $this->arguments->get($key, $default);
+    }
+
+    /**
+     * Check if Has Arguments
+     *
+     * @param mixed $key
+     * @return bool
+     */
+    public function hasArgument($key) : bool
+    {
+        return $this->arguments->has($key);
+    }
+
+    /**
+     * @param mixed $key
+     */
+    public function removeArgument($key)
+    {
+        $this->arguments->remove($key);
+    }
+
+    /**
+     * Replace Argument
+     *
+     * @param array $args
+     * @return Facade
+     */
+    public function replaceArguments(array $args) : Facade
+    {
+        foreach ($args as $key => $value) {
+            $this->setArgument($key, $value);
+        }
+
+        return $this;
     }
 }

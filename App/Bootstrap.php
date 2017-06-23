@@ -29,14 +29,18 @@ declare(strict_types=1);
 
 namespace {
 
-    use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
 
-    require_once __DIR__ . '/../../App/Bootstrap.php';
+    // require Vendor Auto Load
+    require_once __DIR__ . '/../vendor/autoload.php';
+
     /**
-     * Facade Scope Returning @uses \Slim\App
+     * Load PSR4
      */
-    return Facade::includeScope(
-        __DIR__ . '/../../App/Task/Public.php',
-        Facade::register('public')
-    )->run();
+    ComposerLoaderPSR4::create(
+        [
+            // add Override
+            "PentagonalProject\\App\\Rest\\Task\\Override\\" => __DIR__ . '/Task/Containers/Override/'
+        ]
+    )->register(); // register
 }

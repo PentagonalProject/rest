@@ -30,13 +30,24 @@ declare(strict_types=1);
 namespace {
 
     use PentagonalProject\App\Rest\Record\Facade;
+    use Slim\App;
 
-    require_once __DIR__ . '/../../App/Bootstrap.php';
     /**
-     * Facade Scope Returning @uses \Slim\App
+     * @var Facade $this
      */
-    return Facade::includeScope(
-        __DIR__ . '/../../App/Task/Public.php',
-        Facade::register('public')
-    )->run();
+    if (!isset($this[1]) || ! $this[1] instanceof Facade) {
+        return;
+    }
+
+    /**
+     * @return App
+     */
+    return \Closure::bind(
+        function ($file) {
+            /** @noinspection PhpIncludeInspection */
+            require_once $file;
+            return $this;
+        },
+        Facade::includeScope(__DIR__ . '/Util/AppCreator.php', $this[1])
+    )(__DIR__ . '/../../Components/Collector/Rest.php');
 }

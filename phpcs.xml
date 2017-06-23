@@ -15,5 +15,6 @@
     <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
     <!-- Path To Check -->
     <file>App</file>
+    <file>Components</file>
     <file>Web</file>
 </ruleset>

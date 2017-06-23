@@ -31,10 +31,12 @@ namespace {
 
     use PentagonalProject\App\Rest\Record\Facade;
 
-    require '../Bootstrap.php';
-    return Facade::switchTo('rest')
-        ->getAccessor()
-        ->create(require '../Components/Containers/Rest.php')
-        ->getApp()
-        ->run();
+    require_once __DIR__ . '/../../App/Bootstrap.php';
+    /**
+     * Facade Scope Returning @uses \Slim\App
+     */
+    return Facade::includeScope(
+        __DIR__ . '/../../App/Task/Rest.php',
+        Facade::register('rest')
+    )->run();
 }

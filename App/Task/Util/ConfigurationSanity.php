@@ -27,43 +27,29 @@
 
 declare(strict_types=1);
 
+/**
+ * Processing Sanitation on configuration
+ */
 namespace {
 
+    use PentagonalProject\App\Rest\Record\Facade;
     use PentagonalProject\App\Rest\Util\Sanitizer;
     use PentagonalProject\App\Rest\Util\Validator;
-    use Slim\Container;
 
     /**
-     * Build Config
+     * @var Facade $this
      */
-    $dirConfig = dirname(__DIR__);
-    $config = (array) require $dirConfig . '/Configuration.php';
-    $config['directory'] = isset($config['directory']) ? $config['directory'] : [];
-    if (!is_array($config['directory'])) {
-        $config['directory'] =  [];
+    if (!isset($this[1]) || ! $this[1] instanceof Facade) {
+        return;
     }
 
-    foreach ($config['directory'] as $key => $value) {
-        if (Validator::isAbsolutePath($value)) {
-            if (realpath($value) != $value) {
-                $value = Sanitizer::normalizePath(realpath($value)?: $value);
-            }
-        } else {
-            $value = Sanitizer::fixDirectorySeparator($value);
-            if (strpos($value, '.' . DIRECTORY_SEPARATOR) !== false) {
-                if (strpos($value, $dirConfig) === false) {
-                    $value = Sanitizer::normalizePath($dirConfig . DIRECTORY_SEPARATOR . $value);
-                }
-            }
-        }
-        $config['directory'][$key] = rtrim($value, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-    }
-
-    // auto httpVersion
-    $config['httpVersion'] = isset($_SERVER['SERVER_PROTOCOL'])
-    && strpos($_SERVER['SERVER_PROTOCOL'], '/') !== false
-        ? explode('/', $_SERVER['SERVER_PROTOCOL'])[1]
-        : '1.1';
+    /**
+     * @var Facade $facade
+     */
+    $facade = $this[1];
+    /**
+     * Default Slim Container Settings
+     */
     $defaultConfigSetting = [
         'httpVersion' => '1.1',
         'responseChunkSize' => 4096,
@@ -74,17 +60,48 @@ namespace {
         'routerCacheFile' => false,
     ];
 
-    $config = array_merge($defaultConfigSetting, $config);
-    $container = [
-        'settings'    => $config,
-        'config'      => require __DIR__ . '/Global/Config.php',
-        'hook'        => require __DIR__ . '/Global/Hook.php',
-        'environment' => require __DIR__ . '/Global/Environment.php',
-        'database'    => require __DIR__ . '/Global/Database.php',
-        'notAllowedHandler' => require __DIR__ . '/Global/NotAllowedHandler.php',
-        'notFoundHandler'   => require __DIR__ . '/Global/NotFoundHandler.php',
-        'phpErrorHandler'   => require __DIR__ . '/Global/PhpErrorHandler.php',
-    ];
+    /* --------------------------------------------------------------------
+     *                          DOING SANITATION
+     * ------------------------------------------------------------------- */
 
-    return new Container($container);
+    // declare Root Directory
+    $rootDir = dirname(dirname(__DIR__));
+    $config = (array) $facade->getArgument('config', []);
+    $config['directory'] = isset($config['directory']) ? $config['directory'] : [];
+    if (!is_array($config['directory'])) {
+        $config['directory'] =  [];
+    }
+
+    /**
+     * Fix Each Path Directory
+     */
+    foreach ($config['directory'] as $key => $value) {
+        if (Validator::isAbsolutePath($value)) {
+            if (realpath($value) != $value) {
+                $value = Sanitizer::normalizePath(realpath($value)?: $value);
+            }
+        } else {
+            $value = Sanitizer::fixDirectorySeparator($value);
+            if (strpos($value, '.' . DIRECTORY_SEPARATOR) !== false) {
+                if (strpos($value, $rootDir) === false) {
+                    $value = Sanitizer::normalizePath($rootDir . DIRECTORY_SEPARATOR . $value);
+                }
+            }
+        }
+
+        $config['directory'][$key] = rtrim($value, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * Http Version Protocol Check
+     */
+    $config['httpVersion'] = isset($_SERVER['SERVER_PROTOCOL'])
+    && strpos($_SERVER['SERVER_PROTOCOL'], '/') !== false
+        ? explode('/', $_SERVER['SERVER_PROTOCOL'])[1]
+        : $defaultConfigSetting['httpVersion'];
+
+    // replace
+    return $facade
+        ->setArgument('config', array_merge($defaultConfigSetting, $config))
+        ->getArgument('config');
 }

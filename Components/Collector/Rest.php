@@ -29,14 +29,14 @@ declare(strict_types=1);
 
 namespace {
 
-    use PentagonalProject\App\Rest\Record\Facade;
+    use Psr\Http\Message\ResponseInterface;
+    use Psr\Http\Message\ServerRequestInterface;
+    use Slim\App;
 
-    require_once __DIR__ . '/../../App/Bootstrap.php';
     /**
-     * Facade Scope Returning @uses \Slim\App
+     * @var App $this
      */
-    return Facade::includeScope(
-        __DIR__ . '/../../App/Task/Public.php',
-        Facade::register('public')
-    )->run();
+    $this->any('/[{param: .+}]', function (ServerRequestInterface $request, ResponseInterface $response, $param) {
+        return $response;
+    });
 }

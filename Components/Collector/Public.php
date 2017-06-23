@@ -29,4 +29,9 @@ declare(strict_types=1);
 
 namespace {
 
+    use Slim\App;
+
+    /**
+     * @var App $this
+     */
 }

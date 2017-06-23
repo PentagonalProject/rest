@@ -29,14 +29,9 @@ declare(strict_types=1);
 
 namespace {
 
-    use Psr\Http\Message\ResponseInterface;
-    use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;
 
     /**
      * @var App $this
      */
-    $this->any('/[{param: .+}]', function (ServerRequestInterface $request, ResponseInterface $response, $param) {
-        return $response;
-    });
 }

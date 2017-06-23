@@ -56,8 +56,8 @@ class Arguments implements Countable, ArrayAccess
      * Get Arguments
      *
      * @param int|string|float $offset
-     * @param null $default
-     * @return mixed|null
+     * @param mixed $default
+     * @return mixed
      */
     public function &get($offset, $default = null)
     {

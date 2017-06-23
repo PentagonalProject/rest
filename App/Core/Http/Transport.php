@@ -238,13 +238,13 @@ class Transport
     public function __call(string $name, array $arguments)
     {
         // fix method
-        $newName = strtolower(substr($name, -5));
-        if (strtolower($newName) == 'async' && $newName !== 'Async') {
+        $newName = substr($name, -5);
+        if ($newName != 'Async' && strtolower($newName) == 'async') {
             $name = substr($name, 0, -5) . 'Async';
         }
 
-        return $this->guzzleClient->__call(
-            $name,
+        return call_user_func_array(
+            [$this->guzzleClient, $name],
             $arguments
         );
     }

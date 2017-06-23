@@ -37,6 +37,7 @@ use PentagonalProject\App\Rest\Exceptions\InvalidModularException;
 use PentagonalProject\App\Rest\Exceptions\InvalidPathException;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
+use SplFileInfo;
 
 /**
  * Class ModularParser
@@ -129,7 +130,7 @@ class ModularParser
     protected function setFileToLoad(string $file) : ModularParser
     {
         if (file_exists($file)) {
-            $spl = new \SplFileInfo($file);
+            $spl = new SplFileInfo($file);
             if ($spl->isLink()) {
                 throw new InvalidArgumentException(
                     "Arguments could not as a symlink.",

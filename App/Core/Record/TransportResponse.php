@@ -55,7 +55,7 @@ class TransportResponse
      */
     public function __construct($response)
     {
-        if ($response instanceof Exception && $response instanceof ResponseInterface) {
+        if (! $response instanceof Exception && ! $response instanceof ResponseInterface) {
             throw new InvalidArgumentException(
                 sprintf(
                     "Invalid Parameter Response. Response must be an instance of %s or %s.",

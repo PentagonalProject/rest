@@ -1,0 +1,52 @@
+{
+    "name": "pentagonalproject/rest-production",
+    "description": "Project API Handler For Production",
+    "type": "project",
+    "require": {
+        "php": ">= 7",
+        "ext-PDO": ">= 7",
+        "ext-pcre": ">= 7",
+        "apatis/array-storage": "^1",
+        "apatis/transporter": "dev-master",
+        "aura/session": "^2.1",
+        "doctrine/dbal": "^2.5",
+        "guzzlehttp/guzzle": "~6",
+		"illuminate/database": "~5.4",
+		"illuminate/pagination": "~5.4",
+        "monolog/monolog": "~1",
+        "phpfastcache/phpfastcache": "~5",
+        "pentagonal/phpass": "^1",
+        "pentagonal/simple_encrypt": "^1",
+        "slim/slim": "^3"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "2.*",
+        "phpunit/phpunit": "^5"
+    },
+    "suggest": {
+        "ext-curl": "To allow using Guzzle HTTP.",
+        "ext-openssl": "For better Encryption process on pentagonal/simple_encrypt",
+        "ext-mbstring": "For compatibility any package.",
+        "ext-mcrypt": "For compatibility any package.",
+        "ext-iconv": "For better sanitation characters & text output."
+    },
+    "license": "BSD",
+    "authors": [
+        {
+            "name": "pentagonal",
+            "email": "org@pentagonal.org"
+        }
+    ],
+    "autoload" : {
+        "psr-4" : {
+            "\\PentagonalProject\\App\\Rest\\": "App/Core/",
+            "\\PentagonalProject\\App\\Model\\": "App/Models/"
+        },
+        "classmap": [
+            "App/Core/"
+        ],
+        "files": [
+            "App/Bootstrap.php"
+        ]
+    }
+}

@@ -1,4 +1,6 @@
-# REST PROJECT
+# REST PROJECT 
+
+[![Build Status](https://travis-ci.org/PentagonalProject/rest.svg?branch=master)](https://travis-ci.org/PentagonalProject/rest)
 
 Being on Development Progress
 That fixing `RETIRED` previous project.

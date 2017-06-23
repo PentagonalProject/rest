@@ -60,6 +60,40 @@ class Sanitizer
     }
 
     /**
+     * Normalize a filesystem path.
+     *
+     * @param string $path Path to normalize.
+     * @return string Normalized path.
+     */
+    public static function normalizePath($path) : string
+    {
+        $path = self::fixDirectorySeparator($path);
+        $path = preg_replace( '|(?<=.)/+|', DIRECTORY_SEPARATOR, $path );
+        if (':' === substr( $path, 1, 1 )) {
+            $path = ucfirst( $path );
+        }
+
+        if (Validator::isAbsolutePath($path) && strpos($path, '.')) {
+            $explode = explode(DIRECTORY_SEPARATOR, $path);
+            $array = [];
+            foreach ($explode as $key => $value) {
+                if ('.' == $value) {
+                    continue;
+                }
+                if ('..' == $value) {
+                    array_pop($array);
+                } else {
+                    $array[] = $value;
+                }
+            }
+
+            $path = implode(DIRECTORY_SEPARATOR, $array);
+        }
+
+        return $path;
+    }
+
+    /**
      * Entities the Multi bytes deep string
      *
      * @param mixed $mixed  the string to detect multi bytes

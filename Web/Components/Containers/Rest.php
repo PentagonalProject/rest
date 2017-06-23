@@ -29,12 +29,7 @@ declare(strict_types=1);
 
 namespace {
 
-    use PentagonalProject\App\Rest\Record\Facade;
+    $container = require __DIR__ . '/Global.php';
 
-    require '../Bootstrap.php';
-    return Facade::switchTo('public')
-        ->getAccessor()
-        ->create(require '../Components/Containers/Public.php')
-        ->getApp()
-        ->run();
+    return $container;
 }

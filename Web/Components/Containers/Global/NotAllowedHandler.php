@@ -29,12 +29,38 @@ declare(strict_types=1);
 
 namespace {
 
-    use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Util\Hook;
+    use Psr\Container\ContainerInterface;
+    use Slim\Handlers\AbstractHandler;
+    use Slim\Handlers\NotAllowed;
 
-    require '../Bootstrap.php';
-    return Facade::switchTo('public')
-        ->getAccessor()
-        ->create(require '../Components/Containers/Public.php')
-        ->getApp()
-        ->run();
+    /**
+     * Not Allowed Handler
+     *
+     * @param ContainerInterface $container
+     * @return AbstractHandler
+     */
+    return function (ContainerInterface $container) : AbstractHandler {
+        /**
+         * @var Hook $hook
+         */
+        $hook = $container['hook'];
+        $notAllowedHandler = $hook->apply(
+            'container.notAllowedHandler',
+            new NotAllowed(),
+            $container
+        );
+
+        if (! $notAllowedHandler instanceof AbstractHandler) {
+            throw new RuntimeException(
+                sprintf(
+                    "Invalid Hook for Not Allowed Handler. Not Allowed Handler must be instance of %s",
+                    AbstractHandler::class
+                ),
+                E_ERROR
+            );
+        }
+
+        return $notAllowedHandler;
+    };
 }

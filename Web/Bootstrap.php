@@ -30,11 +30,18 @@ declare(strict_types=1);
 namespace {
 
     use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
 
-    require '../Bootstrap.php';
-    return Facade::switchTo('public')
-        ->getAccessor()
-        ->create(require '../Components/Containers/Public.php')
-        ->getApp()
-        ->run();
+    require __DIR__ . '/../vendor/autoload.php';
+    Facade::register('rest');
+    Facade::register('public');
+
+    /**
+     * Load PSR4
+     */
+    ComposerLoaderPSR4::create(
+        [
+            "PentagonalProject\\App\\Rest\\Web\\Component\\Override\\" => __DIR__ .'/Components/Override/'
+        ]
+    )->register();
 }

@@ -12,6 +12,7 @@
         "doctrine/dbal": "^2.5",
         "guzzlehttp/guzzle": "~6",
 		"illuminate/database": "~5.4",
+        "illuminate/events": "~5.4",
 		"illuminate/pagination": "~5.4",
         "monolog/monolog": "~1",
         "phpfastcache/phpfastcache": "~5",
@@ -39,14 +40,10 @@
     ],
     "autoload" : {
         "psr-4" : {
-            "\\PentagonalProject\\App\\Rest\\": "App/Core/",
-            "\\PentagonalProject\\App\\Model\\": "App/Models/"
+            "\\PentagonalProject\\App\\Rest\\": "App/Core/"
         },
         "classmap": [
             "App/Core/"
-        ],
-        "files": [
-            "App/Bootstrap.php"
         ]
     }
 }

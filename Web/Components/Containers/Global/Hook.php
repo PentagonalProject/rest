@@ -29,12 +29,12 @@ declare(strict_types=1);
 
 namespace {
 
-    use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Util\Hook;
 
-    require '../Bootstrap.php';
-    return Facade::switchTo('public')
-        ->getAccessor()
-        ->create(require '../Components/Containers/Public.php')
-        ->getApp()
-        ->run();
+    /**
+     * @return Hook
+     */
+    return function () : Hook {
+        return new Hook();
+    };
 }

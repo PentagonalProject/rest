@@ -29,12 +29,32 @@ declare(strict_types=1);
 
 namespace {
 
+    use Illuminate\Database\Capsule\Manager;
+    use PentagonalProject\App\Rest\Record\Configurator;
     use PentagonalProject\App\Rest\Record\Facade;
+    use Psr\Container\ContainerInterface;
+    use Illuminate\Events\Dispatcher;
+    use Illuminate\Container\Container;
 
-    require '../Bootstrap.php';
-    return Facade::switchTo('public')
-        ->getAccessor()
-        ->create(require '../Components/Containers/Public.php')
-        ->getApp()
-        ->run();
+    /**
+     * @param ContainerInterface $container
+     * @return Manager
+     */
+    return function (ContainerInterface $container) : Manager {
+        $capsule = new Manager();
+        /**
+         * @var Configurator $config
+         */
+        $config = $container['config'];
+        $capsule->addConnection(
+            $config->get('database'),
+            Facade::current()->getName()
+        );
+
+        $capsule->setEventDispatcher(new Dispatcher(new Container()));
+        $capsule->setAsGlobal();
+        $capsule->bootEloquent();
+        return $capsule;
+    };
+
 }

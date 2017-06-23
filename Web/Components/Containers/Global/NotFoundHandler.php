@@ -25,6 +25,42 @@
  * @author pentagonal <org@pentagonal.org>
  */
 
+declare(strict_types=1);
+
 namespace {
 
+    use PentagonalProject\App\Rest\Util\Hook;
+    use Psr\Container\ContainerInterface;
+    use Slim\Handlers\AbstractHandler;
+    use Slim\Handlers\NotFound;
+
+    /**
+     * Not Found Handler
+     *
+     * @param ContainerInterface $container
+     * @return AbstractHandler
+     */
+    return function (ContainerInterface $container) : AbstractHandler {
+        /**
+         * @var Hook $hook
+         */
+        $hook = $container['hook'];
+        $notFoundHandler = $hook->apply(
+            'container.notFoundHandler',
+            new NotFound(),
+            $container
+        );
+
+        if (! $notFoundHandler instanceof AbstractHandler) {
+            throw new RuntimeException(
+                sprintf(
+                    "Invalid Hook for Not Found Handler. Not Found Handler must be instance of %s",
+                    AbstractHandler::class
+                ),
+                E_ERROR
+            );
+        }
+
+        return $notFoundHandler;
+    };
 }

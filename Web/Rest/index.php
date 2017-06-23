@@ -29,4 +29,12 @@ declare(strict_types=1);
 
 namespace {
 
+    use PentagonalProject\App\Rest\Record\Facade;
+
+    require '../Bootstrap.php';
+    return Facade::switchTo('rest')
+        ->getAccessor()
+        ->create(require '../Components/Containers/Rest.php')
+        ->getApp()
+        ->run();
 }

@@ -29,12 +29,25 @@ declare(strict_types=1);
 
 namespace {
 
-    use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Record\Configurator;
+    use PentagonalProject\App\Rest\Util\Hook;
+    use Psr\Container\ContainerInterface;
 
-    require '../Bootstrap.php';
-    return Facade::switchTo('public')
-        ->getAccessor()
-        ->create(require '../Components/Containers/Public.php')
-        ->getApp()
-        ->run();
+    /**
+     * @param ContainerInterface $container
+     * @return Configurator
+     */
+    return function (ContainerInterface $container) : Configurator {
+        /**
+         * @var Hook $hook
+         */
+        $hook = $container['hook'];
+        $config['settings'] = $container['settings'];
+        $config = $hook->apply(
+            'container.hook',
+            new Configurator($config)
+        );
+
+        return $config;
+    };
 }

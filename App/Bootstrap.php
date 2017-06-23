@@ -40,7 +40,7 @@ namespace {
     ComposerLoaderPSR4::create(
         [
             // add Override
-            "PentagonalProject\\App\\Rest\\Task\\Override\\" => __DIR__ . '/Task/Containers/Override/'
+            "PentagonalProject\\App\\Rest\\Override\\" => __DIR__ . '/ClassOverride/'
         ]
     )->register(); // register
 }

@@ -25,7 +25,7 @@
  * @author pentagonal <org@pentagonal.org>
  */
 
-namespace PentagonalProject\App\Rest\Task\Container\Override;
+namespace PentagonalProject\App\Rest\Override;
 
 use Monolog\Logger;
 use Psr\Container\ContainerInterface;

@@ -473,7 +473,7 @@ abstract class ResponseGeneratorAbstract
          */
         $response = $this
             ->getResponse()
-            ->withStatus($this->getStatusCode())
+            ->withStatus($this->getStatusCode() ?: 200)
             ->withBody($this->createStreamBody())
             ->withHeader('Content-Type', $this->getContentType());
         $data = $this->getData();

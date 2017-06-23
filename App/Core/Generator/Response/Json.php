@@ -56,6 +56,7 @@ class Json extends ResponseGeneratorAbstract
          */
         $response = $this
             ->getResponse()
+            // fall back default to 200 if no status code
             ->withStatus($this->getStatusCode() ?: 200)
             ->withBody($this->createStreamBody())
             ->withHeader('Content-Type', $this->getContentType());

@@ -34,4 +34,7 @@ namespace {
     /**
      * @var App $this
      */
+    ComposerLoaderPSR4::create([
+        "PentagonalProject\\App\\Rest\\Component\\Model\\" => __DIR__ . "/../Models/",
+    ]);
 }

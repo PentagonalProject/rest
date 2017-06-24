@@ -48,6 +48,12 @@ namespace {
             require_once $file;
             return $this;
         },
-        Facade::includeScope(__DIR__ . '/Util/AppCreator.php', $this[1])
+        Facade::includeScope(
+            __DIR__ . '/Util/AppCreator.php',
+            // facade
+            $this[1],
+            // add array config
+            Facade::includeScope(__DIR__ . '/../../../Configuration.php')
+        )
     )(__DIR__ . '/../../Components/Collector/Rest.php');
 }

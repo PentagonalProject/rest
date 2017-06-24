@@ -29,25 +29,21 @@ declare(strict_types=1);
 
 namespace {
 
+    use PentagonalProject\App\Rest\Record\Arguments;
     use PentagonalProject\App\Rest\Record\Facade;
 
     /**
+     * @var $this Arguments
      * @var Facade $facade
      */
     $facade = $this[1];
-    if (!file_exists(__DIR__ . '/../../../Configuration.php')) {
-        throw new RuntimeException(
-            'Configuration Does Not Exists!',
-            E_COMPILE_ERROR
-        );
-    }
-
+    $config = $this->get(2, []);
     $facadeAccessor = $facade
         ->getAccessor()
         ->create(
             $facade->includeScope(
                 __DIR__ . '/../GlobalContainers.php',
-                $facade->setArgument('config', Facade::includeScope(__DIR__ . '/../../../Configuration.php'))
+                $facade->setArgument('config', $config)
             )
         );
 

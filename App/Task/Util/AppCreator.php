@@ -37,13 +37,12 @@ namespace {
      * @var Facade $facade
      */
     $facade = $this[1];
-    $config = $this->get(2, []);
     $facadeAccessor = $facade
         ->getAccessor()
         ->create(
             $facade->includeScope(
                 __DIR__ . '/../GlobalContainers.php',
-                $facade->setArgument('config', $config)
+                $facade
             )
         );
 

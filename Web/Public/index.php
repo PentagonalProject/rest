@@ -38,5 +38,10 @@ namespace {
     return Facade::includeScope(
         __DIR__ . '/../../App/Task/Public.php',
         Facade::register('public')
+            ->setArgument(
+                'config',
+                // add array config
+                Facade::includeScope(__DIR__ . '/../../Configuration.php')
+            )
     )->run();
 }

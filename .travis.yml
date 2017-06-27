@@ -9,7 +9,9 @@ php:
 before_script:
     - composer install -o
 
-script: ./vendor/bin/phpcs
+script:
+    - ./vendor/bin/phpcs
+    - ./vendor/bin/unit --configuration phpunit.xml --coverage-text
 
 matrix:
   fast_finish: true

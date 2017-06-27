@@ -40,9 +40,9 @@ return [
     'database' => [
         'driver'    => 'mysql',
         'host'      => 'localhost',
-        'database'  => 'new',
-        'username'  => 'root',
-        'password'  => 'mysql',
+        'database'  => 'new',  // example database
+        'username'  => 'root', // example database user
+        'password'  => 'mysql',// example database user password
         'charset'   => 'utf8',
         'collation' => 'utf8_unicode_ci',
         'prefix'    => 'db_',

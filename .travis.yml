@@ -1,7 +1,14 @@
 sudo: false
 
+# Operating System
+os : linux
+group: stable
+dist: precise
+
+# Script Language
 language: php
 
+# Php Tests version
 php:
   - 7.0
   - 7.1
@@ -11,7 +18,7 @@ before_script:
 
 script:
     - ./vendor/bin/phpcs
-    - ./vendor/bin/phpunit --configuration phpunit.xml --coverage-text
+    - ./vendor/bin/phpunit --configuration phpunit.xml.dist --coverage-text
 
 matrix:
   fast_finish: true

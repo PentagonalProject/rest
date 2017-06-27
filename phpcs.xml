@@ -16,5 +16,6 @@
     <!-- Path To Check -->
     <file>App</file>
     <file>Components</file>
+    <file>Tests</file>
     <file>Web</file>
 </ruleset>

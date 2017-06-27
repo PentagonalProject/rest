@@ -11,7 +11,7 @@ before_script:
 
 script:
     - ./vendor/bin/phpcs
-    - ./vendor/bin/unit --configuration phpunit.xml --coverage-text
+    - ./vendor/bin/phpunit --configuration phpunit.xml --coverage-text
 
 matrix:
   fast_finish: true

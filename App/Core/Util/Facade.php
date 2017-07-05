@@ -79,14 +79,4 @@ class Facade
     {
         return self::containerRollBackSwitch(true, $appName?: AppFacade::current()->getName())->get($name);
     }
-
-    /**
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
-     */
-    public static function __callStatic(string $name, array $arguments = [])
-    {
-        return self::get($name);
-    }
 }

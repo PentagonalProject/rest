@@ -35,13 +35,13 @@ use RuntimeException;
 use UnexpectedValueException;
 
 /**
- * Class Facade
+ * Class AppFacade
  * @package PentagonalProject\App\Rest\Record
  */
-class Facade
+class AppFacade
 {
     /**
-     * @var Facade[]
+     * @var AppFacade[]
      */
     protected static $routines = [];
 
@@ -56,14 +56,9 @@ class Facade
     protected $applicationName;
 
     /**
-     * @var FacadeAccessor
+     * @var AppFacadeAccessor
      */
     protected $containerAccessor;
-
-    /**
-     * @var string
-     */
-    protected $webRootPath;
 
     /**
      * @var Arguments
@@ -71,7 +66,7 @@ class Facade
     protected $arguments;
 
     /**
-     * Facade constructor.
+     * AppFacade constructor.
      * @param string $appName
      * @internal
      */
@@ -87,6 +82,7 @@ class Facade
             );
         }
 
+        self::$current = $appName;
         self::$routines[$appName] =& $this->createObjectAccessor($appName);
         // set arguments Cached
         $this->arguments = new Arguments();
@@ -96,12 +92,12 @@ class Facade
      * Create Object Accessor
      *
      * @param string $appName
-     * @return Facade
+     * @return AppFacade
      */
-    protected function &createObjectAccessor(string $appName) : Facade
+    protected function &createObjectAccessor(string $appName) : AppFacade
     {
         $this->applicationName = $appName;
-        $this->containerAccessor = new FacadeAccessor($this);
+        $this->containerAccessor = new AppFacadeAccessor($this);
 
         return $this;
     }
@@ -119,9 +115,9 @@ class Facade
     /**
      * Get Accessor
      *
-     * @return FacadeAccessor
+     * @return AppFacadeAccessor
      */
-    public function getAccessor() : FacadeAccessor
+    public function getAccessor() : AppFacadeAccessor
     {
         return $this->containerAccessor;
     }
@@ -139,18 +135,19 @@ class Facade
      * Create Instance
      *
      * @param string $appName
-     * @return Facade
+     * @return AppFacade
      */
-    public static function register(string $appName) : Facade
+    public static function register(string $appName) : AppFacade
     {
         return new static($appName);
     }
 
     /**
      * @param string $appName
-     * @return Facade
+     * @return AppFacade
+     * @throws \UnexpectedValueException
      */
-    public static function switchTo(string $appName) : Facade
+    public static function switchTo(string $appName) : AppFacade
     {
         if (!static::has($appName)) {
             throw new \UnexpectedValueException(
@@ -164,18 +161,19 @@ class Facade
     }
 
     /**
-     * Get Current Facade
+     * Get Current AppFacade
      *
-     * @return Facade
+     * @return AppFacade
      * @throws UnexpectedValueException
      */
-    public static function current() : Facade
+    public static function current() : AppFacade
     {
         if (self::$current) {
-            return self::switchTo(self::$current);
+            return self::$routines[self::$current];
         }
+
         throw new UnexpectedValueException(
-            'Can not determine current facade!',
+            'Can not determine current application from facade!',
             E_COMPILE_ERROR
         );
     }
@@ -282,9 +280,25 @@ class Facade
     }
 
     /**
+     * @return AppFacade[]
+     */
+    public static function getRoutines() : array
+    {
+        return self::$routines;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getAppList() : array
+    {
+        return array_keys(self::$routines);
+    }
+
+    /**
      * @return Arguments
      */
-    public function getArguments()
+    public function getArguments() : Arguments
     {
         return $this->arguments;
     }
@@ -294,9 +308,9 @@ class Facade
      *
      * @param mixed $key
      * @param $value
-     * @return Facade
+     * @return AppFacade
      */
-    public function setArgument($key, $value) : Facade
+    public function setArgument($key, $value) : AppFacade
     {
         $this->arguments->set($key, $value);
         return $this;
@@ -327,19 +341,22 @@ class Facade
 
     /**
      * @param mixed $key
+     * @return AppFacade
      */
-    public function removeArgument($key)
+    public function removeArgument($key) : AppFacade
     {
         $this->arguments->remove($key);
+
+        return $this;
     }
 
     /**
      * Replace Argument
      *
      * @param array $args
-     * @return Facade
+     * @return AppFacade
      */
-    public function replaceArguments(array $args) : Facade
+    public function replaceArguments(array $args) : AppFacade
     {
         foreach ($args as $key => $value) {
             $this->setArgument($key, $value);

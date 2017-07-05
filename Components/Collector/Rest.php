@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace {
 
+    use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
     use Slim\App;
 
     /**

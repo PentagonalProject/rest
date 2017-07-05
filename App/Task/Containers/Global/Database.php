@@ -31,7 +31,7 @@ namespace {
 
     use Illuminate\Database\Capsule\Manager;
     use PentagonalProject\App\Rest\Record\Configurator;
-    use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Record\AppFacade;
     use Psr\Container\ContainerInterface;
     use Illuminate\Events\Dispatcher;
     use Illuminate\Container\Container;
@@ -48,7 +48,7 @@ namespace {
         $config = $container['config'];
         $capsule->addConnection(
             $config->get('database'),
-            Facade::current()->getName()
+            AppFacade::current()->getName()
         );
 
         $capsule->setEventDispatcher(new Dispatcher(new Container()));

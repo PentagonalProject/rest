@@ -32,6 +32,7 @@ namespace {
     use PentagonalProject\App\Rest\Record\Configurator;
     use PentagonalProject\App\Rest\Util\Hook;
     use Psr\Container\ContainerInterface;
+    use Slim\Collection;
 
     /**
      * @param ContainerInterface $container
@@ -42,7 +43,13 @@ namespace {
          * @var Hook $hook
          */
         $hook = $container['hook'];
-        $config['settings'] = $container['settings'];
+        $setting = $container['settings'];
+        if ($setting instanceof  Collection) {
+            $config = $setting->all();
+        } else {
+            $config = is_array($setting) ? $setting : [];
+        }
+
         $config = $hook->apply(
             'container.hook',
             new Configurator($config)

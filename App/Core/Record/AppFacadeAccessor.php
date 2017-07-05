@@ -36,13 +36,13 @@ use Slim\App;
 use Slim\Http\Environment;
 
 /**
- * Class FacadeAccessor
+ * Class AppFacadeAccessor
  * @package PentagonalProject\App\Rest\Record
  */
-class FacadeAccessor extends ContainerAccessor
+class AppFacadeAccessor extends ContainerAccessor
 {
     /**
-     * @var Facade
+     * @var AppFacade
      */
     protected $facade;
 
@@ -52,19 +52,24 @@ class FacadeAccessor extends ContainerAccessor
     protected $slim;
 
     /**
-     * FacadeAccessor constructor.
-     * @param Facade $facade
+     * @var string
      */
-    public function __construct(Facade &$facade)
+    protected $webRootPath;
+
+    /**
+     * AppFacadeAccessor constructor.
+     * @param AppFacade $facade
+     */
+    public function __construct(AppFacade &$facade)
     {
         $this->facade = $facade;
     }
 
     /**
      * @param ContainerInterface $container
-     * @return FacadeAccessor
+     * @return AppFacadeAccessor
      */
-    public function create(ContainerInterface $container) : FacadeAccessor
+    public function create(ContainerInterface $container) : AppFacadeAccessor
     {
         $this->slim = new App($container);
         $this->setContainerAggregate($this->slim->getContainer());
@@ -74,9 +79,9 @@ class FacadeAccessor extends ContainerAccessor
     /**
      * Substantial & Inheritance Looping Procedure
      *
-     * @return Facade
+     * @return AppFacade
      */
-    public function getFacade() : Facade
+    public function getFacade() : AppFacade
     {
         return $this->facade;
     }
@@ -90,6 +95,7 @@ class FacadeAccessor extends ContainerAccessor
     {
         return $this->slim;
     }
+
     /**
      * Get WebRoot Path
      *

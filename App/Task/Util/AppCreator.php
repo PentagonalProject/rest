@@ -30,11 +30,11 @@ declare(strict_types=1);
 namespace {
 
     use PentagonalProject\App\Rest\Record\Arguments;
-    use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Record\AppFacade;
 
     /**
      * @var $this Arguments
-     * @var Facade $facade
+     * @var AppFacade $facade
      */
     $facade = $this[1];
     $facadeAccessor = $facade

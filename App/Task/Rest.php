@@ -29,13 +29,13 @@ declare(strict_types=1);
 
 namespace {
 
-    use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Record\AppFacade;
     use Slim\App;
 
     /**
-     * @var Facade $this
+     * @var AppFacade $this
      */
-    if (!isset($this[1]) || ! $this[1] instanceof Facade) {
+    if (!isset($this[1]) || ! $this[1] instanceof AppFacade) {
         return;
     }
 
@@ -51,7 +51,7 @@ namespace {
         /**
          * @return App
          */
-        Facade::includeScope(
+        AppFacade::includeScope(
             __DIR__ . '/Util/AppCreator.php',
             // facade
             $this[1]

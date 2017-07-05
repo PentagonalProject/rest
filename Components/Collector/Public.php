@@ -29,7 +29,9 @@ declare(strict_types=1);
 
 namespace {
 
+    use Illuminate\Database\Capsule\Manager;
     use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
+    use PentagonalProject\App\Rest\Util\Facade;
     use Slim\App;
 
     /**
@@ -38,4 +40,12 @@ namespace {
     ComposerLoaderPSR4::create([
         "PentagonalProject\\App\\Rest\\Component\\Model\\" => __DIR__ . "/../Models/",
     ]);
+
+
+    /**
+     * @var Manager
+     */
+    $database = Facade::mixed()
+    print_r($database);
+    exit;
 }

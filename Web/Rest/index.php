@@ -29,19 +29,19 @@ declare(strict_types=1);
 
 namespace {
 
-    use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Record\AppFacade;
 
     require_once __DIR__ . '/../../App/Bootstrap.php';
     /**
-     * Facade Scope Returning @uses \Slim\App
+     * AppFacade Scope Returning @uses \Slim\App
      */
-    return Facade::includeScope(
+    return AppFacade::includeScope(
         __DIR__ . '/../../App/Task/Rest.php',
-        Facade::register('rest')
+        AppFacade::register('rest')
             ->setArgument(
                 'config',
                 // add array config
-                Facade::includeScope(__DIR__ . '/../../Configuration.php')
+                AppFacade::includeScope(__DIR__ . '/../../Configuration.php')
             )
     )->run();
 }

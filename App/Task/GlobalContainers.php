@@ -29,13 +29,13 @@ declare(strict_types=1);
 
 namespace {
 
-    use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Record\AppFacade;
     use Slim\Container;
 
     /**
-     * @var Facade $this
+     * @var AppFacade $this
      */
-    if (!isset($this[1]) || ! $this[1] instanceof Facade) {
+    if (!isset($this[1]) || ! $this[1] instanceof AppFacade) {
         return;
     }
 
@@ -43,14 +43,14 @@ namespace {
      * Container Lists
      */
     $container = [
-        'settings'    => Facade::includeScope(__DIR__ . '/Util/ConfigurationSanity.php', $this[1]),
-        'config'      => Facade::includeScope(__DIR__ . '/Containers/Global/Config.php'),
-        'hook'        => Facade::includeScope(__DIR__ . '/Containers/Global/Hook.php'),
-        'environment' => Facade::includeScope(__DIR__ . '/Containers/Global/Environment.php'),
-        'database'    => Facade::includeScope(__DIR__ . '/Containers/Global/Database.php'),
-        'notAllowedHandler' => Facade::includeScope(__DIR__ . '/Containers/Global/NotAllowedHandler.php'),
-        'notFoundHandler'   => Facade::includeScope(__DIR__ . '/Containers/Global/NotFoundHandler.php'),
-        'phpErrorHandler'   => Facade::includeScope(__DIR__ . '/Containers/Global/PhpErrorHandler.php'),
+        'settings'    => AppFacade::includeScope(__DIR__ . '/Util/ConfigurationSanity.php', $this[1]),
+        'config'      => AppFacade::includeScope(__DIR__ . '/Containers/Global/Config.php'),
+        'hook'        => AppFacade::includeScope(__DIR__ . '/Containers/Global/Hook.php'),
+        'environment' => AppFacade::includeScope(__DIR__ . '/Containers/Global/Environment.php'),
+        'database'    => AppFacade::includeScope(__DIR__ . '/Containers/Global/Database.php'),
+        'notAllowedHandler' => AppFacade::includeScope(__DIR__ . '/Containers/Global/NotAllowedHandler.php'),
+        'notFoundHandler'   => AppFacade::includeScope(__DIR__ . '/Containers/Global/NotFoundHandler.php'),
+        'phpErrorHandler'   => AppFacade::includeScope(__DIR__ . '/Containers/Global/PhpErrorHandler.php'),
     ];
 
     return new Container($container);

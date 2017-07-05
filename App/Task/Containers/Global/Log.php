@@ -32,7 +32,7 @@ namespace {
     use Illuminate\Support\Facades\Config;
     use Monolog\Handler\StreamHandler;
     use Monolog\Logger;
-    use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Record\AppFacade;
     use PentagonalProject\App\Rest\Util\Sanitizer;
     use PentagonalProject\App\Rest\Util\Validator;
     use Psr\Container\ContainerInterface;
@@ -42,7 +42,7 @@ namespace {
      * @return Logger
      */
     return function (ContainerInterface $container) : Logger {
-        $logger = new Logger(Facade::current()->getName());
+        $logger = new Logger(AppFacade::current()->getName());
         /**
          * @var Config $config
          */

@@ -32,19 +32,19 @@ declare(strict_types=1);
  */
 namespace {
 
-    use PentagonalProject\App\Rest\Record\Facade;
+    use PentagonalProject\App\Rest\Record\AppFacade;
     use PentagonalProject\App\Rest\Util\Sanitizer;
     use PentagonalProject\App\Rest\Util\Validator;
 
     /**
-     * @var Facade $this
+     * @var AppFacade $this
      */
-    if (!isset($this[1]) || ! $this[1] instanceof Facade) {
+    if (!isset($this[1]) || ! $this[1] instanceof AppFacade) {
         return;
     }
 
     /**
-     * @var Facade $facade
+     * @var AppFacade $facade
      */
     $facade = $this[1];
     /**

@@ -108,21 +108,21 @@ class ModularCollection implements Countable, ArrayAccess
     /**
      * @var ModularParser
      */
-    protected $modularReader;
+    protected $modularParser;
 
     /**
      * ModularCollection constructor.
      * @param string $modularDirectory
-     * @param ModularParser $modularReader
+     * @param ModularParser $modularParser
      */
-    public function __construct(string $modularDirectory, ModularParser $modularReader)
+    public function __construct(string $modularDirectory, ModularParser $modularParser)
     {
-        $this->modularReader = $modularReader;
+        $this->modularParser = $modularParser;
         if (!is_dir($modularDirectory) || ! is_readable($modularDirectory)) {
             throw new RuntimeException(
                 sprintf(
                     'Invalid %s Directory. %s directory not exists or has not readable by system!',
-                    $this->modularReader->getName()
+                    $this->modularParser->getName()
                 ),
                 E_COMPILE_ERROR
             );
@@ -133,7 +133,7 @@ class ModularCollection implements Countable, ArrayAccess
             throw new RuntimeException(
                 sprintf(
                     'Invalid %s Directory. %s directory could not as a symlink!',
-                    $this->modularReader->getName()
+                    $this->modularParser->getName()
                 ),
                 E_COMPILE_ERROR
             );
@@ -194,7 +194,7 @@ class ModularCollection implements Countable, ArrayAccess
                     $file,
                     sprintf(
                         '%1$s file for %2$s has not found',
-                        $this->modularReader->getName(),
+                        $this->modularParser->getName(),
                         $baseName
                     )
                 );
@@ -204,14 +204,14 @@ class ModularCollection implements Countable, ArrayAccess
 
             try {
                 $modular = $this
-                    ->modularReader
+                    ->modularParser
                     ->create($file)
                     ->process();
                 if (! $modular->isValid()) {
                     throw new InvalidModularException(
                         sprintf(
                             '%1$s Is not valid.',
-                            $this->modularReader->getName()
+                            $this->modularParser->getName()
                         )
                     );
                 }
@@ -323,7 +323,7 @@ class ModularCollection implements Countable, ArrayAccess
             throw new InvalidModularException(
                 sprintf(
                     '%1$s %2$s has not found',
-                    $this->modularReader->getName(),
+                    $this->modularParser->getName(),
                     $name
                 )
             );
@@ -340,14 +340,14 @@ class ModularCollection implements Countable, ArrayAccess
                 throw new InvalidModularException(
                     sprintf(
                         '%1$s %2$s has not found',
-                        $this->modularReader->getName(),
+                        $this->modularParser->getName(),
                         $name
                     )
                 );
             }
 
             $modular = new $className(
-                $this->modularReader->getContainer()
+                $this->modularParser->getContainer()
             );
 
             $this->validModular[$modularName] = $modular;
@@ -358,7 +358,7 @@ class ModularCollection implements Countable, ArrayAccess
             $e = new InvalidModularException(
                 sprintf(
                     '%1$s %2$s Is not valid.',
-                    $this->modularReader->getName(),
+                    $this->modularParser->getName(),
                     $name
                 )
             );

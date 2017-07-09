@@ -25,34 +25,23 @@
  * @author pentagonal <org@pentagonal.org>
  */
 
-declare(strict_types=1);
-
 namespace {
 
-    use PentagonalProject\App\Rest\Record\AppFacade;
-    use Slim\Container;
+    use PentagonalProject\App\Rest\Record\ModularCollection;
+    use PentagonalProject\App\Rest\Util\ModularParser;
+    use Psr\Container\ContainerInterface;
 
     /**
-     * @var AppFacade $this
+     * @param ContainerInterface $container
+     * @return ModularCollection
      */
-    if (!isset($this[1]) || ! $this[1] instanceof AppFacade) {
-        return;
-    }
+    return function (ContainerInterface $container) {
 
-    /**
-     * Container Lists
-     */
-    $container = [
-        'settings'    => AppFacade::includeScope(__DIR__ . '/Util/ConfigurationSanity.php', $this[1]),
-        'config'      => AppFacade::includeScope(__DIR__ . '/Containers/Global/Config.php'),
-        'hook'        => AppFacade::includeScope(__DIR__ . '/Containers/Global/Hook.php'),
-        'environment' => AppFacade::includeScope(__DIR__ . '/Containers/Global/Environment.php'),
-        'database'    => AppFacade::includeScope(__DIR__ . '/Containers/Global/Database.php'),
-        'notAllowedHandler' => AppFacade::includeScope(__DIR__ . '/Containers/Global/NotAllowedHandler.php'),
-        'notFoundHandler'   => AppFacade::includeScope(__DIR__ . '/Containers/Global/NotFoundHandler.php'),
-        'phpErrorHandler'   => AppFacade::includeScope(__DIR__ . '/Containers/Global/PhpErrorHandler.php'),
-        'module'     => AppFacade::includeScope(__DIR__. '/Containers/Global/Module.php'),
-    ];
-
-    return new Container($container);
+        return new ModularCollection(
+            $container['config']['directory[module]'],
+            (new class extends ModularParser {
+                protected $modularClass = __CLASS__;
+            })($container)
+        );
+    };
 }

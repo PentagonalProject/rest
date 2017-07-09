@@ -27,32 +27,67 @@
 
 declare(strict_types=1);
 
-namespace {
+namespace PentagonalProject\Modules\Recipicious;
 
-    use PentagonalProject\App\Rest\Record\AppFacade;
-    use Slim\Container;
+use PentagonalProject\App\Rest\Abstracts\ModularAbstract;
+use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
+use PentagonalProject\Modules\Recipicious\Task\MainWorker;
+
+/**
+ * Class Recipicious
+ * @package PentagonalProject\Modules\Recipicious
+ */
+class Recipicious extends ModularAbstract
+{
+    /**
+     * @var string
+     */
+    protected $modular_name = 'Recipicious';
 
     /**
-     * @var AppFacade $this
+     * @var string
      */
-    if (!isset($this[1]) || ! $this[1] instanceof AppFacade) {
-        return;
+    protected $modular_description = 'Recipicious Module for Recipes!';
+
+    /**
+     * @var string
+     */
+    protected $modular_uri = 'https://www.pentagonal.org';
+
+    /**
+     * @var string
+     */
+    protected $modular_author = 'Pentagonal Development';
+
+    /**
+     * @var string
+     */
+    protected $modular_version = '1.0.0';
+
+    /**
+     * @var MainWorker
+     */
+    protected $worker;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function init()
+    {
+        // register AutoLoader
+        ComposerLoaderPSR4::create([
+            __NAMESPACE__  => __DIR__
+        ]);
+
+        $this->worker = new MainWorker($this);
+        $this->worker->run();
     }
 
     /**
-     * Container Lists
+     * @return MainWorker
      */
-    $container = [
-        'settings'    => AppFacade::includeScope(__DIR__ . '/Util/ConfigurationSanity.php', $this[1]),
-        'config'      => AppFacade::includeScope(__DIR__ . '/Containers/Global/Config.php'),
-        'hook'        => AppFacade::includeScope(__DIR__ . '/Containers/Global/Hook.php'),
-        'environment' => AppFacade::includeScope(__DIR__ . '/Containers/Global/Environment.php'),
-        'database'    => AppFacade::includeScope(__DIR__ . '/Containers/Global/Database.php'),
-        'notAllowedHandler' => AppFacade::includeScope(__DIR__ . '/Containers/Global/NotAllowedHandler.php'),
-        'notFoundHandler'   => AppFacade::includeScope(__DIR__ . '/Containers/Global/NotFoundHandler.php'),
-        'phpErrorHandler'   => AppFacade::includeScope(__DIR__ . '/Containers/Global/PhpErrorHandler.php'),
-        'module'     => AppFacade::includeScope(__DIR__. '/Containers/Global/Module.php'),
-    ];
-
-    return new Container($container);
+    public function getWorker()
+    {
+        return $this->worker;
+    }
 }

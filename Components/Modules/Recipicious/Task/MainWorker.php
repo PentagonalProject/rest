@@ -27,32 +27,45 @@
 
 declare(strict_types=1);
 
-namespace {
+namespace PentagonalProject\Modules\Recipicious\Task;
 
-    use PentagonalProject\App\Rest\Record\AppFacade;
-    use Slim\Container;
+use PentagonalProject\Modules\Recipicious\Recipicious;
+
+/**
+ * Class MainWorker
+ * @package PentagonalProject\Modules\Recipicious\Task
+ */
+class MainWorker
+{
+    /**
+     * @var Recipicious
+     */
+    protected $facade;
 
     /**
-     * @var AppFacade $this
+     * @var bool
      */
-    if (!isset($this[1]) || ! $this[1] instanceof AppFacade) {
-        return;
+    protected $hasRun = false;
+
+    /**
+     * MainWorker constructor.
+     * @param Recipicious $recipicious
+     */
+    public function __construct(Recipicious &$recipicious)
+    {
+        $this->facade = $recipicious;
     }
 
     /**
-     * Container Lists
+     * @return MainWorker
      */
-    $container = [
-        'settings'    => AppFacade::includeScope(__DIR__ . '/Util/ConfigurationSanity.php', $this[1]),
-        'config'      => AppFacade::includeScope(__DIR__ . '/Containers/Global/Config.php'),
-        'hook'        => AppFacade::includeScope(__DIR__ . '/Containers/Global/Hook.php'),
-        'environment' => AppFacade::includeScope(__DIR__ . '/Containers/Global/Environment.php'),
-        'database'    => AppFacade::includeScope(__DIR__ . '/Containers/Global/Database.php'),
-        'notAllowedHandler' => AppFacade::includeScope(__DIR__ . '/Containers/Global/NotAllowedHandler.php'),
-        'notFoundHandler'   => AppFacade::includeScope(__DIR__ . '/Containers/Global/NotFoundHandler.php'),
-        'phpErrorHandler'   => AppFacade::includeScope(__DIR__ . '/Containers/Global/PhpErrorHandler.php'),
-        'module'     => AppFacade::includeScope(__DIR__. '/Containers/Global/Module.php'),
-    ];
+    public function run()
+    {
+        if ($this->hasRun) {
+            return $this;
+        }
 
-    return new Container($container);
+        $this->hasRun = true;
+        return $this;
+    }
 }

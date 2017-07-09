@@ -76,6 +76,9 @@ namespace {
      * Fix Each Path Directory
      */
     foreach ($config['directory'] as $key => $value) {
+        if (!is_string($value)) {
+            continue;
+        }
         if (Validator::isAbsolutePath($value)) {
             if (realpath($value) != $value) {
                 $value = Sanitizer::normalizePath(realpath($value)?: $value);
@@ -90,6 +93,13 @@ namespace {
         }
 
         $config['directory'][$key] = rtrim($value, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    }
+
+    if (empty($config['directory']['module'])) {
+        $config['directory']['module'] = Sanitizer::normalizePath(__DIR__ . '/../../../Components/Modules/');
+    }
+    if (empty($config['directory']['storage'])) {
+        $config['directory']['storage'] = Sanitizer::normalizePath(__DIR__ . '/../../../Storage/');
     }
 
     /**

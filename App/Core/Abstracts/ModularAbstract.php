@@ -83,8 +83,9 @@ abstract class ModularAbstract implements ModularInterface
 
     /**
      * @var ContainerInterface
+     * @final
      */
-    protected $modular_container;
+    private $modular_container;
 
     /**
      * @var ReflectionClass
@@ -107,7 +108,7 @@ abstract class ModularAbstract implements ModularInterface
      *
      * @return ContainerInterface
      */
-    final public function getContainer()
+    final public function getContainer() : ContainerInterface
     {
         return $this->modular_container;
     }

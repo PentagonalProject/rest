@@ -33,8 +33,8 @@
  */
 return [
     'directory' => [
-        'storage'   => __DIR__ . '/../../Storage/',
-        'module'    => __DIR__ . '/../../App/Modules/',
+        'storage'   => __DIR__ . '/Storage/',
+        'module'    => __DIR__ . '/Components/Modules/',
         'extension' => dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Extensions',
     ],
     'database' => [

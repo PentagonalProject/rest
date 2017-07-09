@@ -27,11 +27,11 @@
 
 declare(strict_types=1);
 
-namespace PentagonalProject\Modules\Recipicious\Libs;
+namespace PentagonalProject\Modules\Recipicious\Lib;
 
 /**
  * Class Api
- * @package PentagonalProject\Modules\Recipicious\Libs
+ * @package PentagonalProject\Modules\Recipicious\Lib
  */
 class Api
 {

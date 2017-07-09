@@ -27,45 +27,32 @@
 
 declare(strict_types=1);
 
-namespace PentagonalProject\Modules\Recipicious\Task;
+namespace PentagonalProject\Model\Database;
 
-use PentagonalProject\Modules\Recipicious\Recipicious;
+use PentagonalProject\Model\DatabaseBaseModel;
 
 /**
- * Class MainWorker
- * @package PentagonalProject\Modules\Recipicious\Task
+ * Class User
+ * @package PentagonalProject\Model\Database
  */
-class MainWorker
+class User extends DatabaseBaseModel
 {
     /**
-     * @var Recipicious
+     * @var string
      */
-    protected $facade;
+    protected $primaryKey = 'id';
 
     /**
-     * @var bool
+     * @var string
      */
-    protected $hasRun = false;
+    protected $table = 'user';
 
     /**
-     * MainWorker constructor.
-     * @param Recipicious $recipicious
+     * User constructor.
+     * @param array $attributes
      */
-    public function __construct(Recipicious &$recipicious)
+    public function __construct(array $attributes = [])
     {
-        $this->facade = $recipicious;
-    }
-
-    /**
-     * @return MainWorker
-     */
-    public function run()
-    {
-        if ($this->hasRun) {
-            return $this;
-        }
-
-        $this->hasRun = true;
-        return $this;
+        parent::__construct($attributes);
     }
 }

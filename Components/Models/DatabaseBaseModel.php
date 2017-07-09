@@ -27,69 +27,74 @@
 
 declare(strict_types=1);
 
-namespace PentagonalProject\Modules\Recipicious;
+namespace PentagonalProject\Model;
 
-use PentagonalProject\App\Rest\Abstracts\ModularAbstract;
-use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
-use PentagonalProject\Modules\Recipicious\Task\MainWorker;
+use Illuminate\Database\Eloquent\Model;
+use PentagonalProject\App\Rest\Util\Sanitizer;
 
 /**
- * Class Recipicious
- * @package PentagonalProject\Modules\Recipicious
+ * Sanitize Per Execution Standard SQL as Serialized String if contains of non serialized
+ *
+ * Class DatabaseBaseModel
+ * @package PentagonalProject\Model
  */
-class Recipicious extends ModularAbstract
+class DatabaseBaseModel extends Model
 {
     /**
-     * @var string
+     * @param mixed $values
+     * @return mixed
      */
-    protected $modular_name = 'Recipicious';
+    public function resolveResult($values)
+    {
+        return Sanitizer::maybeUnSerialize($values);
+    }
 
     /**
-     * @var string
+     * @param mixed $values
+     * @return mixed
      */
-    protected $modular_description = 'Recipicious Module for Recipes!';
-
-    /**
-     * @var string
-     */
-    protected $modular_uri = 'https://www.pentagonal.org';
-
-    /**
-     * @var string
-     */
-    protected $modular_author = 'Pentagonal Development';
-
-    /**
-     * @var string
-     */
-    protected $modular_version = '1.0.0';
-
-    /**
-     * @var MainWorker
-     */
-    protected $worker;
+    public function resolveSet($values)
+    {
+        return Sanitizer::maybeSerialize($values);
+    }
 
     /**
      * {@inheritdoc}
      */
-    public function init()
+    public function offsetGet($offset)
     {
-        // register AutoLoader
-        ComposerLoaderPSR4::create([
-            __NAMESPACE__ .'\\Task\\'  => __DIR__ .'/Tasks/',
-            __NAMESPACE__ .'\\Lib\\'  => __DIR__ .'/Libs/',
-            __NAMESPACE__ .'\\Model\\'  => __DIR__ .'/Models/',
-        ]);
-
-        $this->worker = new MainWorker($this);
-        $this->worker->run();
+        return $this->resolveResult(parent::offsetGet($offset));
     }
 
     /**
-     * @return MainWorker
+     * {@inheritdoc}
      */
-    public function getWorker()
+    public function offsetSet($offset, $value)
     {
-        return $this->worker;
+        parent::offsetSet($offset, $this->resolveSet($value));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setAttribute($key, $value)
+    {
+        parent::__set($key, $this->resolveResult($value));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAttribute($key)
+    {
+        return $this->resolveResult(parent::getAttribute($key));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __get($key)
+    {
+        return $this->resolveResult(parent::__get($key));
     }
 }

@@ -27,15 +27,47 @@
 
 declare(strict_types=1);
 
-namespace {
+namespace PentagonalProject\Model\Database;
 
-    use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
-    use Slim\App;
+use Illuminate\Database\Eloquent\Collection;
+use PentagonalProject\Model\DatabaseBaseModel;
+
+/**
+ * Class Option
+ * @package PentagonalProject\Model\Database
+ */
+class Option extends DatabaseBaseModel
+{
+    /**
+     * @var string
+     */
+    protected $primaryKey = 'option_name';
 
     /**
-     * @var App $this
+     * @var string
      */
-    ComposerLoaderPSR4::create([
-        "PentagonalProject\\Model\\" => __DIR__ . "/../Models/",
-    ]);
+    protected $keyType = 'string';
+
+    /**
+     * @var string
+     */
+    protected $table = 'option';
+
+    /**
+     * @param string $name
+     * @param mixed $default
+     * @return mixed
+     */
+    public static function get(string $name, $default = null)
+    {
+        /**
+         * @var Collection $model
+         */
+        $model = parent::find($name);
+        if (!$model) {
+            return $default;
+        }
+
+        return parent::resolveResult($model->get('options_value', $default));
+    }
 }

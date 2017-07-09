@@ -27,15 +27,45 @@
 
 declare(strict_types=1);
 
-namespace {
+namespace PentagonalProject\Modules\Recipicious\Task;
 
-    use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
-    use Slim\App;
+use PentagonalProject\Modules\Recipicious\Recipicious;
+
+/**
+ * Class MainWorker
+ * @package PentagonalProject\Modules\Recipicious\Tasks
+ */
+class MainWorker
+{
+    /**
+     * @var Recipicious
+     */
+    protected $facade;
 
     /**
-     * @var App $this
+     * @var bool
      */
-    ComposerLoaderPSR4::create([
-        "PentagonalProject\\Model\\" => __DIR__ . "/../Models/",
-    ]);
+    protected $hasRun = false;
+
+    /**
+     * MainWorker constructor.
+     * @param Recipicious $module
+     */
+    public function __construct(Recipicious &$module)
+    {
+        $this->facade = $module;
+    }
+
+    /**
+     * @return MainWorker
+     */
+    public function run()
+    {
+        if ($this->hasRun) {
+            return $this;
+        }
+
+        $this->hasRun = true;
+        return $this;
+    }
 }

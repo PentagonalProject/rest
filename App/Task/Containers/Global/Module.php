@@ -39,9 +39,9 @@ namespace {
 
         return new ModularCollection(
             $container['config']['directory[module]'],
-            (new class extends ModularParser {
+            new class($container) extends ModularParser {
                 protected $modularClass = __CLASS__;
-            })($container)
+            }
         );
     };
 }

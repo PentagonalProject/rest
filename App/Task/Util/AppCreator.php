@@ -49,7 +49,7 @@ namespace {
      * Instant App
      */
     // register Default App
-    $facadeAccessor['app'] = function() use (&$facadeAccessor) {
+    $facadeAccessor['app'] = function () use (&$facadeAccessor) {
         return $facadeAccessor->getApp();
     };
 

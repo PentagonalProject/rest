@@ -15,7 +15,7 @@ namespace {
     /**
      * Middle ware to register Module persistent
      */
-    $this->add(function(ServerRequestInterface $request, ResponseInterface $response, $next) {
+    $this->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
         /**
          * @var ModularCollection $Modular
          */

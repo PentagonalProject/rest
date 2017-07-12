@@ -37,5 +37,8 @@ namespace {
      */
     ComposerLoaderPSR4::create([
         "PentagonalProject\\Model\\" => __DIR__ . "/../Models/",
-    ]);
+    ])->register();
+
+    // Require Common Middleware
+    require_once __DIR__ . '/../Middlewares/CommonMiddleware.php';
 }

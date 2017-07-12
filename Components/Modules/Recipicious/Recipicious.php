@@ -71,15 +71,17 @@ class Recipicious extends ModularAbstract
 
     /**
      * {@inheritdoc}
+     * @see MainWorker::run()
      */
     public function init()
     {
         // register AutoLoader
+        // and run it
         ComposerLoaderPSR4::create([
             __NAMESPACE__ .'\\Task\\'  => __DIR__ .'/Tasks/',
             __NAMESPACE__ .'\\Lib\\'  => __DIR__ .'/Libs/',
             __NAMESPACE__ .'\\Model\\'  => __DIR__ .'/Models/',
-        ]);
+        ])->register();
 
         $this->worker = new MainWorker($this);
         $this->worker->run();

@@ -347,7 +347,8 @@ class ModularCollection implements Countable, ArrayAccess
             }
 
             $modular = new $className(
-                $this->modularParser->getContainer()
+                $this->modularParser->getContainer(),
+                $modularName
             );
 
             $this->validModular[$modularName] = $modular;
@@ -376,7 +377,7 @@ class ModularCollection implements Countable, ArrayAccess
      * @param string $modularName
      * @return Collection
      */
-    public function getModularInfo(string $modularName)
+    public function getModularInformation(string $modularName)
     {
         return new Collection($this->internalGetModular($modularName)->getModularInfo());
     }
@@ -390,7 +391,7 @@ class ModularCollection implements Countable, ArrayAccess
     {
         $modularInfo = new Collection();
         foreach ($this->getAllValidModular() as $modularName => $modular) {
-            $modularInfo[$modularName] = $this->getModularInfo($modularName);
+            $modularInfo[$modularName] = $this->getModularInformation($modularName);
         }
 
         return $modularInfo;

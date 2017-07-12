@@ -40,6 +40,11 @@ use ReflectionClass;
 abstract class ModularAbstract implements ModularInterface
 {
     /**
+     * @var string
+     */
+    private $module_name_selector;
+
+    /**
      * Modular Name
      *
      * @var string
@@ -95,12 +100,24 @@ abstract class ModularAbstract implements ModularInterface
     /**
      * Modular constructor.
      * @param ContainerInterface $container
+     * @param string $moduleNameSelector
      * @final as prevent to inheritance
      */
-    final public function __construct(ContainerInterface $container)
+    final public function __construct(ContainerInterface $container, string  $moduleNameSelector)
     {
         $this->modular_container = $container;
+        $this->module_name_selector = $moduleNameSelector;
         $this->getModularName();
+    }
+
+    /**
+     * Get Selector Of Module
+     *
+     * @return string
+     */
+    final public function getModularNameSelector() : string
+    {
+        return $this->module_name_selector;
     }
 
     /**
@@ -129,6 +146,7 @@ abstract class ModularAbstract implements ModularInterface
             static::DESCRIPTION => $this->getModularDescription(),
             static::CLASS_NAME  => get_class($this),
             static::FILE_PATH   => $this->getModularRealPath(),
+            static::SELECTOR    => $this->getModularNameSelector(),
         ];
     }
 

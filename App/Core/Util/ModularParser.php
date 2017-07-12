@@ -313,6 +313,11 @@ class ModularParser
             );
         }
 
+        // remove declarations
+        if (stripos($content, 'declare') !== false) {
+            $content = preg_replace('`declare\s*\([^\)]+\)\s*\;\s*`smi', '$1', $content);
+        }
+
         $namespace = '\\';
         if (preg_match('/\<\?php\s+namespace\s+(?P<namespace>[^;\{]+)/ms', $content, $nameSpaces)
             && !empty($nameSpaces['namespace'])
@@ -356,11 +361,6 @@ class ModularParser
         if (!$alias && isset($asAlias['extended'])) {
             $asAlias['extended'] = explode('\\', $asAlias['extended']);
             $alias = end($asAlias['extended']);
-        }
-
-        // remove declarations
-        if (stripos($content, 'declare') !== false) {
-            $content = preg_replace('`declare\s*\([^\)]+\)\s*\;\s*`smi', '', $content);
         }
 
         // replace for unused text
@@ -416,7 +416,6 @@ class ModularParser
         $class = $class['class'];
         $namespace = rtrim($namespace, '\\');
         $class = "{$namespace}\\{$class}";
-
         // prevent multiple include file if class has been loaded
         if (class_exists($class)) {
             throw new InvalidModularException(
@@ -453,6 +452,7 @@ class ModularParser
         if (ob_get_length()) {
             @ob_end_clean();
         }
+
         if (!class_exists($class)) {
             throw new InvalidModularException(
                 sprintf(
@@ -463,6 +463,7 @@ class ModularParser
                 E_ERROR
             );
         }
+
         if (! method_exists($class, 'init')) {
             throw new InvalidModularException(
                 sprintf(

@@ -35,6 +35,7 @@ namespace PentagonalProject\App\Rest\Interfaces;
  */
 interface ModularInterface
 {
+    const SELECTOR    = 'module_selector';
     const NAME        = 'name';
     const VERSION     = 'version';
     const AUTHOR      = 'author';
@@ -43,6 +44,13 @@ interface ModularInterface
     const DESCRIPTION = 'description';
     const CLASS_NAME  = 'class_name';
     const FILE_PATH   = 'file_path';
+
+    /**
+     * Get Module Selector Name
+     *
+     * @return string
+     */
+    public function getModularNameSelector() : string;
 
     /**
      * Get Modular Info

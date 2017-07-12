@@ -37,11 +37,9 @@ namespace {
      */
     return function (ContainerInterface $container) {
 
-        return new ModularCollection(
+        return (new ModularCollection(
             $container['config']['directory[module]'],
-            new class($container) extends ModularParser {
-                protected $modularClass = __CLASS__;
-            }
-        );
+            new ModularParser($container)
+        ))->scan();
     };
 }

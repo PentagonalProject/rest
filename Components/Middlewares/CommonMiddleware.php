@@ -4,7 +4,6 @@ namespace {
     use Illuminate\Database\Capsule\Manager;
     use PentagonalProject\App\Rest\Record\AppFacade;
     use PentagonalProject\App\Rest\Record\ModularCollection;
-    use PentagonalProject\Model\Database\User;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;

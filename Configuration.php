@@ -40,13 +40,13 @@ return [
     'database' => [
         'driver'    => 'mysql',
         'host'      => 'localhost',
+        'port'      => 3306,
         'database'  => 'new',  // example database
         'username'  => 'root', // example database user
         'password'  => 'mysql',// example database user password
         'charset'   => 'utf8',
         'collation' => 'utf8_unicode_ci',
-        'prefix'    => 'db_',
-        'port'     => 3306,
+        'prefix'    => '',
     ],
     'cache'      => [
         // driver name

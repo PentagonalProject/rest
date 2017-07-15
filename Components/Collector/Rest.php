@@ -29,7 +29,11 @@ declare(strict_types=1);
 
 namespace {
 
+    use PentagonalProject\App\Rest\Generator\Response\Json;
     use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
+    use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
+    use Psr\Http\Message\ResponseInterface;
+    use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;
 
     /**
@@ -41,4 +45,11 @@ namespace {
 
     // Require Common Middleware
     require_once __DIR__ . '/../Middlewares/CommonMiddleware.php';
+
+    $this->get('/recipes', function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseBuilder = Json::generate($request, $response);
+        $responseBuilder->setData(Recipe::all());
+        $response = $responseBuilder->serve();
+        return $response;
+    });
 }

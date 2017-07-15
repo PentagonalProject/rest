@@ -41,7 +41,7 @@ return [
         'driver'    => 'mysql',
         'host'      => 'localhost',
         'port'      => 3306,
-        'database'  => 'new',  // example database
+        'database'  => 'recipicious',  // example database
         'username'  => 'root', // example database user
         'password'  => 'mysql',// example database user password
         'charset'   => 'utf8',

@@ -211,7 +211,7 @@ abstract class ResponseGeneratorAbstract
     }
 
     /**
-     * Set Data
+     * Set the response body data
      *
      * @param mixed $data
      * @return ResponseGeneratorAbstract
@@ -450,7 +450,7 @@ abstract class ResponseGeneratorAbstract
     }
 
     /**
-     * Generate
+     * Generate new response
      *
      * @param RequestInterface $request
      * @param ResponseInterface $response

@@ -37,22 +37,4 @@ use PentagonalProject\Model\DatabaseBaseModel;
  */
 class User extends DatabaseBaseModel
 {
-    /**
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * @var string
-     */
-    protected $table = 'user';
-
-    /**
-     * User constructor.
-     * @param array $attributes
-     */
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-    }
 }

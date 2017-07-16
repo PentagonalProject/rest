@@ -32,9 +32,12 @@ namespace {
     use PentagonalProject\App\Rest\Generator\Response\Json;
     use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
     use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
+    use Psr\Container\ContainerInterface;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;
+    use Slim\Http\Response;
+    use Slim\Route;
 
     /**
      * @var App $this
@@ -46,10 +49,36 @@ namespace {
     // Require Common Middleware
     require_once __DIR__ . '/../Middlewares/CommonMiddleware.php';
 
-    $this->get('/recipes', function (ServerRequestInterface $request, ResponseInterface $response) {
-        $responseBuilder = Json::generate($request, $response);
-        $responseBuilder->setData(Recipe::all());
-        $response = $responseBuilder->serve();
-        return $response;
-    });
+    $this->get('/recipes[/[{page: [0-9]+}[/]]]', function (ServerRequestInterface $request, ResponseInterface $response, $params = []) {
+        /**
+         * @var Response $response
+         * @var ContainerInterface $this
+         * @var Route $route
+         */
+        $route = $request->getAttribute('route');
+        $route->getArgument('arg1', 'default'); // << use route to get Argument and get default set
+
+        // get page param & get default
+        if (($page = (int) $request->getAttribute('page', 1)) < 1) {
+            return $response->withRedirect('/recipes');
+        }
+
+        return Json::generate($request, $response)
+            ->setData(
+                [
+                    'status' => 200,
+                    'response' => Recipe::filterByPage(
+                        Recipe::where('user_id', '!=',  'null'),
+                        $page
+                    )
+                ]
+            )
+            ->serve(true);
+    })
+        // set argument for route
+        ->setName('recipe:get ')
+        ->setArgument('arg1', 'arg1')
+        ->setArguments([
+            'arg2' => 'arg2'
+        ]);
 }

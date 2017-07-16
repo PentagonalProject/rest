@@ -29,7 +29,9 @@ declare(strict_types=1);
 
 namespace PentagonalProject\Modules\Recipicious\Model\Database;
 
+use Illuminate\Database\Eloquent\Builder;
 use PentagonalProject\Model\DatabaseBaseModel;
+use stdClass;
 
 /**
  * Class Recipe
@@ -37,4 +39,40 @@ use PentagonalProject\Model\DatabaseBaseModel;
  */
 class Recipe extends DatabaseBaseModel
 {
+    /**
+     * {@inheritdoc}
+     * @var string
+     */
+    protected $primaryKey = 'user_id';
+
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+        'instructions',
+        'user_id'
+    ];
+
+    /**
+     * Example Limiting Page On Result
+     *
+     * @param Builder $builder
+     * @param int $page
+     * @param int $limit
+     * @return stdClass
+     */
+    public static function filterByPage(Builder $builder, int $page = 1, int $limit = 10) : stdClass
+    {
+        $results = new stdClass;
+        $results->itemCount  = 0;
+        $results->totalItems   = $builder->count();
+        $results->currentPage  = $page;
+        $results->perPage      = $limit;
+        $results->totalPage    = (int) ceil($results->totalItems / $limit);
+        $results->items        = $builder->skip($limit * ($page - 1))->take($limit)->get()->all();
+        $results->itemCount   = count($results->items);
+
+        return $results;
+    }
 }

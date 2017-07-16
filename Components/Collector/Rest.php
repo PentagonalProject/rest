@@ -49,7 +49,8 @@ namespace {
     // Require Common Middleware
     require_once __DIR__ . '/../Middlewares/CommonMiddleware.php';
 
-    $this->get('/recipes[/[{page: [0-9]+}[/]]]',
+    $this->get(
+        '/recipes[/[{page: [0-9]+}[/]]]',
         function (ServerRequestInterface $request, ResponseInterface $response, $params = []) {
             /**
              * @var Response $response
@@ -75,7 +76,8 @@ namespace {
                     ]
                 )
                 ->serve(true);
-        })
+        }
+    )
         // set argument for route
         ->setName('recipe:get ')
         ->setArgument('arg1', 'arg1')

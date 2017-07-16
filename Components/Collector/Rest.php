@@ -49,32 +49,33 @@ namespace {
     // Require Common Middleware
     require_once __DIR__ . '/../Middlewares/CommonMiddleware.php';
 
-    $this->get('/recipes[/[{page: [0-9]+}[/]]]', function (ServerRequestInterface $request, ResponseInterface $response, $params = []) {
-        /**
-         * @var Response $response
-         * @var ContainerInterface $this
-         * @var Route $route
-         */
-        $route = $request->getAttribute('route');
-        $route->getArgument('arg1', 'default'); // << use route to get Argument and get default set
+    $this->get('/recipes[/[{page: [0-9]+}[/]]]',
+        function (ServerRequestInterface $request, ResponseInterface $response, $params = []) {
+            /**
+             * @var Response $response
+             * @var ContainerInterface $this
+             * @var Route $route
+             */
+            $route = $request->getAttribute('route');
+            $route->getArgument('arg1', 'default'); // << use route to get Argument and get default set
 
-        // get page param & get default
-        if (($page = (int) $request->getAttribute('page', 1)) < 1) {
-            return $response->withRedirect('/recipes');
-        }
+            // get page param & get default
+            if (($page = (int) $request->getAttribute('page', 1)) < 1) {
+                return $response->withRedirect('/recipes');
+            }
 
-        return Json::generate($request, $response)
-            ->setData(
-                [
-                    'status' => 200,
-                    'response' => Recipe::filterByPage(
-                        Recipe::where('user_id', '!=',  'null'),
-                        $page
-                    )
-                ]
-            )
-            ->serve(true);
-    })
+            return Json::generate($request, $response)
+                ->setData(
+                    [
+                        'status' => 200,
+                        'response' => Recipe::filterByPage(
+                            Recipe::where('user_id', '!=', 'null'),
+                            $page
+                        )
+                    ]
+                )
+                ->serve(true);
+        })
         // set argument for route
         ->setName('recipe:get ')
         ->setArgument('arg1', 'arg1')

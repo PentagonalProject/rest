@@ -424,9 +424,10 @@ abstract class ResponseGeneratorAbstract
      * Set Response Status
      *
      * @param int $status
-     * @return static
+     * @return ResponseGeneratorAbstract
+     * @throws \InvalidArgumentException
      */
-    public function setStatusCode($status)
+    public function setStatusCode($status) : ResponseGeneratorAbstract
     {
         if ($this->response->withStatus($status)->getReasonPhrase() == '') {
             throw new \InvalidArgumentException(
@@ -444,7 +445,7 @@ abstract class ResponseGeneratorAbstract
      *
      * @return int
      */
-    public function getStatusCode()
+    public function getStatusCode() : int
     {
         return $this->statusCode;
     }
@@ -454,9 +455,9 @@ abstract class ResponseGeneratorAbstract
      *
      * @param RequestInterface $request
      * @param ResponseInterface $response
-     * @return static
+     * @return ResponseGeneratorAbstract
      */
-    public static function generate(RequestInterface $request, ResponseInterface $response)
+    public static function generate(RequestInterface $request, ResponseInterface $response) : ResponseGeneratorAbstract
     {
         return new static($request, $response);
     }
@@ -501,9 +502,9 @@ abstract class ResponseGeneratorAbstract
      * Set Override Request
      *
      * @param RequestInterface $request
-     * @return static
+     * @return ResponseGeneratorAbstract
      */
-    public function setRequest(RequestInterface $request)
+    public function setRequest(RequestInterface $request) : ResponseGeneratorAbstract
     {
         $this->request = $request;
         return $this;

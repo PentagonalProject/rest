@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace PentagonalProject\Model;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use PentagonalProject\App\Rest\Util\Sanitizer;
 
@@ -60,41 +61,45 @@ class DatabaseBaseModel extends Model
 
     /**
      * {@inheritdoc}
+     * Perform UnSerialize
      */
-    public function offsetGet($offset)
+    public function setRawAttributes(array $attributes, $sync = false)
     {
-        return $this->resolveResult(parent::offsetGet($offset));
+        foreach ($attributes as $key => $value) {
+            $attributes[$key] = $this->resolveResult($value);
+        }
+
+        return parent::setRawAttributes($attributes, $sync);
     }
 
     /**
      * {@inheritdoc}
+     * Perform Serialize
      */
-    public function offsetSet($offset, $value)
+    public function getDirty()
     {
-        parent::offsetSet($offset, $this->resolveSet($value));
+        $dirty = parent::getDirty();
+        foreach ($dirty as $key => $value) {
+            $dirty[$key] = $this->resolveResult($value);
+        }
+
+        return $dirty;
     }
 
     /**
      * {@inheritdoc}
+     * Perform Serialize
      */
-    public function setAttribute($key, $value)
+    protected function performInsert(Builder $query)
     {
-        parent::__set($key, $this->resolveResult($value));
-    }
+        $attributes = $this->attributes;
+        foreach ($attributes as $key => $value) {
+            $this->attributes[$key] = $this->resolveSet($value);
+        }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAttribute($key)
-    {
-        return $this->resolveResult(parent::getAttribute($key));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __get($key)
-    {
-        return $this->resolveResult(parent::__get($key));
+        $return_value = parent::performInsert($query);
+        // re set attributes
+        $this->attributes = $attributes;
+        return $return_value;
     }
 }

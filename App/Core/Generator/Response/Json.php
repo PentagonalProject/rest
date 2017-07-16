@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace PentagonalProject\App\Rest\Generator\Response;
 
 use PentagonalProject\App\Rest\Abstracts\ResponseGeneratorAbstract;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -45,11 +46,16 @@ class Json extends ResponseGeneratorAbstract
 
     /**
      * {@inheritdoc}
+     * @param boolean $pretty to use Pretty Printed
      */
-    public function serve() : ResponseInterface
+    public function serve($pretty = false) : ResponseInterface
     {
         // set Mime Type Override
         $this->setMimeType('application/json');
+
+        if ($pretty) {
+            $this->setEncoding(JSON_PRETTY_PRINT);
+        }
 
         /**
          * @var ResponseInterface $response
@@ -80,5 +86,84 @@ class Json extends ResponseGeneratorAbstract
         }
 
         return $response;
+    }
+
+    /* ------------------------------------------------
+                ADDITIONAL FOR IDE COMPLETION
+      ------------------------------------------------ */
+
+    /**
+     * {@inheritdoc}
+     * @return Json|ResponseGeneratorAbstract
+     */
+    public static function generate(RequestInterface $request, ResponseInterface $response) : ResponseGeneratorAbstract
+    {
+        return parent::generate($request, $response);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return Json|ResponseGeneratorAbstract
+     */
+    public function setData($data) : ResponseGeneratorAbstract
+    {
+        return parent::setData($data);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return Json|ResponseGeneratorAbstract
+     */
+    public function setEncoding(int $encoding): ResponseGeneratorAbstract
+    {
+        return parent::setEncoding($encoding);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return Json|ResponseGeneratorAbstract
+     */
+    public function setCharset(string $charset = null) : ResponseGeneratorAbstract
+    {
+        if (!$charset) {
+            return $this;
+        }
+
+        return parent::setCharset($charset);
+    }
+    /**
+     * {@inheritdoc}
+     * @return Json|ResponseGeneratorAbstract
+     */
+    public function setMimeType(string $mimeType) : ResponseGeneratorAbstract
+    {
+        return parent::setMimeType($mimeType);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return Json|ResponseGeneratorAbstract
+     */
+    public function setStatusCode($status) : ResponseGeneratorAbstract
+    {
+        return parent::setStatusCode($status);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return Json|ResponseGeneratorAbstract
+     */
+    public function setRequest(RequestInterface $request): ResponseGeneratorAbstract
+    {
+        return parent::setRequest($request);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return Json|ResponseGeneratorAbstract
+     */
+    public function setResponse(ResponseInterface $response): ResponseGeneratorAbstract
+    {
+        return parent::setResponse($response);
     }
 }

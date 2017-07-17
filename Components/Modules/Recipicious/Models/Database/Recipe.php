@@ -40,12 +40,6 @@ use stdClass;
 class Recipe extends DatabaseBaseModel
 {
     /**
-     * {@inheritdoc}
-     * @var string
-     */
-    protected $primaryKey = 'user_id';
-
-    /**
      * @var array
      */
     protected $fillable = [

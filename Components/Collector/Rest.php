@@ -135,4 +135,33 @@ namespace {
                 ->serve(true);
         }
     );
+
+    $this->get(
+        '/recipes/{id}',
+        function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
+            try {
+                $recipe = Recipe::query()->findOrFail($params['id']);
+
+                return Json::generate($request, $response)
+                    ->setData([
+                        'code'   => $response->getStatusCode(),
+                        'status' => 'success',
+                        'data'   => $recipe
+                    ])
+                    ->serve(true);
+            } catch (Exception $exception) {
+                $response = $response->withStatus(404);
+                $exceptionName = substr(strrchr(get_class($exception), '\\'), 1);
+
+                return Json::generate($request, $response)
+                    ->setData([
+                        'code'    => $response->getStatusCode(),
+                        'status'  => 'error',
+                        'message' => 'recipe not found',
+                        'data'    => $exceptionName
+                    ])
+                    ->serve(true);
+            }
+        }
+    );
 }

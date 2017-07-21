@@ -49,39 +49,90 @@ namespace {
     // Require Common Middleware
     require_once __DIR__ . '/../Middlewares/CommonMiddleware.php';
 
-    $this->get(
-        '/recipes[/[{page: [0-9]+}[/]]]',
-        function (ServerRequestInterface $request, ResponseInterface $response, $params = []) {
-            /**
-             * @var Response $response
-             * @var ContainerInterface $this
-             * @var Route $route
-             */
-            $route = $request->getAttribute('route');
-            $route->getArgument('arg1', 'default'); // << use route to get Argument and get default set
+    //$this->get(
+    //    '/recipes[/[{page: [0-9]+}[/]]]',
+    //    function (ServerRequestInterface $request, ResponseInterface $response, $params = []) {
+    //        /**
+    //         * @var Response $response
+    //         * @var ContainerInterface $this
+    //         * @var Route $route
+    //         */
+    //        $route = $request->getAttribute('route');
+    //        $route->getArgument('arg1', 'default'); // << use route to get // Argument and get default set
 
-            // get page param & get default
-            if (($page = (int) $request->getAttribute('page', 1)) < 1) {
-                return $response->withRedirect('/recipes');
-            }
+    //        // get page param & get default
+    //        if (($page = (int) $request->getAttribute('page', 1)) < 1) {
+    //            return $response->withRedirect('/recipes');
+    //        }
+
+    //        return Json::generate($request, $response)
+    //            ->setData(
+    //                [
+    //                    'status' => 200,
+    //                    'response' => Recipe::filterByPage(
+    //                        Recipe::where('user_id', '!=', 'null'),
+    //                        $page
+    //                    )
+    //                ]
+    //            )
+    //            ->serve(true);
+    //    }
+    //)
+    //    // set argument for route
+    //    ->setName('recipe:get ')
+    //    ->setArgument('arg1', 'arg1')
+    //    ->setArguments([
+    //        'arg2' => 'arg2'
+    //    ]);
+
+    $this->get(
+        '/recipes',
+        function (ServerRequestInterface $request, ResponseInterface $response) {
+            // Pagination
+            $pageParam = $request->getQueryParams()['page'];
+            $perPageParam = $request->getQueryParams()['per_page'];
+            $recipes = Recipe::all();
+            $totalRecipes = $recipes->count();
+            $page = is_null($pageParam) ? 1 : (int) $pageParam;
+            $perPage = is_null($perPageParam) ? 10 : (int) $perPageParam;
+            $offset = ($page - 1) * $perPage;
+            $firstPage = 1;
+            $lastPage = ceil($totalRecipes / $perPage);
+            $previousPage = $page <= $firstPage ? $firstPage : $page - 1;
+            $nextPage = $page >= $lastPage ? $lastPage : $page + 1;
+
+            // Pagination links
+            $requestUri = $request->getUri();
+            $firstPageUri = (string) $requestUri->withQuery('page=' . $firstPage . '&per_page=' . $perPage);
+            $lastPageUri = (string) $requestUri->withQuery('page=' . $lastPage . '&per_page=' . $perPage);
+            $previousPageUri = (string) $requestUri->withQuery('page=' . $previousPage . '&per_page=' . $perPage);
+            $nextPageUri = (string) $requestUri->withQuery('page=' . $nextPage . '&per_page=' . $perPage);
 
             return Json::generate($request, $response)
-                ->setData(
-                    [
-                        'status' => 200,
-                        'response' => Recipe::filterByPage(
-                            Recipe::where('user_id', '!=', 'null'),
-                            $page
-                        )
+                ->setData([
+                    'code'   => $response->getStatusCode(),
+                    'status' => 'success',
+                    'data'   => Recipe::query()->skip($offset)->take($perPage)->get(),
+                    'links'  => [
+                        [
+                            'rel'  => 'first-page',
+                            'href' => $firstPageUri
+                        ],
+                        [
+                            'rel'  => 'last-page',
+                            'href' => $lastPageUri
+                        ],
+                        [
+                            'rel'  => 'previous-page',
+                            'href' => $previousPageUri
+                        ],
+                        [
+                            'rel'  => 'next-page',
+                            'href' => $nextPageUri
+                        ]
                     ]
-                )
+                ])
                 ->serve(true);
         }
-    )
-        // set argument for route
-        ->setName('recipe:get ')
-        ->setArgument('arg1', 'arg1')
-        ->setArguments([
-            'arg2' => 'arg2'
-        ]);
+    );
 }

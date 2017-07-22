@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace {
 
+    use Illuminate\Database\Eloquent\Collection;
     use PentagonalProject\App\Rest\Generator\Response\Json;
     use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
     use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
@@ -37,6 +38,7 @@ namespace {
     use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;
     use Slim\Http\Response;
+    use Slim\Http\Uri;
     use Slim\Route;
 
     /**
@@ -88,7 +90,21 @@ namespace {
     $this->get(
         '/recipes',
         function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Pagination
+            /**
+             * Pagination
+             *
+             * @var string     $pageParam
+             * @var string     $perPageParam
+             * @var Collection $recipes
+             * @var int        $totalRecipes
+             * @var int        $page
+             * @var int        $perPage
+             * @var int        $offset
+             * @var int        $firstPage
+             * @var int        $lastPage
+             * @var int        $previousPage
+             * @var int        $nextPage
+             */
             $pageParam = $request->getQueryParams()['page'];
             $perPageParam = $request->getQueryParams()['per_page'];
             $recipes = Recipe::all();
@@ -101,7 +117,30 @@ namespace {
             $previousPage = $page <= $firstPage ? $firstPage : $page - 1;
             $nextPage = $page >= $lastPage ? $lastPage : $page + 1;
 
-            // Pagination links
+            /**
+             * Item links
+             *
+             * @var Collection $recipesPerPage
+             */
+            $recipesPerPage = Recipe::query()->skip($offset)->take($perPage)->get();
+            $recipesPerPage->transform(function ($item) use ($request) {
+                return collect($item)->put('links', [
+                    [
+                        'rel' => 'self',
+                        'href' => (string) $request->getUri()->withPath('recipes/' . $item->id)
+                    ]
+                ]);
+            });
+
+            /**
+             * Pagination links
+             *
+             * @var Uri    $requestUri
+             * @var string $firstPageUri
+             * @var string $lastPageUri
+             * @var string $previousPageUri
+             * @var string $nextPageUri
+             */
             $requestUri = $request->getUri();
             $firstPageUri = (string) $requestUri->withQuery('page=' . $firstPage . '&per_page=' . $perPage);
             $lastPageUri = (string) $requestUri->withQuery('page=' . $lastPage . '&per_page=' . $perPage);
@@ -112,7 +151,7 @@ namespace {
                 ->setData([
                     'code'   => $response->getStatusCode(),
                     'status' => 'success',
-                    'data'   => Recipe::query()->skip($offset)->take($perPage)->get(),
+                    'data'   => $recipesPerPage,
                     'links'  => [
                         [
                             'rel'  => 'first-page',

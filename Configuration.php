@@ -39,12 +39,23 @@ return [
     ],
     'database' => [
         'driver'    => 'mysql',
-        'host'      => 'localhost',
-        'port'      => 3306,
-        'database'  => 'recipicious',  // example database
-        'username'  => 'root', // example database user
-        'password'  => 'mysql',// example database user password
+        // example database host
+        'host'      => isset($_SERVER['OPENSHIFT_MYSQL_DB_HOST'])
+            ? $_SERVER['OPENSHIFT_MYSQL_DB_HOST']
+            : 'localhost',
+        'port'      => isset($_SERVER['OPENSHIFT_MYSQL_DB_PORT'])
+            ? $_SERVER['OPENSHIFT_MYSQL_DB_PORT']
+            : 3306,
+        // example database user
+        'username'  => isset($_SERVER['OPENSHIFT_MYSQL_DB_USERNAME'])
+            ? $_SERVER['OPENSHIFT_MYSQL_DB_USERNAME']
+            : 'root',
+        // example database user password
+        'password'  => isset($_SERVER['OPENSHIFT_MYSQL_DB_PASSWORD'])
+            ? $_SERVER['OPENSHIFT_MYSQL_DB_PASSWORD']
+            : 'mysql',
         'charset'   => 'utf8',
+        'database'  => 'recipicious',  // example database
         'collation' => 'utf8_unicode_ci',
         'prefix'    => '',
     ],
@@ -55,6 +66,19 @@ return [
          * @see \phpFastCache\CacheManager::getDefaultConfig()
          */
         'config' => [
+            /**
+             * Redis Config
+             */
+            'port' => isset($_SERVER['OPENSHIFT_REDIS_PORT'])
+                ? $_SERVER['OPENSHIFT_REDIS_PORT']
+                : null,
+            'host' => isset($_SERVER['OPENSHIFT_REDIS_HOST'])
+                ? $_SERVER['OPENSHIFT_REDIS_HOST']
+                : '127.0.0.1',
+            'password' => isset($_SERVER['OPENSHIFT_REDIS_PASSWORD'])
+                ? $_SERVER['OPENSHIFT_REDIS_PASSWORD']
+                : null,
+            // common config
             'securityKey' => 'auto',
             'ignoreSymfonyNotice' => false,
             'defaultTtl' => 900,

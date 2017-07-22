@@ -44,14 +44,16 @@ namespace {
      */
     $container = [
         'settings'    => AppFacade::includeScope(__DIR__ . '/Util/ConfigurationSanity.php', $this[1]),
+        'cache'       => AppFacade::includeScope(__DIR__ . '/Containers/Global/Cache.php'),
         'config'      => AppFacade::includeScope(__DIR__ . '/Containers/Global/Config.php'),
-        'hook'        => AppFacade::includeScope(__DIR__ . '/Containers/Global/Hook.php'),
-        'environment' => AppFacade::includeScope(__DIR__ . '/Containers/Global/Environment.php'),
         'database'    => AppFacade::includeScope(__DIR__ . '/Containers/Global/Database.php'),
+        'environment' => AppFacade::includeScope(__DIR__ . '/Containers/Global/Environment.php'),
+        'hook'        => AppFacade::includeScope(__DIR__ . '/Containers/Global/Hook.php'),
+        'log'         => AppFacade::includeScope(__DIR__ . '/Containers/Global/Log.php'),
+        'module'      => AppFacade::includeScope(__DIR__. '/Containers/Global/Module.php'),
         'notAllowedHandler' => AppFacade::includeScope(__DIR__ . '/Containers/Global/NotAllowedHandler.php'),
         'notFoundHandler'   => AppFacade::includeScope(__DIR__ . '/Containers/Global/NotFoundHandler.php'),
         'phpErrorHandler'   => AppFacade::includeScope(__DIR__ . '/Containers/Global/PhpErrorHandler.php'),
-        'module'     => AppFacade::includeScope(__DIR__. '/Containers/Global/Module.php'),
     ];
 
     return new Container($container);

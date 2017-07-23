@@ -55,7 +55,10 @@ return [
             ? $_SERVER['OPENSHIFT_MYSQL_DB_PASSWORD']
             : 'mysql',
         'charset'   => 'utf8',
-        'database'  => 'recipicious',  // example database
+        // Database Name
+        'database'  => isset($_SERVER['OPENSHIFT_MYSQL_DB_NAME'])
+            ? $_SERVER['OPENSHIFT_MYSQL_DB_NAME']
+            : 'recipicious',
         'collation' => 'utf8_unicode_ci',
         'prefix'    => '',
     ],

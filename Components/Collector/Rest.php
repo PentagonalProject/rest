@@ -107,8 +107,7 @@ namespace {
              */
             $pageParam = $request->getQueryParams()['page'];
             $perPageParam = $request->getQueryParams()['per_page'];
-            $recipes = Recipe::all();
-            $totalRecipes = $recipes->count();
+            $totalRecipes = Recipe::all()->count();
             $page = is_null($pageParam) ? 1 : (int) $pageParam;
             $perPage = is_null($perPageParam) ? 10 : (int) $perPageParam;
             $offset = ($page - 1) * $perPage;

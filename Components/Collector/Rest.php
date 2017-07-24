@@ -174,6 +174,51 @@ namespace {
         }
     );
 
+    $this->post(
+        '/recipes',
+        function (ServerRequestInterface $request, ResponseInterface $response) {
+            /**
+             * Create a new recipe
+             *
+             * @var string $name
+             * @var string $instructions
+             * @var int    $userId
+             * @var Recipe $recipe
+             */
+            $name = $request->getParsedBody()['name'];
+            $instructions = $request->getParsedBody()['instructions'];
+            $userId = (int) $request->getParsedBody()['user_id'];
+
+            $recipe = new Recipe([
+                'name' => $name,
+                'instructions' => $instructions,
+                'user_id' => $userId
+            ]);
+            $recipe->saveOrFail();
+
+            /**
+             * Modify response header
+             *
+             * @var string            $recipeId
+             * @var ResponseInterface $response
+             */
+            $recipeId = (string) $recipe->getKey();
+            $response = $response->withStatus(201);
+            $response = $response->withHeader(
+                'Location',
+                (string) $request->getUri()->withPath('recipes/' . $recipeId)
+            );
+
+            return Json::generate($request, $response)
+                ->setData([
+                    'code'   => $response->getStatusCode(),
+                    'status' => 'success',
+                    'data'   => $recipeId
+                ])
+                ->serve(true);
+        }
+    );
+
     $this->get(
         '/recipes/{id}',
         function (ServerRequestInterface $request, ResponseInterface $response, array $params) {

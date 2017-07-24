@@ -86,20 +86,20 @@ class DatabaseBaseModel extends Model
         return $dirty;
     }
 
-    /**
-     * {@inheritdoc}
-     * Perform Serialize
-     */
-    protected function performInsert(Builder $query)
-    {
-        $attributes = $this->attributes;
-        foreach ($attributes as $key => $value) {
-            $this->attributes[$key] = $this->resolveSet($value);
-        }
+    ///**
+    // * {@inheritdoc}
+    // * Perform Serialize
+    // */
+    //protected function performInsert(Builder $query)
+    //{
+    //   $attributes = $this->attributes;
+    //   foreach ($attributes as $key => $value) {
+    //       $this->attributes[$key] = $this->resolveSet($value);
+    //   }
 
-        $return_value = parent::performInsert($query);
-        // re set attributes
-        $this->attributes = $attributes;
-        return $return_value;
-    }
+    //   $return_value = parent::performInsert($query);
+    //   // re set attributes
+    //   $this->attributes = $attributes;
+    //   return $return_value;
+    //}
 }

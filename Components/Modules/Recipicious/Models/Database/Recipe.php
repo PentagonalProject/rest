@@ -72,7 +72,7 @@ class Recipe extends DatabaseBaseModel
     }
 
     /**
-     * Valid the model filled attributes
+     * Validate the model filled attributes
      *
      * @return $this
      * @throws \UnexpectedValueException

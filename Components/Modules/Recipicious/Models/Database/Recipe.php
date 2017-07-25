@@ -29,7 +29,6 @@ declare(strict_types=1);
 
 namespace PentagonalProject\Modules\Recipicious\Model\Database;
 
-use Apatis\Exceptions\UnexpectedValueException;
 use Illuminate\Database\Eloquent\Builder;
 use PentagonalProject\Model\DatabaseBaseModel;
 use stdClass;

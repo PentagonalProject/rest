@@ -260,4 +260,33 @@ namespace {
             }
         }
     );
+
+    $this->post(
+        '/recipes/{id}',
+        function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
+            /**
+             * Update a recipe
+             *
+             * @var string $name
+             * @var string $instructions
+             * @var Recipe $recipe
+             */
+            $name = $request->getParsedBody()['name'];
+            $instructions = $request->getParsedBody()['instructions'];
+
+            $recipe = Recipe::query()->findOrFail($params['id']);
+            $recipe->update([
+                'name'         => $name,
+                'instructions' => $instructions
+            ]);
+
+            return Json::generate($request, $response)
+                ->setData([
+                    'code'   => $response->getStatusCode(),
+                    'status' => 'success',
+                    'data'   => $recipe
+                ])
+                ->serve(true);
+        }
+    );
 }

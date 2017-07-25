@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace PentagonalProject\Modules\Recipicious\Model\Database;
 
+use Apatis\Exceptions\UnexpectedValueException;
 use Illuminate\Database\Eloquent\Builder;
 use PentagonalProject\Model\DatabaseBaseModel;
 use stdClass;
@@ -68,5 +69,36 @@ class Recipe extends DatabaseBaseModel
         $results->itemCount   = count($results->items);
 
         return $results;
+    }
+
+    /**
+     * Valid the model filled attributes
+     *
+     * @return $this
+     * @throws \UnexpectedValueException
+     * @throws \LengthException
+     */
+    public function validateAttributes()
+    {
+        foreach ($this->attributes as $key => $value) {
+            if (empty($value)) {
+                throw new \UnexpectedValueException(ucfirst($key) . ' shouldn\'t be empty');
+            } elseif ($key == 'name' && strlen($value) > 60) {
+                throw new \LengthException(ucfirst($key) . ' shouldn\'t more than 60 characters');
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     * Save the model
+     */
+    public function saveOrFail(array $options = [])
+    {
+        $this->validateAttributes();
+
+        parent::saveOrFail();
     }
 }

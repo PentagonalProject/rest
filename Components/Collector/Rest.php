@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace {
 
     use Illuminate\Database\Eloquent\Collection;
+    use Illuminate\Database\Eloquent\ModelNotFoundException;
     use PentagonalProject\App\Rest\Generator\Response\Json;
     use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
     use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
@@ -264,29 +265,56 @@ namespace {
     $this->post(
         '/recipes/{id}',
         function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
-            /**
-             * Update a recipe
-             *
-             * @var string $name
-             * @var string $instructions
-             * @var Recipe $recipe
-             */
-            $name = $request->getParsedBody()['name'];
-            $instructions = $request->getParsedBody()['instructions'];
+            try {
+                /**
+                 * Update a recipe
+                 *
+                 * @var string $name
+                 * @var string $instructions
+                 * @var Recipe $recipe
+                 */
+                $name = $request->getParsedBody()['name'];
+                $instructions = $request->getParsedBody()['instructions'];
+                $userId = $request->getParsedBody()['user_id'];
 
-            $recipe = Recipe::query()->findOrFail($params['id']);
-            $recipe->update([
-                'name'         => $name,
-                'instructions' => $instructions
-            ]);
+                $recipe = Recipe::query()->findOrFail($params['id']);
+                $recipe->updateOrFail([
+                    'name'         => $name,
+                    'instructions' => $instructions,
+                    'user_id'      => $userId
+                ]);
 
-            return Json::generate($request, $response)
-                ->setData([
-                    'code'   => $response->getStatusCode(),
-                    'status' => 'success',
-                    'data'   => $recipe
-                ])
-                ->serve(true);
+                return Json::generate($request, $response)
+                    ->setData([
+                        'code'   => $response->getStatusCode(),
+                        'status' => 'success',
+                        'data'   => $recipe
+                    ])
+                    ->serve(true);
+            } catch (ModelNotFoundException $exception) {
+                $response = $response->withStatus(404);
+                $exceptionName = substr(strrchr(get_class($exception), '\\'), 1);
+
+                return Json::generate($request, $response)
+                    ->setData([
+                        'code'    => $response->getStatusCode(),
+                        'status'  => 'error',
+                        'message' => 'recipe not found',
+                        'data'    => $exceptionName
+                    ])
+                    ->serve(true);
+            } catch (Exception $exception) {
+                $response = $response->withStatus(400);
+
+                return Json::generate($request, $response)
+                    ->setData([
+                        'code'    => $response->getStatusCode(),
+                        'status'  => 'error',
+                        'message' => $exception->getMessage(),
+                        'data'    => get_class($exception)
+                    ])
+                    ->serve(true);
+            }
         }
     );
 }

@@ -73,13 +73,14 @@ class Recipe extends DatabaseBaseModel
     /**
      * Validate the model filled attributes
      *
+     * @param array $attributes
      * @return $this
      * @throws \UnexpectedValueException
      * @throws \LengthException
      */
-    public function validateAttributes()
+    public function validateAttributes(array $attributes)
     {
-        foreach ($this->attributes as $key => $value) {
+        foreach ($attributes as $key => $value) {
             if (empty($value)) {
                 throw new \UnexpectedValueException(ucfirst($key) . ' shouldn\'t be empty');
             } elseif ($key == 'name' && strlen($value) > 60) {
@@ -96,8 +97,20 @@ class Recipe extends DatabaseBaseModel
      */
     public function saveOrFail(array $options = [])
     {
-        $this->validateAttributes();
+        $this->validateAttributes($this->attributes);
 
         parent::saveOrFail();
+    }
+
+    /**
+     * Update the model
+     *
+     * @param array $attributes
+     */
+    public function updateOrFail(array $attributes)
+    {
+        $this->validateAttributes($attributes);
+
+        $this->update($attributes);
     }
 }

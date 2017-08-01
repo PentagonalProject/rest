@@ -37,4 +37,16 @@ use PentagonalProject\Model\DatabaseBaseModel;
  */
 class User extends DatabaseBaseModel
 {
+    /**
+     * {@inheritdoc}
+     * @var array
+     */
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'username',
+        'email',
+        'password',
+        'private_key'
+    ];
 }

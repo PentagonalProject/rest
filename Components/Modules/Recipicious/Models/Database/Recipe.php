@@ -40,6 +40,7 @@ use stdClass;
 class Recipe extends DatabaseBaseModel
 {
     /**
+     * {@inheritdoc}
      * @var array
      */
     protected $fillable = [

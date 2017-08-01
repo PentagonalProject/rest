@@ -44,4 +44,5 @@ namespace {
 
     // Routes
     require_once __DIR__ . '/../Routes/RecipeRoutes.php';
+    require_once __DIR__ . '/../Routes/UserRoutes.php';
 }

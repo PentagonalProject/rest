@@ -441,6 +441,19 @@ abstract class ResponseGeneratorAbstract
     }
 
     /**
+     * Get Reason Phrase
+     *
+     * @return string
+     */
+    public function getReasonPhrase() : string
+    {
+        return $this
+            ->response
+            ->withStatus($this->getStatusCode())
+            ->getReasonPhrase();
+    }
+
+    /**
      * Get Status Code
      *
      * @return int

@@ -1,9 +1,11 @@
 <?php
 namespace {
 
+    use Apatis\ArrayStorage\CollectionFetch;
     use Illuminate\Database\Eloquent\Collection;
     use Illuminate\Database\Eloquent\ModelNotFoundException;
     use PentagonalProject\App\Rest\Generator\Response\Json;
+    use PentagonalProject\App\Rest\Generator\ResponseStandard;
     use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
@@ -44,6 +46,63 @@ namespace {
     //    ->setArguments([
     //        'arg2' => 'arg2'
     //    ]);
+
+    /**
+     * Add Change to Validation & Response
+     */
+    $this->post(
+        '/recipes',
+        function (ServerRequestInterface $request, ResponseInterface $response) {
+            try {
+                // put collection to FetchAble
+                $bodyParsed = new CollectionFetch($request->getParsedBody());
+                $name = $bodyParsed->get('name');
+                if (!is_string($name)) {
+                    throw new InvalidArgumentException(
+                        sprintf(
+                            "Recipe Name must be as a string %s given.",
+                            gettype($name)
+                        ),
+                        E_USER_WARNING
+                    );
+                }
+
+                if (trim($name) == '') {
+                    throw new InvalidArgumentException(
+                        "Recipe Name must could not to ve empty.",
+                        E_USER_WARNING
+                    );
+                }
+
+                /**
+                 * Create a new recipe
+                 */
+                $recipe = new Recipe([
+                    'name'         => $name,
+                    'instructions' => $bodyParsed->get('instructions'),
+                    'user_id'      => $bodyParsed->get('user_id')
+                ]);
+
+                // save or fail
+                $recipe->saveOrFail();
+                return ResponseStandard::with(
+                    $request,
+                    $response->withStatus(201),
+                    (int) $recipe->getKey()
+                )
+                    ->noTrace()
+                    ->serve(true);
+            } catch (Exception $exception) {
+                return ResponseStandard::withException(
+                    $request,
+                    $response->withStatus(406),
+                    $exception,
+                    Json::class,
+                    true
+                );
+            }
+        }
+    );
 
     $this->get(
         '/recipes',
@@ -132,89 +191,21 @@ namespace {
         }
     );
 
-    $this->post(
-        '/recipes',
-        function (ServerRequestInterface $request, ResponseInterface $response) {
-            try {
-                /**
-                 * Create a new recipe
-                 *
-                 * @var string $name
-                 * @var string $instructions
-                 * @var int    $userId
-                 * @var Recipe $recipe
-                 */
-                $name = $request->getParsedBody()['name'];
-                $instructions = $request->getParsedBody()['instructions'];
-                $userId = (int) $request->getParsedBody()['user_id'];
-
-                $recipe = new Recipe([
-                    'name'         => $name,
-                    'instructions' => $instructions,
-                    'user_id'      => $userId
-                ]);
-                $recipe->saveOrFail();
-
-                /**
-                 * Modify response header
-                 *
-                 * @var string            $recipeId
-                 * @var ResponseInterface $response
-                 */
-                $recipeId = (string) $recipe->getKey();
-                $response = $response->withStatus(201);
-                $response = $response->withHeader(
-                    'Location',
-                    (string) $request->getUri()->withPath('recipes/' . $recipeId)
-                );
-
-                return Json::generate($request, $response)
-                           ->setData([
-                               'code'   => $response->getStatusCode(),
-                               'status' => 'success',
-                               'data'   => $recipeId
-                           ])
-                           ->serve(true);
-            } catch (Exception $exception) {
-                $response = $response->withStatus(400);
-
-                return Json::generate($request, $response)
-                           ->setData([
-                               'code'    => $response->getStatusCode(),
-                               'status'  => 'error',
-                               'message' => $exception->getMessage(),
-                               'data'    => get_class($exception)
-                           ])
-                           ->serve(true);
-            }
-        }
-    );
-
     $this->get(
         '/recipes/{id}',
         function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
             try {
-                $recipe = Recipe::query()->findOrFail($params['id']);
-
-                return Json::generate($request, $response)
-                           ->setData([
-                               'code'   => $response->getStatusCode(),
-                               'status' => 'success',
-                               'data'   => $recipe
-                           ])
-                           ->serve(true);
+                return ResponseStandard::withData(
+                    $request,
+                    $response->withStatus(200),
+                    Recipe::query()->findOrFail($params['id'])
+                );
             } catch (Exception $exception) {
-                $response = $response->withStatus(404);
-                $exceptionName = substr(strrchr(get_class($exception), '\\'), 1);
-
-                return Json::generate($request, $response)
-                           ->setData([
-                               'code'    => $response->getStatusCode(),
-                               'status'  => 'error',
-                               'message' => 'recipe not found',
-                               'data'    => $exceptionName
-                           ])
-                           ->serve(true);
+                return ResponseStandard::withData(
+                    $request,
+                    $response->withStatus(404),
+                    'Recipe Not Found'
+                );
             }
         }
     );

@@ -109,7 +109,7 @@ class ResponseStandard
             $generator = new $generator($request, $response);
         }
 
-        if ($generator instanceof ResponseGeneratorAbstract) {
+        if (!$generator instanceof ResponseGeneratorAbstract) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Argument generator must be instance of %s',
@@ -142,7 +142,6 @@ class ResponseStandard
 
             $this->output['error'] = [
                 'message' => $data->getMessage(),
-                'type'    => 'exception'
             ];
 
             if ($this->isWithTrace()) {
@@ -158,8 +157,7 @@ class ResponseStandard
         }
 
         $this->output['error'] = [
-            'message' => !is_array($data) ? [$data] : $data,
-            'type'    => gettype($data),
+            'message' => $data
         ];
 
         if ($this->isWithTrace()) {
@@ -257,7 +255,7 @@ class ResponseStandard
                     $message,
                     $generator
                 ),
-                'server'
+                'serve'
             ],
             $args
         );
@@ -286,7 +284,7 @@ class ResponseStandard
                     $exception,
                     $generator
                 ),
-                'server'
+                'serve'
             ],
             $args
         );

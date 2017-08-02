@@ -92,62 +92,62 @@ class MainWorker
          *
          * @var App $slim
          */
-        $slim = $this->module->getContainer()['app'];
-        $class =& $this;
-        /*
-         * JUST ACCESS WITH:
-         * http://target/?output=xml -> to get XML data
-         */
-        $slim->any(
-            '{param: .+}',
-            function (ServerRequestInterface $request, ResponseInterface $response) use ($class) {
-                /**
-                 * @var ContainerInterface $this
-                 * @var ModularCollection $module
-                 */
-                $module = $this->module;
-
-                /* -------------------------------------------------------
-                 * INFO
-                 * ------------------------------------------------------ */
-                /**
-                 * Modular Collection Info
-                 */
-                $collection = $module->getModularInformation($class->module->getModularNameSelector());
-                /**
-                 * Get From @uses Collection
-                 */
-                $info = $collection->all();
-                // or use below to get module info
-                $info = $class->module->getModularInfo();
-
-                /* -------------------------------------------------------
-                 * BUILT IN JSON RESPONSE
-                 * ------------------------------------------------------ */
-                $responseBuilderClass = Json::class;
-                // if get param output == xml
-                if (isset($_GET['output']) && $_GET['output'] == 'xml') {
-                    // override ResponseGeneratorAbstract to Xml instance
-                    $responseBuilderClass = Xml::class;
-                }
-
-                /**
-                 * @uses Json|XML to generate Data JSON and Server it
-                 * @var ResponseGeneratorAbstract $responseBuilderClass
-                 */
-                $responseBuilder = $responseBuilderClass::generate($request, $response);
-                /**
-                 * set Data into @uses ResponseGeneratorAbstract
-                 */
-                $responseBuilder->setData(["Module" => $info]);
-                /**
-                 * Serve / Build The Response
-                 * @var ResponseInterface $response
-                 */
-                $response = $responseBuilder->serve();
-                return $response;
-            }
-        );
+//        $slim = $this->module->getContainer()['app'];
+//        $class =& $this;
+//        /*
+//         * JUST ACCESS WITH:
+//         * http://target/?output=xml -> to get XML data
+//         */
+//        $slim->any(
+//            '{param: .+}',
+//            function (ServerRequestInterface $request, ResponseInterface $response) use ($class) {
+//                /**
+//                 * @var ContainerInterface $this
+//                 * @var ModularCollection $module
+//                 */
+//                $module = $this->module;
+//
+//                /* -------------------------------------------------------
+//                 * INFO
+//                 * ------------------------------------------------------ */
+//                /**
+//                 * Modular Collection Info
+//                 */
+//                $collection = $module->getModularInformation($class->module->getModularNameSelector());
+//                /**
+//                 * Get From @uses Collection
+//                 */
+//                $info = $collection->all();
+//                // or use below to get module info
+//                $info = $class->module->getModularInfo();
+//
+//                /* -------------------------------------------------------
+//                 * BUILT IN JSON RESPONSE
+//                 * ------------------------------------------------------ */
+//                $responseBuilderClass = Json::class;
+//                // if get param output == xml
+//                if (isset($_GET['output']) && $_GET['output'] == 'xml') {
+//                    // override ResponseGeneratorAbstract to Xml instance
+//                    $responseBuilderClass = Xml::class;
+//                }
+//
+//                /**
+//                 * @uses Json|XML to generate Data JSON and Server it
+//                 * @var ResponseGeneratorAbstract $responseBuilderClass
+//                 */
+//                $responseBuilder = $responseBuilderClass::generate($request, $response);
+//                /**
+//                 * set Data into @uses ResponseGeneratorAbstract
+//                 */
+//                $responseBuilder->setData(["Module" => $info]);
+//                /**
+//                 * Serve / Build The Response
+//                 * @var ResponseInterface $response
+//                 */
+//                $response = $responseBuilder->serve();
+//                return $response;
+//            }
+//        );
 
         return $this;
     }

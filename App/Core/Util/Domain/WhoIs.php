@@ -120,8 +120,7 @@ class WhoIs
             );
         }
 
-        $data = Sanitizer::multiByteEntities(trim($data));
-        return $data;
+        return trim($data);
     }
 
     /**

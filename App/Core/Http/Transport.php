@@ -32,6 +32,7 @@ namespace PentagonalProject\App\Rest\Http;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Promise\PromiseInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -72,6 +73,11 @@ use Psr\Http\Message\UriInterface;
  * @method PromiseInterface propViewAsync(string|UriInterface $uri, array $options = [])
  * @method PromiseInterface lockAsync(string|UriInterface $uri, array $options = [])
  * @method PromiseInterface unLockAsync(string|UriInterface $uri, array $options = [])
+ *
+ * @method ResponseInterface request($method, $uri = '', array $options = [])
+ * @method mixed             getConfig($option = null)
+ * @method ResponseInterface send(RequestInterface $request, array $options = [])
+ * @method ResponseInterface sendAsync(RequestInterface $request, array $options = [])
  */
 class Transport
 {

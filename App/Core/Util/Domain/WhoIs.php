@@ -97,6 +97,10 @@ class WhoIs
         return $data;
     }
 
+    /**
+     * @param string $data
+     * @return string
+     */
     private function cleanData($data) : string
     {
         $data = trim($data);
@@ -162,6 +166,10 @@ class WhoIs
     }
 
     /**
+     * @var bool
+     */
+    protected $allowNonDomain = false;
+    /**
      * @param string $domain
      * @return mixed
      * @throws HttpUrlException
@@ -169,13 +177,14 @@ class WhoIs
      */
     public function getWhoIsServer($domain)
     {
-        if (!$this->verify->isTopDomain($domain)) {
+        if (!$this->verify->isTopDomain($domain) && !$this->allowNonDomain) {
             throw new DomainException(
                 "Domain is not valid!",
                 E_ERROR
             );
         }
 
+        $this->allowNonDomain = false;
         $array = explode('.', $domain);
         if (! isset($this->cachedWhoIsServers[end($array)])) {
             $this->cachedWhoIsServers[end($array)] = false;
@@ -241,6 +250,7 @@ class WhoIs
         );
         return preg_replace('/(\s)+/', '$1', $string);
     }
+
     /**
      * @param string $domainName
      * @return array
@@ -253,5 +263,137 @@ class WhoIs
             $this->runSocketConnection($domainName, "{$whoIsServer}:43"),
             $whoIsServer
         );
+    }
+
+    /**
+     * @param string $asnResult
+     * @param string $asn
+     * @return string
+     */
+    private function cleanASN(string $asnResult, string $asn) : string
+    {
+        preg_match("/(?P<data>\n(\#|\%)[^\#|\%]+{$asn}[^\n]+\n.*)/ism", $asnResult, $match);
+        if (!empty($match['data'])) {
+            $asnResult = trim($match['data']);
+        }
+        $asnResult = $this->cleanData($asnResult);
+        return $asnResult;
+    }
+
+    /**
+     * @param string $asn
+     * @return string
+     */
+    public function getASNData(string $asn)
+    {
+        $asn = $this->verify->validateASN($asn);
+        if (!$asn) {
+            throw new \InvalidArgumentException(
+                'Invalid asn number.',
+                E_USER_ERROR
+            );
+        }
+        $this->allowNonDomain = true;
+        $whoIsServer = $this->getWhoIsServer($asn);
+        // $whoIsServer = 'whois.apnic.net';
+        return $this->cleanASN(
+            $this->runSocketConnection($asn, "{$whoIsServer}:43"),
+            $asn
+        );
+    }
+
+    /**
+     * @param string $asn
+     * @return array
+     */
+    public function getASNWithArrayDetail(string $asn) : array
+    {
+        return $this->parseForNicData($this->getASNData($asn));
+    }
+
+    /**
+     * @param string $data
+     * @return string
+     */
+    public function getIpData(string $data) : string
+    {
+        $ipData = @gethostbyaddr(@gethostbyname($data));
+        if (!$ipData) {
+            throw new \InvalidArgumentException(
+                'Invalid address.',
+                E_USER_ERROR
+            );
+        }
+
+        $this->allowNonDomain = true;
+        $whoIsServer = $this->getWhoIsServer($ipData);
+        // $whoIsServer = 'whois.apnic.net';
+        return $this->cleanASN(
+            $this->runSocketConnection($ipData, "{$whoIsServer}:43"),
+            $ipData
+        );
+    }
+
+    /**
+     * @param string $address
+     * @return array
+     */
+    public function getIPWithArrayDetail(string $address) : array
+    {
+        return $this->parseForNicData($this->getIpData($address));
+    }
+
+    /**
+     * Helper Parser
+     *
+     * @param string $dataResult
+     * @return array
+     */
+    private function parseForNicData(string $dataResult) : array
+    {
+        $data = str_replace("\r\n", "\n", $dataResult);
+        $data = preg_replace('/[\n]{2,}/', "\n\n", $data);
+
+        $data = explode("\n\n", $data);
+        $data = array_filter($data);
+        $data2 = [];
+        foreach ($data as $key => $value) {
+            $explode = explode("\n", $value);
+            $lastName = null;
+            $c = 0;
+            $countKey = 0;
+            foreach ($explode as $v) {
+                print_r($v);
+                $c++;
+                preg_match('/(?:^(?P<name>[^\:]+)\:)?(?P<value>.*)/', $v, $m);
+                $theName = !empty($m['name']) ? trim($m['name']) : null;
+                if ($c === 1) {
+                    if (!$theName) {
+                        $theName = $key;
+                    }
+                    $key = $theName;
+                    if (isset($data2[$key][$countKey])) {
+                        $countKey +=1;
+                    }
+                    $data2[$key][$countKey] = [];
+                }
+                $theValue = trim($m['value']);
+                if (isset($theName)) {
+                    if (isset($data2[$key][$countKey][$theName])) {
+                        $data2[$key][$countKey][$theName] .= "::{$theValue}";
+                        $lastName = $theName;
+                        continue;
+                    }
+                    $data2[$key][$countKey][$theName] = $theValue;
+                    $lastName = $theName;
+                    continue;
+                }
+                if (isset($data2[$key][$countKey][$lastName]) && $theValue != '') {
+                    $data2[$key][$countKey][$lastName] .= "::{$theValue}";
+                }
+            }
+        }
+
+        return $data2;
     }
 }

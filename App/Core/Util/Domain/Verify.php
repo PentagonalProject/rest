@@ -89,7 +89,7 @@ class Verify
     /**
      * @return array
      */
-    public function getExtensionList()
+    public function getExtensionList() : array
     {
         return self::$extensionList;
     }
@@ -98,7 +98,7 @@ class Verify
      * @param string $string
      * @return bool|string
      */
-    public function getExtensionIDN($string)
+    public function getExtensionIDN(string $string)
     {
         if (!is_string($string) || strlen(trim($string)) < 2) {
             return false;
@@ -125,7 +125,7 @@ class Verify
      * @param string $string
      * @return bool
      */
-    public function isExtensionExist($string)
+    public function isExtensionExist(string $string) : bool
     {
         return $this->getExtensionIDN($string) !== false;
     }
@@ -134,7 +134,7 @@ class Verify
      * @param string $domainName
      * @return array|bool
      */
-    public function validateDomain($domainName)
+    public function validateDomain(string $domainName)
     {
         if (! is_string($domainName)
             || trim($domainName) === ''
@@ -194,7 +194,7 @@ class Verify
      * @param string $domainName
      * @return bool
      */
-    public function isDomain($domainName)
+    public function isDomain(string $domainName) : bool
     {
         return is_array($this->validateDomain($domainName));
     }
@@ -203,7 +203,7 @@ class Verify
      * @param string $domainName
      * @return bool|string
      */
-    public function validateTopDomain($domainName)
+    public function validateTopDomain(string $domainName)
     {
         $domain = $this->validateDomain($domainName);
         if (is_array($domain) && (
@@ -225,7 +225,7 @@ class Verify
      * @param string $domainName
      * @return bool
      */
-    public function isTopDomain($domainName)
+    public function isTopDomain(string $domainName) : bool
     {
         return is_string($this->validateTopDomain($domainName));
     }
@@ -234,7 +234,7 @@ class Verify
      * @param string $email
      * @return bool|string
      */
-    public function validateEmail($email)
+    public function validateEmail(string $email)
     {
         if (!is_string($email) || strlen(trim($email)) < 6 || substr_count($email, '@') <> 1
             || stripos($email, '.') === false
@@ -282,8 +282,21 @@ class Verify
      * @param string $email
      * @return bool
      */
-    public function isEmail($email)
+    public function isEmail($email) : bool
     {
         return is_string($this->validateEmail($email));
+    }
+
+    /**
+     * @param string $name
+     * @return bool|string
+     */
+    public function validateASN(string $name)
+    {
+        if (preg_match('/^[A-Z]{2,4}[0-9]+$/i', $name)) {
+            return strtoupper($name);
+        }
+
+        return false;
     }
 }

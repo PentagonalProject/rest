@@ -143,7 +143,7 @@ trait XmlBuilderTrait
                 $keyType = gettype($key);
                 $valueType = $this->getXMLKeyFor(gettype($value));
                 if (! is_string($key) || is_numeric($key)) {
-                    $keyType   = is_numeric($key) ? 'integer' : $keyType;
+                    $keyType   = is_numeric($key) && ! is_float($key) ? 'integer' : $keyType;
                     $returnValue .= "\n{$tab}<{$this->getXMLKeyFor($keyType)} key=\"{$key}\" type=\"{$valueType}\">";
                     $returnValue .= $this->generatePairXML($value, $count);
                     $endVal  = "</{$this->getXMLKeyFor($keyType)}>";

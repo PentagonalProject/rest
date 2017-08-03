@@ -72,38 +72,6 @@ class Recipe extends DatabaseBaseModel
     }
 
     /**
-     * Validate the model filled attributes
-     *
-     * @param array $attributes
-     * @return $this
-     * @throws \UnexpectedValueException
-     * @throws \LengthException
-     */
-    public function validateAttributes(array $attributes)
-    {
-        foreach ($attributes as $key => $value) {
-            if (empty($value)) {
-                throw new \UnexpectedValueException(ucfirst($key) . ' shouldn\'t be empty');
-            } elseif ($key == 'name' && strlen($value) > 60) {
-                throw new \LengthException(ucfirst($key) . ' shouldn\'t more than 60 characters');
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     * Save the model
-     */
-    public function saveOrFail(array $options = [])
-    {
-        $this->validateAttributes($this->attributes);
-
-        parent::saveOrFail();
-    }
-
-    /**
      * Update the model
      *
      * @param array $attributes

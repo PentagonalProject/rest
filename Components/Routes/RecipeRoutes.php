@@ -11,42 +11,6 @@ namespace {
     use Psr\Http\Message\ServerRequestInterface;
     use Slim\Http\Uri;
 
-    //$this->get(
-    //    '/recipes[/[{page: [0-9]+}[/]]]',
-    //    function (ServerRequestInterface $request, ResponseInterface $response, $params = []) {
-    //        /**
-    //         * @var Response $response
-    //         * @var ContainerInterface $this
-    //         * @var Route $route
-    //         */
-    //        $route = $request->getAttribute('route');
-    //        $route->getArgument('arg1', 'default'); // << use route to get // Argument and get default set
-
-    //        // get page param & get default
-    //        if (($page = (int) $request->getAttribute('page', 1)) < 1) {
-    //            return $response->withRedirect('/recipes');
-    //        }
-
-    //        return Json::generate($request, $response)
-    //            ->setData(
-    //                [
-    //                    'status' => 200,
-    //                    'response' => Recipe::filterByPage(
-    //                        Recipe::where('user_id', '!=', 'null'),
-    //                        $page
-    //                    )
-    //                ]
-    //            )
-    //            ->serve(true);
-    //    }
-    //)
-    //    // set argument for route
-    //    ->setName('recipe:get ')
-    //    ->setArgument('arg1', 'arg1')
-    //    ->setArguments([
-    //        'arg2' => 'arg2'
-    //    ]);
-
     /**
      * Add Change to Validation & Response
      */
@@ -54,22 +18,57 @@ namespace {
         '/recipes',
         function (ServerRequestInterface $request, ResponseInterface $response) {
             try {
-                // put collection to FetchAble
+                // Put collection to FetchAble
                 $bodyParsed = new CollectionFetch($request->getParsedBody());
+
+                // Validate recipe name
                 $name = $bodyParsed->get('name');
+
+                // Check whether recipe name is string
                 if (!is_string($name)) {
                     throw new InvalidArgumentException(
                         sprintf(
-                            "Recipe Name must be as a string %s given.",
+                            "Recipe Name should be as a string, %s given.",
                             gettype($name)
                         ),
                         E_USER_WARNING
                     );
                 }
 
+                // Check whether recipe name is not empty
                 if (trim($name) == '') {
                     throw new InvalidArgumentException(
-                        "Recipe Name must could not to ve empty.",
+                        "Recipe Name should not be empty.",
+                        E_USER_WARNING
+                    );
+                }
+
+                // Check whether recipe name is not more than 60 characters
+                if (strlen($name) > 60) {
+                    throw new LengthException(
+                        "Recipe Name should not more than 60 characters.",
+                        E_USER_WARNING
+                    );
+                }
+
+                // Validate recipe instructions
+                $instructions = $bodyParsed->get('instructions');
+
+                // Check whether recipe instructions is not empty
+                if (trim($instructions) == '') {
+                    throw new InvalidArgumentException(
+                        "Recipe instructions should not be empty",
+                        E_USER_WARNING
+                    );
+                }
+
+                // Validate recipe user id
+                $userId = $bodyParsed->get('user_id');
+
+                // Check whether recipe instructions is not empty
+                if (trim($userId) == '') {
+                    throw new InvalidArgumentException(
+                        "Recipe user id should not be empty",
                         E_USER_WARNING
                     );
                 }
@@ -83,7 +82,7 @@ namespace {
                     'user_id'      => $bodyParsed->get('user_id')
                 ]);
 
-                // save or fail
+                // Save or fail
                 $recipe->saveOrFail();
                 return ResponseStandard::with(
                     $request,

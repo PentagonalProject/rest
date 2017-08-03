@@ -103,7 +103,7 @@ namespace {
         } catch (Exception $e) {
             return ResponseStandard::withData(
                 $request,
-                $response->withStatus(500),
+                $response->withStatus(406),
                 $e,
                 Json::class, // or just put null as value
                 true // add pretty print on Json Generator

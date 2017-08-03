@@ -30,11 +30,15 @@ namespace PentagonalProject\App\Rest\Util\Domain;
 
 use DomainException;
 use HttpUrlException;
-use PentagonalProject\App\Rest\Util\Sanitizer;
 
 /**
  * Class WhoIs
  * @package PentagonalProject\App\Rest\Util\Domain
+ * For nic check
+ * @uses WhoIs::getIPWithArrayDetail()
+ * @uses Whois::getASNWithArrayDetail()
+ *
+ * That contain '::' it must be explode as array to better reading on result get API
  */
 class WhoIs
 {

@@ -145,15 +145,17 @@ class Sanitizer
         }
 
         return $hasIconV
-            ? preg_replace_callback(
-                '/[\x{80}-\x{10FFFF}]/u',
-                function ($match) {
-                    $char = current($match);
-                    $utf = iconv('UTF-8', 'UCS-4//IGNORE', $char);
-                    return sprintf("&#x%s;", ltrim(strtolower(bin2hex($utf)), "0"));
-                },
-                $mixed
-            ) : $mixed;
+            ? (
+                preg_replace_callback(
+                    '/[\x{80}-\x{10FFFF}]/u',
+                    function ($match) {
+                        $char = current($match);
+                        $utf = iconv('UTF-8', 'UCS-4//IGNORE', $char);
+                        return sprintf("&#x%s;", ltrim(strtolower(bin2hex($utf)), "0"));
+                    },
+                    $mixed
+                ) ?:$mixed
+        ) : $mixed;
     }
 
     /* --------------------------------------------------------------------------------*

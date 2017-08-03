@@ -36,7 +36,7 @@ use Throwable;
 
 /**
  * Class PhpError
- * @package PentagonalProject\App\Rest\Record
+ * @package PentagonalProject\App\Rest\Override
  */
 class PhpError extends SlimPhpError
 {

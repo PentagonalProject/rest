@@ -88,9 +88,7 @@ namespace {
                     $request,
                     $response->withStatus(201),
                     (int) $recipe->getKey()
-                )
-                    ->noTrace()
-                    ->serve(true);
+                )->noTrace()->serve(true);
             } catch (Exception $exception) {
                 return ResponseStandard::withException(
                     $request,

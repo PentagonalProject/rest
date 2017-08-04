@@ -38,10 +38,14 @@ use PentagonalProject\Model\DatabaseBaseModel;
  */
 class Option extends DatabaseBaseModel
 {
+    const COLUMN_OPTION_NAME  = 'option_name';
+    const COLUMN_OPTION_VALUE = 'option_value';
+    const COLUMN_OPTION_AUTO_LOAD  = 'option_autoload';
+
     /**
      * @var string
      */
-    protected $primaryKey = 'option_name';
+    protected $primaryKey = self::COLUMN_OPTION_NAME;
 
     /**
      * @var string
@@ -58,7 +62,7 @@ class Option extends DatabaseBaseModel
      * @param mixed $default
      * @return mixed
      */
-    public static function get(string $name, $default = null)
+    public static function getFrom(string $name, $default = null)
     {
         /**
          * @var Collection $model
@@ -68,6 +72,8 @@ class Option extends DatabaseBaseModel
             return $default;
         }
 
-        return parent::resolveResult($model->get('options_value', $default));
+        return static::resolveResult(
+            $model->get(self::COLUMN_OPTION_VALUE, $default)
+        );
     }
 }

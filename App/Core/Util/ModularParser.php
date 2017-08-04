@@ -475,7 +475,8 @@ class ModularParser
         }
 
         $this->valid = true;
-        $this->class = $class;
+        // trim start of class name space
+        $this->class = ltrim($class, '\\');
         return $this;
     }
 

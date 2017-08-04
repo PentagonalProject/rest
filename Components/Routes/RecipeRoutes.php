@@ -11,15 +11,19 @@ namespace {
     $this->get(
         '/recipes',
         function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Put collection to FetchAble
-            $requestParams = new CollectionFetch($request->getQueryParams());
+            /**
+             * Make request params fetchable.
+             *
+             * @var CollectionFetch $requestParams
+             */
+            $requestParams = new CollectionFetch((array) $request->getQueryParams());
 
             return ResponseStandard::withData(
                 $request,
                 $response,
                 Recipe::filterByPage(
                     Recipe::query()->where('user_id', '!=', 'null'),
-                    is_null($requestParams->get('page')) ?: $requestParams->get('page')
+                    is_null($requestParams['page']) ?: $requestParams['page']
                 )
             );
         }

@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace PentagonalProject\Model;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use PentagonalProject\App\Rest\Util\Sanitizer;
 
@@ -38,6 +39,23 @@ use PentagonalProject\App\Rest\Util\Sanitizer;
  *
  * Class DatabaseBaseModel
  * @package PentagonalProject\Model
+ *
+ * // list magic method @uses Builder
+ *
+ * @method static Collection|static[]|static|null find(mixed $id, array $columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Model\|Collection findMany(mixed $id, array $columns = ['*'])
+ * @method static Collection|Model findOrFail($id, $columns = ['*'])
+ * @method static Model findOrNew($id, $columns = ['*'])
+ * @method static Model firstOrNew(array $attributes, array $values = [])
+ * @method static Model firstOrCreate(array $attributes, array $values = [])
+ * @method static Model updateOrCreate(array $attributes, array $values = [])
+ * @method static Model|static firstOrFail($columns = ['*'])
+ * @method static Model|static|mixed firstOr($columns = ['*'], \Closure $callback = null)
+ * @method static mixed value($column)
+ * @method static Collection|static[] get($column)
+ * ... @method static mixed *
+ *
+ * @uses Builder for more usage
  */
 class DatabaseBaseModel extends Model
 {
@@ -45,7 +63,7 @@ class DatabaseBaseModel extends Model
      * @param mixed $values
      * @return mixed
      */
-    public function resolveResult($values)
+    public static function resolveResult($values)
     {
         return Sanitizer::maybeUnSerialize($values);
     }
@@ -54,7 +72,7 @@ class DatabaseBaseModel extends Model
      * @param mixed $values
      * @return mixed
      */
-    public function resolveSet($values)
+    public static function resolveSet($values)
     {
         return Sanitizer::maybeSerialize($values);
     }

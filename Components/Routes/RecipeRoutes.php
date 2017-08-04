@@ -57,7 +57,7 @@ namespace {
                 // Check whether recipe instructions is not empty
                 if (trim($instructions) == '') {
                     throw new InvalidArgumentException(
-                        "Recipe instructions should not be empty",
+                        "Recipe Instructions should not be empty.",
                         E_USER_WARNING
                     );
                 }
@@ -68,7 +68,7 @@ namespace {
                 // Check whether recipe instructions is not empty
                 if (trim($userId) == '') {
                     throw new InvalidArgumentException(
-                        "Recipe user id should not be empty",
+                        "Recipe User Id should not be empty.",
                         E_USER_WARNING
                     );
                 }
@@ -78,8 +78,8 @@ namespace {
                  */
                 $recipe = new Recipe([
                     'name'         => $name,
-                    'instructions' => $bodyParsed->get('instructions'),
-                    'user_id'      => $bodyParsed->get('user_id')
+                    'instructions' => $instructions,
+                    'user_id'      => $userId
                 ]);
 
                 // Save or fail
@@ -211,54 +211,84 @@ namespace {
         '/recipes/{id}',
         function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
             try {
-                /**
-                 * Update a recipe
-                 *
-                 * @var string $name
-                 * @var string $instructions
-                 * @var Recipe $recipe
-                 */
-                $name = $request->getParsedBody()['name'];
-                $instructions = $request->getParsedBody()['instructions'];
-                $userId = $request->getParsedBody()['user_id'];
+                // Put collection to FetchAble
+                $bodyParsed = new CollectionFetch($request->getParsedBody());
 
+                // Validate recipe name
+                $name = $bodyParsed->get('name');
+
+                // Check whether recipe name is string
+                if (!is_string($name)) {
+                    throw new InvalidArgumentException(
+                        sprintf(
+                            "Recipe Name should be as a string, %s given.",
+                            gettype($name)
+                        ),
+                        E_USER_WARNING
+                    );
+                }
+
+                // Check whether recipe name is not empty
+                if (trim($name) == '') {
+                    throw new InvalidArgumentException(
+                        "Recipe Name should not be empty.",
+                        E_USER_WARNING
+                    );
+                }
+
+                // Check whether recipe name is not more than 60 characters
+                if (strlen($name) > 60) {
+                    throw new LengthException(
+                        "Recipe Name should not more than 60 characters.",
+                        E_USER_WARNING
+                    );
+                }
+
+                // Validate recipe instructions
+                $instructions = $bodyParsed->get('instructions');
+
+                // Check whether recipe instructions is not empty
+                if (trim($instructions) == '') {
+                    throw new InvalidArgumentException(
+                        "Recipe Instructions should not be empty",
+                        E_USER_WARNING
+                    );
+                }
+
+                // Validate recipe user id
+                $userId = $bodyParsed->get('user_id');
+
+                // Check whether recipe user id is not empty
+                if (trim($userId) == '') {
+                    throw new InvalidArgumentException(
+                        "Recipe User Id should not be empty",
+                        E_USER_WARNING
+                    );
+                }
+
+                // Get a recipe by id
                 $recipe = Recipe::query()->findOrFail($params['id']);
-                $recipe->updateOrFail([
+
+                // Update found recipe
+                $recipe->update([
                     'name'         => $name,
                     'instructions' => $instructions,
                     'user_id'      => $userId
                 ]);
 
-                return Json::generate($request, $response)
-                           ->setData([
-                               'code'   => $response->getStatusCode(),
-                               'status' => 'success',
-                               'data'   => $recipe
-                           ])
-                           ->serve(true);
-            } catch (ModelNotFoundException $exception) {
-                $response = $response->withStatus(404);
-                $exceptionName = substr(strrchr(get_class($exception), '\\'), 1);
-
-                return Json::generate($request, $response)
-                           ->setData([
-                               'code'    => $response->getStatusCode(),
-                               'status'  => 'error',
-                               'message' => 'recipe not found',
-                               'data'    => $exceptionName
-                           ])
-                           ->serve(true);
+                return ResponseStandard::with(
+                    $request,
+                    $response,
+                    $recipe
+                )->noTrace()->serve(true);
             } catch (Exception $exception) {
-                $response = $response->withStatus(400);
-
-                return Json::generate($request, $response)
-                           ->setData([
-                               'code'    => $response->getStatusCode(),
-                               'status'  => 'error',
-                               'message' => $exception->getMessage(),
-                               'data'    => get_class($exception)
-                           ])
-                           ->serve(true);
+                return ResponseStandard::withException(
+                    $request,
+                    $response->withStatus(406),
+                    $exception,
+                    Json::class,
+                    true
+                );
             }
         }
     );

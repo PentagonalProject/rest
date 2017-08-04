@@ -70,16 +70,4 @@ class Recipe extends DatabaseBaseModel
 
         return $results;
     }
-
-    /**
-     * Update the model
-     *
-     * @param array $attributes
-     */
-    public function updateOrFail(array $attributes)
-    {
-        $this->validateAttributes($attributes);
-
-        $this->update($attributes);
-    }
 }

@@ -211,14 +211,14 @@ class ModularParser
     /**
      * @return ModularAbstract|null
      */
-    public function getInstance()
-    {
-        if ($this->valid && $this->class && !$this->instance) {
-            $this->instance = new $this->class($this->container);
-        }
-
-        return $this->instance;
-    }
+     //public function getInstance()
+     //{
+     //   if ($this->valid && $this->class && !$this->instance) {
+     //       $this->instance = new $this->class($this->container);
+     //   }
+     //
+     //  return $this->instance;
+     //}
 
     /**
      * @return string

@@ -2,18 +2,31 @@
 namespace {
 
     use Apatis\ArrayStorage\CollectionFetch;
-    use Illuminate\Database\Eloquent\Collection;
-    use Illuminate\Database\Eloquent\ModelNotFoundException;
     use PentagonalProject\App\Rest\Generator\Response\Json;
     use PentagonalProject\App\Rest\Generator\ResponseStandard;
     use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
-    use Slim\Http\Uri;
 
-    /**
-     * Add Change to Validation & Response
-     */
+    // Get all recipes
+    $this->get(
+        '/recipes',
+        function (ServerRequestInterface $request, ResponseInterface $response) {
+            // Put collection to FetchAble
+            $requestParams = new CollectionFetch($request->getQueryParams());
+
+            return ResponseStandard::withData(
+                $request,
+                $response,
+                Recipe::filterByPage(
+                    Recipe::query()->where('user_id', '!=', 'null'),
+                    is_null($requestParams->get('page')) ?: $requestParams->get('page')
+                )
+            );
+        }
+    );
+
+    // Save a recipe
     $this->post(
         '/recipes',
         function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -84,11 +97,12 @@ namespace {
 
                 // Save or fail
                 $recipe->saveOrFail();
-                return ResponseStandard::with(
+
+                return ResponseStandard::withData(
                     $request,
                     $response->withStatus(201),
                     (int) $recipe->getKey()
-                )->noTrace()->serve(true);
+                );
             } catch (Exception $exception) {
                 return ResponseStandard::withException(
                     $request,
@@ -101,112 +115,27 @@ namespace {
         }
     );
 
-    $this->get(
-        '/recipes',
-        function (ServerRequestInterface $request, ResponseInterface $response) {
-            /**
-             * Pagination
-             *
-             * @var string     $pageParam
-             * @var string     $perPageParam
-             * @var Collection $recipes
-             * @var int        $totalRecipes
-             * @var int        $page
-             * @var int        $perPage
-             * @var int        $offset
-             * @var int        $firstPage
-             * @var int        $lastPage
-             * @var int        $previousPage
-             * @var int        $nextPage
-             */
-            $pageParam = $request->getQueryParams()['page'];
-            $perPageParam = $request->getQueryParams()['per_page'];
-            $totalRecipes = Recipe::all()->count();
-            $page = is_null($pageParam) ? 1 : (int) $pageParam;
-            $perPage = is_null($perPageParam) ? 10 : (int) $perPageParam;
-            $offset = ($page - 1) * $perPage;
-            $firstPage = 1;
-            $lastPage = ceil($totalRecipes / $perPage);
-            $previousPage = $page <= $firstPage ? $firstPage : $page - 1;
-            $nextPage = $page >= $lastPage ? $lastPage : $page + 1;
-
-            /**
-             * Item links
-             *
-             * @var Collection $recipesPerPage
-             */
-            $recipesPerPage = Recipe::query()->skip($offset)->take($perPage)->get();
-            $recipesPerPage->transform(function ($item) use ($request) {
-                return collect($item)->put('links', [
-                    [
-                        'rel' => 'self',
-                        'href' => (string) $request->getUri()->withPath('recipes/' . $item->id)
-                    ]
-                ]);
-            });
-
-            /**
-             * Pagination links
-             *
-             * @var Uri    $requestUri
-             * @var string $firstPageUri
-             * @var string $lastPageUri
-             * @var string $previousPageUri
-             * @var string $nextPageUri
-             */
-            $requestUri = $request->getUri();
-            $firstPageUri = (string) $requestUri->withQuery('page=' . $firstPage . '&per_page=' . $perPage);
-            $lastPageUri = (string) $requestUri->withQuery('page=' . $lastPage . '&per_page=' . $perPage);
-            $previousPageUri = (string) $requestUri->withQuery('page=' . $previousPage . '&per_page=' . $perPage);
-            $nextPageUri = (string) $requestUri->withQuery('page=' . $nextPage . '&per_page=' . $perPage);
-
-            return Json::generate($request, $response)
-                       ->setData([
-                           'code'   => $response->getStatusCode(),
-                           'status' => 'success',
-                           'data'   => $recipesPerPage,
-                           'links'  => [
-                               [
-                                   'rel'  => 'first-page',
-                                   'href' => $firstPageUri
-                               ],
-                               [
-                                   'rel'  => 'last-page',
-                                   'href' => $lastPageUri
-                               ],
-                               [
-                                   'rel'  => 'previous-page',
-                                   'href' => $previousPageUri
-                               ],
-                               [
-                                   'rel'  => 'next-page',
-                                   'href' => $nextPageUri
-                               ]
-                           ]
-                       ])
-                       ->serve(true);
-        }
-    );
-
+    // Get a recipe
     $this->get(
         '/recipes/{id}',
         function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
             try {
                 return ResponseStandard::withData(
                     $request,
-                    $response->withStatus(200),
+                    $response,
                     Recipe::query()->findOrFail($params['id'])
                 );
             } catch (Exception $exception) {
-                return ResponseStandard::withData(
+                return ResponseStandard::withException(
                     $request,
                     $response->withStatus(404),
-                    'Recipe Not Found'
+                    $exception
                 );
             }
         }
     );
 
+    // Update a recipe
     $this->post(
         '/recipes/{id}',
         function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
@@ -276,48 +205,43 @@ namespace {
                     'user_id'      => $userId
                 ]);
 
-                return ResponseStandard::with(
+                return ResponseStandard::withData(
                     $request,
                     $response,
                     $recipe
-                )->noTrace()->serve(true);
+                );
             } catch (Exception $exception) {
                 return ResponseStandard::withException(
                     $request,
                     $response->withStatus(406),
-                    $exception,
-                    Json::class,
-                    true
+                    $exception
                 );
             }
         }
     );
 
+    // Delete a recipe
     $this->delete(
         '/recipes/{id}',
         function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
             try {
+                // Get a recipe by id
                 $recipe = Recipe::query()->findOrFail($params['id']);
+
+                // Delete found recipe
                 $recipe->delete();
 
-                return Json::generate($request, $response)
-                           ->setData([
-                               'code'   => $response->getStatusCode(),
-                               'status' => 'success'
-                           ])
-                           ->serve(true);
+                return ResponseStandard::withData(
+                    $request,
+                    $response,
+                    $recipe
+                );
             } catch (Exception $exception) {
-                $response = $response->withStatus(404);
-                $exceptionName = substr(strrchr(get_class($exception), '\\'), 1);
-
-                return Json::generate($request, $response)
-                           ->setData([
-                               'code'    => $response->getStatusCode(),
-                               'status'  => 'error',
-                               'message' => 'recipe not found',
-                               'data'    => $exceptionName
-                           ])
-                           ->serve(true);
+                return ResponseStandard::withException(
+                    $request,
+                    $response->withStatus(404),
+                    $exception
+                );
             }
         }
     );

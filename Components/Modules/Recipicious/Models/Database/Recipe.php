@@ -59,13 +59,13 @@ class Recipe extends DatabaseBaseModel
      */
     public static function filterByPage(Builder $builder, int $page = 1, int $limit = 10) : stdClass
     {
-        $results = new stdClass;
-        $results->itemCount  = 0;
-        $results->totalItems   = $builder->count();
-        $results->currentPage  = $page;
-        $results->perPage      = $limit;
-        $results->totalPage    = (int) ceil($results->totalItems / $limit);
-        $results->items        = $builder->skip($limit * ($page - 1))->take($limit)->get()->all();
+        $results              = new stdClass;
+        $results->itemCount   = 0;
+        $results->totalItems  = $builder->count();
+        $results->currentPage = $page;
+        $results->perPage     = $limit;
+        $results->totalPage   = (int) ceil($results->totalItems / $limit);
+        $results->items       = $builder->skip($limit * ($page - 1))->take($limit)->get()->all();
         $results->itemCount   = count($results->items);
 
         return $results;

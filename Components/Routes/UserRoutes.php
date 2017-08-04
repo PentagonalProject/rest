@@ -14,81 +14,99 @@ namespace {
     $this->post('/users', function (ServerRequestInterface $request, ResponseInterface $response) {
         /**
          * @var CollectionFetch $collectionFetch that use ArrayAccess
-         * that mean acess data just need to pass by array bracket
+         * that mean access data just need to pass by array bracket
          *
          * -> $collectionFetch[keyName]
          */
         $collectionFetch = new CollectionFetch((array) $request->getParsedBody());
+
         try {
-            // data to check
+            // Data to check
             $check = [
-                'first_name',
-                'last_name',
-                'username',
-                'email',
-                'password'
+                'first_name' => [ 'length' => 64 ],
+                'last_name'  => [ 'length' => 64 ],
+                'username'   => [ 'length' => 64 ],
+                'email'      => [ 'length' => 255 ],
+                'password'   => [ 'length' => 60 ]
             ];
 
             $domain = new Verify();
-            foreach ($check as $toCheck) {
-                // do check email
-                if ($toCheck === 'email') {
-                    // doing validate email with real valid email address
+            foreach ($check as $key => $value) {
+                // Check whether data is string
+                // Even though exists or not it will be check
+                if (!is_string($collectionFetch[$key])) {
+                    throw new InvalidArgumentException(
+                        sprintf(
+                            "Invalid %s",
+                            ucwords(str_replace('_', ' ', $key))
+                        ),
+                        E_USER_WARNING
+                    );
+                }
+
+                // Check whether data is not empty
+                if (trim($collectionFetch[$key]) == '') {
+                    throw new InvalidArgumentException(
+                        sprintf(
+                            "%s should not be empty",
+                            ucwords(str_replace('_', ' ', $key))
+                        ),
+                        E_USER_WARNING
+                    );
+                }
+
+                // Check whether data length is not more than predetermined
+                if (strlen($collectionFetch[$key]) > $value['length']) {
+                    throw new LengthException(
+                        sprintf(
+                            "%s should not more than %s characters",
+                            ucwords(str_replace('_', ' ', $key)),
+                            $value['length']
+                        ),
+                        E_USER_WARNING
+                    );
+                }
+
+                // Check email
+                if ($key === 'email') {
+                    // Validate email with real valid email address
                     $email = $domain->validateEmail(
                         (string) $collectionFetch['email']
                     );
+
+                    // Check whether email is valid
                     if (!$email) {
                         throw new InvalidArgumentException(
                             "Invalid email address",
                             E_USER_ERROR
                         );
                     }
-                    // set fix email
+
+                    // Set fix email
                     $collectionFetch->set('email', $email);
                     continue;
                 }
-
-                // validate data that must be string
-                // even though exists or not it will be check
-                if (!is_string($collectionFetch[$toCheck])) {
-                    throw new InvalidArgumentException(
-                        sprintf(
-                            "Invalid %s",
-                            ucwords(str_replace('_', ' ', $toCheck))
-                        )
-                    );
-                }
-
-                //  doing next validation
-                // ..................
             }
 
             // Instantiate password hash
             $passwordHash = new PasswordHash();
+
+            // Instantiate user
             $user = new User([
-                'first_name' => $collectionFetch['first_name'],
-                'last_name' => $collectionFetch['last_name'],
-                'username' => $collectionFetch['username'],
-                'email' => $collectionFetch['email'],
-                'password' => $passwordHash->hash(sha1($collectionFetch['password'])),
+                'first_name'  => $collectionFetch['first_name'],
+                'last_name'   => $collectionFetch['last_name'],
+                'username'    => $collectionFetch['username'],
+                'email'       => $collectionFetch['email'],
+                'password'    => $passwordHash->hash(sha1($collectionFetch['password'])),
                 /**
                  * @uses microtime() has enough to generate very unique data double float
                  */
                 'private_key' => hash('sha512', microtime())
             ]);
 
+            // Save or fail
             $user->saveOrFail();
 
-            /**
-             * Modify response header
-             *
-             * @var string $userId
-             * @var ResponseInterface $response
-             */
-            $response = $response->withHeader(
-                'Location',
-                (string)$request->getUri()->withPath('users/' . $userId)
-            );
             return ResponseStandard::withData(
                 $request,
                 // response & data can pass here to prevent more memory usage on variable
@@ -100,11 +118,11 @@ namespace {
                  */
                 true
             );
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return ResponseStandard::withData(
                 $request,
                 $response->withStatus(406),
-                $e,
+                $exception,
                 Json::class, // or just put null as value
                 true // add pretty print on Json Generator
             );

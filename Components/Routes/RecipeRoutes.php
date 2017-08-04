@@ -15,14 +15,14 @@ namespace {
             // Put collection to FetchAble
             $requestParams = new CollectionFetch($request->getQueryParams());
 
-            return ResponseStandard::with(
+            return ResponseStandard::withData(
                 $request,
                 $response,
                 Recipe::filterByPage(
                     Recipe::query()->where('user_id', '!=', 'null'),
                     is_null($requestParams->get('page')) ?: $requestParams->get('page')
                 )
-            )->noTrace()->serve(true);
+            );
         }
     );
 
@@ -97,11 +97,12 @@ namespace {
 
                 // Save or fail
                 $recipe->saveOrFail();
-                return ResponseStandard::with(
+
+                return ResponseStandard::withData(
                     $request,
                     $response->withStatus(201),
                     (int) $recipe->getKey()
-                )->noTrace()->serve(true);
+                );
             } catch (Exception $exception) {
                 return ResponseStandard::withException(
                     $request,
@@ -114,20 +115,21 @@ namespace {
         }
     );
 
+    // Get a recipe
     $this->get(
         '/recipes/{id}',
         function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
             try {
                 return ResponseStandard::withData(
                     $request,
-                    $response->withStatus(200),
+                    $response,
                     Recipe::query()->findOrFail($params['id'])
                 );
             } catch (Exception $exception) {
-                return ResponseStandard::withData(
+                return ResponseStandard::withException(
                     $request,
                     $response->withStatus(404),
-                    'Recipe Not Found'
+                    $exception
                 );
             }
         }
@@ -203,48 +205,43 @@ namespace {
                     'user_id'      => $userId
                 ]);
 
-                return ResponseStandard::with(
+                return ResponseStandard::withData(
                     $request,
                     $response,
                     $recipe
-                )->noTrace()->serve(true);
+                );
             } catch (Exception $exception) {
                 return ResponseStandard::withException(
                     $request,
                     $response->withStatus(406),
-                    $exception,
-                    Json::class,
-                    true
+                    $exception
                 );
             }
         }
     );
 
+    // Delete a recipe
     $this->delete(
         '/recipes/{id}',
         function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
             try {
+                // Get a recipe by id
                 $recipe = Recipe::query()->findOrFail($params['id']);
+
+                // Delete found recipe
                 $recipe->delete();
 
-                return Json::generate($request, $response)
-                           ->setData([
-                               'code'   => $response->getStatusCode(),
-                               'status' => 'success'
-                           ])
-                           ->serve(true);
+                return ResponseStandard::withData(
+                    $request,
+                    $response,
+                    $recipe
+                );
             } catch (Exception $exception) {
-                $response = $response->withStatus(404);
-                $exceptionName = substr(strrchr(get_class($exception), '\\'), 1);
-
-                return Json::generate($request, $response)
-                           ->setData([
-                               'code'    => $response->getStatusCode(),
-                               'status'  => 'error',
-                               'message' => 'recipe not found',
-                               'data'    => $exceptionName
-                           ])
-                           ->serve(true);
+                return ResponseStandard::withException(
+                    $request,
+                    $response->withStatus(404),
+                    $exception
+                );
             }
         }
     );

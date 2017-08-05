@@ -282,9 +282,25 @@ class Verify
      * @param string $email
      * @return bool
      */
-    public function isEmail($email) : bool
+    public function isEmail(string $email) : bool
     {
         return is_string($this->validateEmail($email));
+    }
+
+    /**
+     * @param string $ip
+     * @return bool
+     */
+    public function isLocalIPv4(string $ip) : bool
+    {
+        return (bool) preg_match(
+            '~(^127\.)  | # localhost 
+                (^10\.) | # private IP
+                (^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.) | # subnet
+                (^192\.168\.) # network IP
+            ~x',
+            $ip
+        );
     }
 
     /**

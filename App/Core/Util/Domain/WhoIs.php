@@ -276,10 +276,11 @@ class WhoIs
      */
     private function cleanASN(string $asnResult, string $asn) : string
     {
+        /*
         preg_match("/(?P<data>\n(\#|\%)[^\#|\%]+{$asn}[^\n]+\n.*)/ism", $asnResult, $match);
         if (!empty($match['data'])) {
             $asnResult = trim($match['data']);
-        }
+        }*/
         $asnResult = $this->cleanData($asnResult);
         return $asnResult;
     }

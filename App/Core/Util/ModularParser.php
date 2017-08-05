@@ -61,11 +61,6 @@ class ModularParser
     protected $class;
 
     /**
-     * @var ModularAbstract
-     */
-    protected $instance;
-
-    /**
      * @var string
      */
     protected $modularClass = ModularAbstract::class;
@@ -490,6 +485,5 @@ class ModularParser
         $this->valid = null;
         $this->file = false;
         $this->class = null;
-        $this->instance = null;
     }
 }

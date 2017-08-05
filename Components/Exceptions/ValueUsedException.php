@@ -27,23 +27,10 @@
 
 declare(strict_types=1);
 
-namespace {
+namespace PentagonalProject\Exceptions;
 
-    use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
-    use Slim\App;
+use Exception;
 
-    /**
-     * @var App $this
-     */
-    ComposerLoaderPSR4::create([
-        "PentagonalProject\\Exceptions\\" => __DIR__ . "/../Exceptions",
-        "PentagonalProject\\Model\\"      => __DIR__ . "/../Models/"
-    ])->register();
-
-    // Require Common Middleware
-    require_once __DIR__ . '/../Middlewares/CommonMiddleware.php';
-
-    // Routes
-    require_once __DIR__ . '/../Routes/RecipeRoutes.php';
-    require_once __DIR__ . '/../Routes/UserRoutes.php';
+class ValueUsedException extends Exception
+{
 }

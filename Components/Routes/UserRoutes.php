@@ -3,22 +3,21 @@ namespace {
 
     use Apatis\ArrayStorage\CollectionFetch;
     use Pentagonal\PhPass\PasswordHash;
-    use PentagonalProject\App\Rest\Abstracts\ResponseGeneratorAbstract;
-    use PentagonalProject\App\Rest\Generator\Response\Json;
     use PentagonalProject\App\Rest\Generator\ResponseStandard;
     use PentagonalProject\App\Rest\Util\Domain\Verify;
+    use PentagonalProject\Exceptions\ValueUsedException;
     use PentagonalProject\Model\Database\User;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
 
     $this->post('/users', function (ServerRequestInterface $request, ResponseInterface $response) {
         /**
-         * @var CollectionFetch $collectionFetch that use ArrayAccess
+         * @var CollectionFetch $requestBody that use ArrayAccess
          * that mean access data just need to pass by array bracket
          *
-         * -> $collectionFetch[keyName]
+         * -> $requestBody[keyName]
          */
-        $collectionFetch = new CollectionFetch((array) $request->getParsedBody());
+        $requestBody = new CollectionFetch((array) $request->getParsedBody());
 
         try {
             // Data to check
@@ -31,47 +30,75 @@ namespace {
             ];
 
             $domain = new Verify();
-            foreach ($check as $key => $value) {
+            foreach ($check as $toCheck => $value) {
                 // Check whether data is string
                 // Even though exists or not it will be check
-                if (!is_string($collectionFetch[$key])) {
+                if (!is_string($requestBody[$toCheck])) {
                     throw new InvalidArgumentException(
                         sprintf(
                             "Invalid %s",
-                            ucwords(str_replace('_', ' ', $key))
+                            ucwords(str_replace('_', ' ', $toCheck))
                         ),
                         E_USER_WARNING
                     );
                 }
 
                 // Check whether data is not empty
-                if (trim($collectionFetch[$key]) == '') {
+                if (trim($requestBody[$toCheck]) == '') {
                     throw new InvalidArgumentException(
                         sprintf(
                             "%s should not be empty",
-                            ucwords(str_replace('_', ' ', $key))
+                            ucwords(str_replace('_', ' ', $toCheck))
                         ),
                         E_USER_WARNING
                     );
                 }
 
                 // Check whether data length is not more than predetermined
-                if (strlen($collectionFetch[$key]) > $value['length']) {
+                if (strlen($requestBody[$toCheck]) > $value['length']) {
                     throw new LengthException(
                         sprintf(
                             "%s should not more than %s characters",
-                            ucwords(str_replace('_', ' ', $key)),
+                            ucwords(str_replace('_', ' ', $toCheck)),
                             $value['length']
                         ),
                         E_USER_WARNING
                     );
                 }
 
+                // Check whether username or email are already in use
+                if ($toCheck === 'username' || $toCheck === 'email') {
+                    if (User::query()->where($toCheck, $requestBody[$toCheck])->first()) {
+                        throw new ValueUsedException(
+                            sprintf(
+                                "%s already in use",
+                                ucwords($toCheck)
+                            ),
+                            E_USER_ERROR
+                        );
+                    }
+                }
+
+                // Check username
+                if ($toCheck === 'username') {
+                    // Check whether username is valid
+                    if (!preg_match(
+                        '/(?=^[a-z0-9_]{3,64}$)^[a-z0-9]+[_]?(?:[a-z0-9]+[_]?)?[a-z0-9]+$/',
+                        $requestBody['username']
+                    )
+                    ) {
+                        throw new InvalidArgumentException(
+                            "Invalid username",
+                            E_USER_ERROR
+                        );
+                    }
+                }
+
                 // Check email
-                if ($key === 'email') {
+                if ($toCheck === 'email') {
                     // Validate email with real valid email address
                     $email = $domain->validateEmail(
-                        (string) $collectionFetch['email']
+                        (string) $requestBody['email']
                     );
 
                     // Check whether email is valid
@@ -83,7 +110,7 @@ namespace {
                     }
 
                     // Set fix email
-                    $collectionFetch->set('email', $email);
+                    $requestBody['email'] = $email;
                     continue;
                 }
             }
@@ -93,11 +120,11 @@ namespace {
 
             // Instantiate user
             $user = new User([
-                'first_name'  => $collectionFetch['first_name'],
-                'last_name'   => $collectionFetch['last_name'],
-                'username'    => $collectionFetch['username'],
-                'email'       => $collectionFetch['email'],
-                'password'    => $passwordHash->hash(sha1($collectionFetch['password'])),
+                'first_name'  => $requestBody['first_name'],
+                'last_name'   => $requestBody['last_name'],
+                'username'    => $requestBody['username'],
+                'email'       => $requestBody['email'],
+                'password'    => $passwordHash->hash(sha1($requestBody['password'])),
                 /**
                  * @uses microtime() has enough to generate very unique data double float
                  */
@@ -109,22 +136,14 @@ namespace {
 
             return ResponseStandard::withData(
                 $request,
-                // response & data can pass here to prevent more memory usage on variable
                 $response->withStatus(201),
-                $user->getKey(),
-                Json::class,
-                /**
-                 * magic additional arguments for @uses ResponseGeneratorAbstract::serve()
-                 */
-                true
+                $user->getKey()
             );
         } catch (Exception $exception) {
-            return ResponseStandard::withData(
+            return ResponseStandard::withException(
                 $request,
                 $response->withStatus(406),
-                $exception,
-                Json::class, // or just put null as value
-                true // add pretty print on Json Generator
+                $exception
             );
         }
     });

@@ -35,6 +35,30 @@ namespace PentagonalProject\App\Rest\Util\Domain;
  */
 class Verify
 {
+    const IPV4_REGEX = '~^
+        # start with 0. to 255.
+        (?:
+            0|1[0-9]{0,2}|2[0-5]{0,2}
+        )
+        # start with 0. to 255. 3 times
+        (?:\.(?:0|1[0-9]{0,2}|2[0-5]{0,2})){3}
+    $~x';
+
+    const IPV4_LOCAL_REGEX = '~^
+        (?:
+            (?:
+                1?0 | # start with 0. or 10.
+                127  # start with 127.
+            )\.(?:0|1[0-9]{0,2}|2[0-5]{0,2}) # next 0 to 255
+            | 192\.168
+            | 172\.16
+        )
+        # next 0. to 255. twice
+        (?:
+            \.(?:0|1[0-9]{0,2}|2[0-5]{0,2})
+        ){2}
+    $~x';
+
     /**
      * @var array
      */
@@ -291,14 +315,29 @@ class Verify
      * @param string $ip
      * @return bool
      */
+    public function isIPv4(string $ip) : bool
+    {
+        if (strlen($ip) > 15) {
+            return false;
+        }
+        return (bool) preg_match(
+            self::IPV4_REGEX,
+            $ip
+        );
+    }
+
+    /**
+     * @param string $ip
+     * @return bool
+     */
     public function isLocalIPv4(string $ip) : bool
     {
+        if (strlen($ip) > 15) {
+            return false;
+        }
+
         return (bool) preg_match(
-            '~(^127\.)  | # localhost 
-                (^10\.) | # private IP
-                (^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.) | # subnet
-                (^192\.168\.) # network IP
-            ~x',
+            self::IPV4_LOCAL_REGEX,
             $ip
         );
     }

@@ -341,13 +341,17 @@ class Verify
     }
 
     /**
-     * @param string $name
+     * @param string|int $name
      * @return bool|string
      */
-    public function validateASN(string $name)
+    public function validateASN($name)
     {
-        if (preg_match('/^[A-Z]{2,4}[0-9]+$/i', $name)) {
-            return strtoupper($name);
+        if (!is_numeric($name) && is_string($name)) {
+            return false;
+        }
+
+        if (preg_match('/^(?:AS)?(?P<number>[0-9]{1,7})$/i', $name, $match)) {
+            return $match['number'];
         }
 
         return false;

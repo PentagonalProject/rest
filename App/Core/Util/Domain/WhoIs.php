@@ -78,7 +78,7 @@ class WhoIs
         } catch (StreamConnectionException $exception) {
             $stream = new StreamTransport($server);
         }
-        if ($stream->write("{$domain}\r\n")) {
+        if (!$stream->write("{$domain}\r\n")) {
             $stream->close();
             throw new \UnexpectedValueException(
                 'Can not put data into whois',

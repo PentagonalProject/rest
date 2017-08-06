@@ -39,8 +39,8 @@ use PentagonalProject\Model\DatabaseBaseModel;
 class Option extends DatabaseBaseModel
 {
     const COLUMN_OPTION_ID    = 'id';
-    const COLUMN_OPTION_NAME  = 'name';
-    const COLUMN_OPTION_VALUE = 'value';
+    const COLUMN_OPTION_NAME  = 'option_name';
+    const COLUMN_OPTION_VALUE = 'option_value';
 
     /**
      * @var string

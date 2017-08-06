@@ -20,8 +20,8 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `options` (
   `id` int(11) NOT NULL,
-  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `value` longtext COLLATE utf8_unicode_ci NOT NULL
+  `option_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `option_value` longtext COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -29,7 +29,7 @@ CREATE TABLE `options` (
 --
 ALTER TABLE `options`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `name` (`name`);
+  ADD KEY `option_name` (`option_name`);
 
 --
 -- AUTO_INCREMENT for table `options`

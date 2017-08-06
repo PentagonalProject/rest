@@ -29,7 +29,6 @@ declare(strict_types=1);
 namespace PentagonalProject\App\Rest\Util\Domain;
 
 use DomainException;
-use HttpUrlException;
 use PentagonalProject\App\Rest\Exceptions\StreamConnectionException;
 use PentagonalProject\App\Rest\Http\StreamTransport;
 
@@ -171,7 +170,7 @@ class WhoIs
     /**
      * @param string $domain
      * @return mixed
-     * @throws HttpUrlException
+     * @throws \UnexpectedValueException
      * @throws DomainException
      */
     public function getWhoIsServer($domain)

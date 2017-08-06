@@ -116,6 +116,9 @@ class Data
                 function ($data) use ($objectThis, $type) {
                     $data = trim($data);
                     if ($type == 'iana') {
+                        if (strlen($data) < 2) {
+                            return;
+                        }
                         $objectThis->tldList[idn_to_utf8($data)] = [];
                         return;
                     }

@@ -30,6 +30,8 @@ namespace PentagonalProject\App\Rest\Util\Domain;
 
 use DomainException;
 use HttpUrlException;
+use PentagonalProject\App\Rest\Exceptions\StreamConnectionException;
+use PentagonalProject\App\Rest\Http\StreamTransport;
 
 /**
  * Class WhoIs
@@ -70,33 +72,26 @@ class WhoIs
      * @param string $server
      * @return string
      */
-    protected function runSocketConnection($domain, $server)
+    protected function runStreamConnection($domain, $server)
     {
-        $serverDetails = explode(':', $server);
-        $socket = @fsockopen($serverDetails[0], abs($serverDetails[1]), $errNumber, $errString);
-        if (!$socket) {
-            usleep(600);
-            $socket = @fsockopen($serverDetails[0], $serverDetails[1], $errNumber, $errString);
+        try {
+            $stream = new StreamTransport($server);
+        } catch (StreamConnectionException $exception) {
+            $stream = new StreamTransport($server);
         }
-        if (!$socket) {
-            throw new \UnexpectedValueException(
-                $errString,
-                $errNumber
-            );
-        }
-        if (!fputs($socket, "{$domain}\r\n")) {
-            @fclose($socket);
+        if ($stream->write("{$domain}\r\n")) {
+            $stream->close();
             throw new \UnexpectedValueException(
                 'Can not put data into whois',
                 E_ERROR
             );
         }
         $data = '';
-        while (!feof($socket)) {
-            $data .= fgets($socket);
+        while (!$stream->eof()) {
+            $data .= $stream->read(4096);
         }
-        @fclose($socket);
-        unset($socket);
+        $stream->close();
+        unset($stream);
 
         return $data;
     }
@@ -151,7 +146,7 @@ class WhoIs
                 ];
             }
 
-            $data2 = $this->runSocketConnection($domainName, "{$match['server']}:43");
+            $data2 = $this->runStreamConnection($domainName, "{$match['server']}:43");
             if (!empty($data2)) {
                 $array = explode('.', $domainName);
                 $this->cachedWhoIsServers[end($array)] = $match['server'];
@@ -192,7 +187,7 @@ class WhoIs
         $array = explode('.', $domain);
         if (! isset($this->cachedWhoIsServers[end($array)])) {
             $this->cachedWhoIsServers[end($array)] = false;
-            $body = $this->runSocketConnection($domain, Data::IANA_WHOIS_URL . ":43");
+            $body = $this->runStreamConnection($domain, Data::IANA_WHOIS_URL . ":43");
             preg_match('/whois:\s*(?P<server>[^\n]+)/i', $body, $match);
             if (!empty($match['server']) && ($server = trim($match['server']) != '')) {
                 $this->cachedWhoIsServers[end($array)] = $match['server'];
@@ -264,7 +259,7 @@ class WhoIs
         $whoIsServer = $this->getWhoIsServer($domainName);
         return $this->getForWhoIsServerAlternative(
             $domainName,
-            $this->runSocketConnection($domainName, "{$whoIsServer}:43"),
+            $this->runStreamConnection($domainName, "{$whoIsServer}:43"),
             $whoIsServer
         );
     }
@@ -302,7 +297,7 @@ class WhoIs
         $whoIsServer = $this->getWhoIsServer($asn);
         // $whoIsServer = 'whois.apnic.net';
         return $this->cleanASN(
-            $this->runSocketConnection($asn, "{$whoIsServer}:43"),
+            $this->runStreamConnection($asn, "{$whoIsServer}:43"),
             $asn
         );
     }
@@ -334,7 +329,7 @@ class WhoIs
         $whoIsServer = $this->getWhoIsServer($ipData);
         // $whoIsServer = 'whois.apnic.net';
         return $this->cleanASN(
-            $this->runSocketConnection($ipData, "{$whoIsServer}:43"),
+            $this->runStreamConnection($ipData, "{$whoIsServer}:43"),
             $ipData
         );
     }

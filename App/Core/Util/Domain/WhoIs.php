@@ -37,7 +37,7 @@ use PentagonalProject\App\Rest\Http\StreamTransport;
  * @package PentagonalProject\App\Rest\Util\Domain
  * For nic check
  * @uses WhoIs::getIPWithArrayDetail()
- * @uses Whois::getASNWithArrayDetail()
+ * @uses WhoIs::getASNWithArrayDetail()
  *
  * That contain '::' it must be explode as array to better reading on result get API
  */

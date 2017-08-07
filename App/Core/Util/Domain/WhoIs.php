@@ -362,7 +362,6 @@ class WhoIs
             $c = 0;
             $countKey = 0;
             foreach ($explode as $v) {
-                print_r($v);
                 $c++;
                 preg_match('/(?:^(?P<name>[^\:]+)\:)?(?P<value>.*)/', $v, $m);
                 $theName = !empty($m['name']) ? trim($m['name']) : null;

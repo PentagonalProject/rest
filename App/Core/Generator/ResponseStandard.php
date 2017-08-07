@@ -38,6 +38,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Exception;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * Class ResponseStandard
@@ -123,48 +124,53 @@ class ResponseStandard
 
     /**
      * @param mixed $data
-     * @return ResponseStandard
+     * @return array
      */
-    protected function generateData($data) : ResponseStandard
+    protected function generateData($data) : array
     {
-        $this->output = [
+        $output = [
             'code' => $this->generator->getStatusCode(),
             'status' => $this->generator->getReasonPhrase(),
         ];
 
         // fix error if there was exception
-        if ($data instanceof Exception) {
-            if (in_array($this->output['code'], $this->successCode)) {
+        if ($data instanceof Exception || $data instanceof Throwable) {
+            if (in_array($output['code'], $this->successCode)) {
                 $this->generator->setStatusCode(500);
-                $this->output['code'] = 500;
-                $this->output['status'] = $this->generator->getReasonPhrase();
+                $output['code'] = 500;
+                $output['status'] = $this->generator->getReasonPhrase();
             }
 
-            $this->output['error'] = [
+            if ($this->isWithTrace()) {
+                $output['error']['code'] = $data->getCode();
+                $output['error']['line'] = $data->getLine();
+                $output['error']['file'] = $data->getFile();
+                $output['error']['message'] = $data->getMessage();
+                $output['error']['trace'] = $data->getTraceAsString();
+                return $output;
+            }
+
+            $output['error'] = [
                 'message' => $data->getMessage(),
             ];
 
-            if ($this->isWithTrace()) {
-                $this->output['error']['trace'] = $data->getTraceAsString();
-            }
-
-            return $this;
+            return $output;
         }
 
-        if (in_array($this->output['code'], $this->successCode)) {
-            $this->output['data'] = $data;
-            return $this;
+        if (in_array($output['code'], $this->successCode)) {
+            $output['data'] = $data;
+            return $output;
         }
 
-        $this->output['error'] = [
+        $output['error'] = [
             'message' => $data
         ];
 
         if ($this->isWithTrace()) {
-            $this->output['error']['trace'] = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 4);
+            $output['error']['trace'] = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 4);
         }
 
-        return $this;
+        return $output;
     }
 
     /**
@@ -194,17 +200,6 @@ class ResponseStandard
     }
 
     /**
-     * @param mixed $data
-     * @return ResponseStandard
-     */
-    public function process($data) : ResponseStandard
-    {
-        $this->generateData($data)->generator->setData($this->output);
-
-        return $this;
-    }
-
-    /**
      * @param RequestInterface $request
      * @param ResponseInterface $response
      * @param Exception|mixed $message
@@ -219,7 +214,8 @@ class ResponseStandard
     ) : ResponseStandard {
 
         $object = new static($request, $response, $generator);
-        return $object->process($message);
+        $object->output = $message;
+        return $object;
     }
 
     /**
@@ -227,7 +223,13 @@ class ResponseStandard
      */
     public function serve() : ResponseInterface
     {
-        return call_user_func_array([$this->generator, 'serve'], func_get_args());
+        return call_user_func_array(
+            [
+                $this->generator->setData($this->generateData($this->output)),
+                'serve'
+            ],
+            func_get_args()
+        );
     }
 
     /**

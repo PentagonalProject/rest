@@ -19,8 +19,8 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `options` (
-  `id` int(11) NOT NULL,
-  `option_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `id` bigint(11) NOT NULL,
+  `option_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Unique Option Name',
   `option_value` longtext COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -29,13 +29,13 @@ CREATE TABLE `options` (
 --
 ALTER TABLE `options`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `option_name` (`option_name`);
+  ADD UNIQUE KEY `option_name` (`option_name`);
 
 --
 -- AUTO_INCREMENT for table `options`
 --
 ALTER TABLE `options`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` BIGINT(11) NOT NULL AUTO_INCREMENT;
 
 -- --------------------------------------------------------
 
@@ -44,15 +44,15 @@ ALTER TABLE `options`
 --
 
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
+  `id` bigint(11) NOT NULL,
   `first_name` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `last_name` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `username` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `password` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `private_key` varchar(128) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `password` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'sha1 string PasswordHash - (phpass by openwall)',
+  `private_key` varchar(128) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT  'Private Grant token API',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT '1990-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP COMMENT 'use `1990-01-01 00:00:00` to prevent error sql time stamp zero value'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -68,11 +68,11 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(11) NOT NULL AUTO_INCREMENT;
 
 
 -- --------------------------------------------------------
--- MODULES RECIPE DATA
+-- MODULES
 -- --------------------------------------------------------
 
 -- --------------------------------------------------------
@@ -82,14 +82,14 @@ ALTER TABLE `users`
 --
 
 CREATE TABLE `recipes` (
-  `id` int(11) NOT NULL,
+  `id` bigint(11) NOT NULL,
+  `user_id` bigint(11) NOT NULL COMMENT 'Relation for `users.id`',
   `name` varchar(60) COLLATE utf8_unicode_ci NOT NULL,
   `instructions` text COLLATE utf8_unicode_ci NOT NULL,
   `status` int(11) NOT NULL DEFAULT '1',
   `published_at` timestamp NULL DEFAULT NULL,
-  `user_id` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT '1990-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP COMMENT 'use `1990-01-01 00:00:00` to prevent error sql time stamp zero value'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -103,7 +103,7 @@ ALTER TABLE `recipes`
 -- AUTO_INCREMENT for table `recipes`
 --
 ALTER TABLE `recipes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(11) NOT NULL AUTO_INCREMENT;
 
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

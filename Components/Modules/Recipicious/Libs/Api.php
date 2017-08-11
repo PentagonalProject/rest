@@ -29,10 +29,82 @@ declare(strict_types=1);
 
 namespace PentagonalProject\Modules\Recipicious\Lib;
 
+use PentagonalProject\Modules\Recipicious\Recipicious;
+use Slim\App;
+
 /**
  * Class Api
  * @package PentagonalProject\Modules\Recipicious\Lib
  */
 class Api
 {
+	/**
+	 * Lib module
+	 *
+	 * @var Recipicious $module
+	 */
+    private $module;
+
+    public function __construct(Recipicious &$module)
+    {
+        $this->module = $module;
+    }
+
+	/**
+	 * Api get route
+	 *
+	 * @param string   $group
+	 * @param string   $pattern
+	 * @param callable $callable
+	 */
+    public function get($group, $pattern, callable $callable)
+    {
+        $this->group($group, ['GET'], $pattern, $callable);
+    }
+
+	/**
+	 * Api post route
+	 *
+	 * @param string   $group
+	 * @param string   $pattern
+	 * @param callable $callable
+	 */
+    public function post($group, $pattern, $callable)
+    {
+        $this->group($group, ['POST'], $pattern, $callable);
+    }
+
+	/**
+	 * Api delete route
+	 *
+	 * @param string   $group
+	 * @param string   $pattern
+	 * @param callable $callable
+	 */
+    public function delete($group, $pattern, $callable)
+    {
+        $this->group($group, ['DELETE'], $pattern, $callable);
+    }
+
+	/**
+	 * Group api route
+	 *
+	 * @param string   $name
+	 * @param array    $methods
+	 * @param string   $pattern
+	 * @param callable $callable
+	 */
+    private function group($name, array $methods, $pattern, $callable)
+    {
+        /**
+         * @var App $app
+         */
+        $app = $this->module->getContainer()['app'];
+        $app->group(
+            $name,
+            function () use ($app, $methods, $pattern, $callable) {
+                $app->map($methods, $pattern, $callable);
+            }
+        );
+    }
 }

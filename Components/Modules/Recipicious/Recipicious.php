@@ -31,6 +31,7 @@ namespace PentagonalProject\Modules\Recipicious;
 
 use PentagonalProject\App\Rest\Abstracts\ModularAbstract;
 use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
+use PentagonalProject\Modules\Recipicious\Lib\Api;
 use PentagonalProject\Modules\Recipicious\Task\MainWorker;
 
 /**
@@ -69,6 +70,8 @@ class Recipicious extends ModularAbstract
      */
     protected $worker;
 
+    protected $api;
+
     /**
      * {@inheritdoc}
      * @see MainWorker::run()
@@ -78,11 +81,12 @@ class Recipicious extends ModularAbstract
         // register AutoLoader
         // and run it
         ComposerLoaderPSR4::create([
-            __NAMESPACE__ .'\\Task\\'  => __DIR__ .'/Tasks/',
-            __NAMESPACE__ .'\\Lib\\'  => __DIR__ .'/Libs/',
-            __NAMESPACE__ .'\\Model\\'  => __DIR__ .'/Models/',
+            __NAMESPACE__ . '\\Lib\\'   => __DIR__ . '/Libs/',
+            __NAMESPACE__ . '\\Model\\' => __DIR__ . '/Models/',
+            __NAMESPACE__ . '\\Task\\'  => __DIR__ . '/Tasks/',
         ])->register();
 
+        $this->api = new Api($this);
         $this->worker = new MainWorker($this);
         $this->worker->run();
     }
@@ -93,5 +97,13 @@ class Recipicious extends ModularAbstract
     public function getWorker()
     {
         return $this->worker;
+    }
+
+    /**
+     * @return Api
+     */
+    public function getApi()
+    {
+        return $this->api;
     }
 }

@@ -45,5 +45,4 @@ namespace {
 
     // Routes
     require_once __DIR__ . "/../Routes/UserRoutes.php";
-    require_once __DIR__ . "/../Modules/Recipicious/Routes.php";
 }

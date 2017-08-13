@@ -31,6 +31,7 @@ namespace PentagonalProject\Modules\Recipicious\Task;
 
 use Apatis\ArrayStorage\Collection;
 use Apatis\ArrayStorage\CollectionFetch;
+use function array_map;
 use PentagonalProject\App\Rest\Abstracts\ResponseGeneratorAbstract;
 use PentagonalProject\App\Rest\Generator\Response\Json;
 use PentagonalProject\App\Rest\Generator\Response\Xml;
@@ -43,6 +44,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
+use function var_dump;
 
 /**
  * Class MainWorker
@@ -167,14 +169,14 @@ class MainWorker
                  *
                  * @var CollectionFetch $requestParams
                  */
-                $requestParams = new CollectionFetch((array) $request->getQueryParams());
+                $requestParams = new CollectionFetch($request->getQueryParams());
 
                 return ResponseStandard::withData(
                     $request,
                     $response,
                     Recipe::filterByPage(
                         Recipe::query()->where('user_id', '!=', 'null'),
-                        is_null($requestParams['page']) ? 1 : $requestParams['page']
+                        is_null($requestParams['page']) ? 1 : (int) $requestParams['page']
                     )
                 );
             }
@@ -189,7 +191,7 @@ class MainWorker
                  *
                  * @var CollectionFetch $requestBody
                  */
-                $requestBody = new CollectionFetch((array) $request->getParsedBody());
+                $requestBody = new CollectionFetch($request->getParsedBody());
 
                 try {
                     $check = [
@@ -197,6 +199,16 @@ class MainWorker
                         'instructions',
                         'user_id'
                     ];
+
+                    // Trim every inputs
+                    $requestBody->replace(
+                        array_map(
+                            function ($value) {
+                                return trim($value);
+                            },
+                            $requestBody->all()
+                        )
+                    );
 
                     foreach ($check as $toCheck) {
                         // Check whether data is string
@@ -288,7 +300,7 @@ class MainWorker
                  *
                  * @var CollectionFetch $requestBody
                  */
-                $requestBody = new CollectionFetch((array) $request->getParsedBody());
+                $requestBody = new CollectionFetch($request->getParsedBody());
 
                 try {
                     $check = [
@@ -296,6 +308,16 @@ class MainWorker
                         'instructions',
                         'user_id'
                     ];
+
+                    // Trim every inputs
+                    $requestBody->replace(
+                        array_map(
+                            function ($value) {
+                                return trim($value);
+                            },
+                            $requestBody->all()
+                        )
+                    );
 
                     foreach ($check as $toCheck) {
                         // Check whether data is string

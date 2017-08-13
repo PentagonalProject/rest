@@ -17,7 +17,7 @@ namespace {
          *
          * -> $requestBody[keyName]
          */
-        $requestBody = new CollectionFetch((array) $request->getParsedBody());
+        $requestBody = new CollectionFetch($request->getParsedBody());
 
         try {
             // Data to check
@@ -28,6 +28,16 @@ namespace {
                 'email'      => [ 'length' => 255 ],
                 'password'   => [ 'length' => 60 ]
             ];
+
+            // Trim every inputs
+            $requestBody->replace(
+                array_map(
+                    function ($value) {
+                        return trim($value);
+                    },
+                    $requestBody->all()
+                )
+            );
 
             $domain = new Verify();
             foreach ($check as $toCheck => $value) {

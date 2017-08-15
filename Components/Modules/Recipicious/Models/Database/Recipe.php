@@ -39,14 +39,18 @@ use stdClass;
  */
 class Recipe extends DatabaseBaseModel
 {
+    const COLUMN_RECIPE_NAME         = 'name';
+    const COLUMN_RECIPE_INSTRUCTIONS = 'instructions';
+    const COLUMN_RECIPE_USER_ID      = 'user_id';
+
     /**
      * {@inheritdoc}
      * @var array
      */
     protected $fillable = [
-        'name',
-        'instructions',
-        'user_id'
+        self::COLUMN_RECIPE_NAME,
+        self::COLUMN_RECIPE_INSTRUCTIONS,
+        self::COLUMN_RECIPE_USER_ID
     ];
 
     /**

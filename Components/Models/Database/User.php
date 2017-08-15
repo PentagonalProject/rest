@@ -37,16 +37,23 @@ use PentagonalProject\Model\DatabaseBaseModel;
  */
 class User extends DatabaseBaseModel
 {
+    const COLUMN_USER_FIRST_NAME  = 'first_name';
+    const COLUMN_USER_LAST_NAME   = 'last_name';
+    const COLUMN_USER_USERNAME    = 'username';
+    const COLUMN_USER_EMAIL       = 'email';
+    const COLUMN_USER_PASSWORD    = 'password';
+    const COLUMN_USER_PRIVATE_KEY = 'private_key';
+
     /**
      * {@inheritdoc}
      * @var array
      */
     protected $fillable = [
-        'first_name',
-        'last_name',
-        'username',
-        'email',
-        'password',
-        'private_key'
+        self::COLUMN_USER_FIRST_NAME,
+        self::COLUMN_USER_LAST_NAME,
+        self::COLUMN_USER_USERNAME,
+        self::COLUMN_USER_EMAIL,
+        self::COLUMN_USER_PASSWORD,
+        self::COLUMN_USER_PRIVATE_KEY
     ];
 }

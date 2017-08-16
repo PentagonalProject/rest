@@ -135,7 +135,7 @@ class RecipeValidator
         if (strlen($data[$attribute]) > $length) {
             throw new \LengthException(
                 sprintf(
-                    "Recipe Name should not more than %s characters.",
+                    "Recipe Name length should not more than %s characters.",
                     $length
                 ),
                 E_USER_WARNING

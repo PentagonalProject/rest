@@ -83,7 +83,7 @@ class Recipicious extends ModularAbstract
         ComposerLoaderPSR4::create([
             __NAMESPACE__ . '\\Lib\\'   => __DIR__ . '/Libs/',
             __NAMESPACE__ . '\\Model\\' => __DIR__ . '/Models/',
-            __NAMESPACE__ . '\\Task\\'  => __DIR__ . '/Tasks/',
+            __NAMESPACE__ . '\\Task\\'  => __DIR__ . '/Tasks/'
         ])->register();
 
         $this->api = new Api($this);

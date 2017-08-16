@@ -31,7 +31,6 @@ namespace PentagonalProject\Modules\Recipicious\Task;
 
 use Apatis\ArrayStorage\Collection;
 use Apatis\ArrayStorage\CollectionFetch;
-use function array_map;
 use PentagonalProject\App\Rest\Abstracts\ResponseGeneratorAbstract;
 use PentagonalProject\App\Rest\Generator\Response\Json;
 use PentagonalProject\App\Rest\Generator\Response\Xml;
@@ -39,12 +38,12 @@ use PentagonalProject\App\Rest\Generator\ResponseStandard;
 use PentagonalProject\App\Rest\Record\ModularCollection;
 use PentagonalProject\Modules\Recipicious\Lib\Api;
 use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
+use PentagonalProject\Modules\Recipicious\Model\Validator\RecipeValidator;
 use PentagonalProject\Modules\Recipicious\Recipicious;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
-use function var_dump;
 
 /**
  * Class MainWorker
@@ -194,12 +193,6 @@ class MainWorker
                 $requestBody = new CollectionFetch($request->getParsedBody());
 
                 try {
-                    $check = [
-                        'name',
-                        'instructions',
-                        'user_id'
-                    ];
-
                     // Trim every inputs
                     $requestBody->replace(
                         array_map(
@@ -210,41 +203,8 @@ class MainWorker
                         )
                     );
 
-                    foreach ($check as $toCheck) {
-                        // Check whether data is string
-                        if (!is_string($requestBody[$toCheck])) {
-                            throw new \InvalidArgumentException(
-                                sprintf(
-                                    "Recipe %s should be as a string, %s given.",
-                                    ucwords(str_replace('_', ' ', $toCheck)),
-                                    gettype($requestBody[$toCheck])
-                                ),
-                                E_USER_WARNING
-                            );
-                        }
-
-                        // Check whether data is not empty
-                        if (trim($requestBody[$toCheck]) == '') {
-                            throw new \InvalidArgumentException(
-                                sprintf(
-                                    "Recipe %s should not be empty.",
-                                    ucwords(str_replace('_', ' ', $toCheck))
-                                ),
-                                E_USER_WARNING
-                            );
-                        }
-
-                        // Check name
-                        if ($toCheck === 'name') {
-                            // Check whether recipe name is not more than 60 characters
-                            if (strlen($requestBody['name']) > 60) {
-                                throw new \LengthException(
-                                    "Recipe Name should not more than 60 characters.",
-                                    E_USER_WARNING
-                                );
-                            }
-                        }
-                    }
+                    // Validate request body
+                    RecipeValidator::check($requestBody);
 
                     // Instantiate recipe
                     $recipe = new Recipe([
@@ -303,12 +263,6 @@ class MainWorker
                 $requestBody = new CollectionFetch($request->getParsedBody());
 
                 try {
-                    $check = [
-                        'name',
-                        'instructions',
-                        'user_id'
-                    ];
-
                     // Trim every inputs
                     $requestBody->replace(
                         array_map(
@@ -319,41 +273,8 @@ class MainWorker
                         )
                     );
 
-                    foreach ($check as $toCheck) {
-                        // Check whether data is string
-                        if (!is_string($requestBody[$toCheck])) {
-                            throw new \InvalidArgumentException(
-                                sprintf(
-                                    "Recipe %s should be as a string, %s given.",
-                                    ucwords(str_replace('_', ' ', $toCheck)),
-                                    gettype($requestBody[$toCheck])
-                                ),
-                                E_USER_WARNING
-                            );
-                        }
-
-                        // Check whether data is not empty
-                        if (trim($requestBody[$toCheck]) == '') {
-                            throw new \InvalidArgumentException(
-                                sprintf(
-                                    "Recipe %s should not be empty.",
-                                    ucwords(str_replace('_', ' ', $toCheck))
-                                ),
-                                E_USER_WARNING
-                            );
-                        }
-
-                        // Check name
-                        if ($toCheck === 'name') {
-                            // Check whether recipe name is not more than 60 characters
-                            if (strlen($requestBody['name']) > 60) {
-                                throw new \LengthException(
-                                    "Recipe Name should not more than 60 characters.",
-                                    E_USER_WARNING
-                                );
-                            }
-                        }
-                    }
+                    // Validate request body
+                    RecipeValidator::check($requestBody);
 
                     // Get a recipe by id
                     $recipe = Recipe::query()->findOrFail($params['id']);

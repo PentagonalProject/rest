@@ -38,7 +38,9 @@ return [
         'extension' => dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Extensions',
     ],
     'database' => [
-        'driver'    => 'mysql',
+        'driver'    => isset($_SERVER['OPENSHIFT_MYSQL_DB_DRIVER'])
+            ? $_SERVER['OPENSHIFT_MYSQL_DB_DRIVER']
+            : 'mysql',
         // example database host
         'host'      => isset($_SERVER['OPENSHIFT_MYSQL_DB_HOST'])
             ? $_SERVER['OPENSHIFT_MYSQL_DB_HOST']

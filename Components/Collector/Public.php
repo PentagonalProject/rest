@@ -41,4 +41,6 @@ namespace {
 
     // Require Common Middleware
     require_once __DIR__ . '/../Middlewares/CommonMiddleware.php';
+    // require Rest Middleware
+    require_once __DIR__ . "/../Middlewares/PublicMiddleware.php";
 }

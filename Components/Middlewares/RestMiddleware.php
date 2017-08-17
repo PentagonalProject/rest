@@ -29,45 +29,52 @@ declare(strict_types=1);
 
 namespace {
 
-    use Illuminate\Database\Capsule\Manager;
-    use PentagonalProject\App\Rest\Record\AppFacade;
-    use PentagonalProject\App\Rest\Record\ModularCollection;
+    use PentagonalProject\App\Rest\Generator\ResponseStandard;
+    use PentagonalProject\App\Rest\Util\Hook;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;
+    use Slim\Handlers\AbstractHandler;
+    use Slim\Handlers\NotFound;
 
-    if (!isset($this) || ! $this instanceof App) {
+    if (! isset($this) || ! $this instanceof App) {
         return;
     }
 
-    // register Middleware
-
-    /**
-     * Middle ware to register Module persistent
-     */
+    // middleware rest
     $this->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
         /**
-         * @var Manager $capsule
+         * @var Hook $hook
          */
-        $capsule = $this->database;
-        // set default Connection
-        $capsule->getDatabaseManager()->setDefaultConnection(AppFacade::current()->getName());
-
-        /**
-         * @var ModularCollection $Modular
-         */
-        $Modular = $this['module'];
-        /**
-         * @var string[] list Module To Load
-         */
-        $listModuleLoads = [
-            'recipicious',
-        ];
-
-        // doing load
-        array_map(function ($moduleName) use ($Modular) {
-            $Modular->exist($moduleName) && $Modular->load($moduleName);
-        }, $listModuleLoads);
+        $hook = $this['hook'];
+        // add Hooks
+        $hook->add('container.notFoundHandler', function () {
+            /**
+             * Invoke Hook with anonymous class extends to @uses NotFound
+             * instanceof @uses AbstractHandler is important to hook not found
+             * @hook container.notFoundHandler
+             */
+            return new class() extends NotFound {
+                /**
+                 * @param ServerRequestInterface $request
+                 * @param ResponseInterface $response
+                 *
+                 * @return ResponseInterface
+                 */
+                public function __invoke(
+                    ServerRequestInterface $request,
+                    ResponseInterface $response
+                ) : ResponseInterface {
+                    return ResponseStandard::withException(
+                        $request,
+                        $response->withStatus(404),
+                        new Exception(
+                            "Target API Endpoint has not found!"
+                        )
+                    );
+                }
+            };
+        });
 
         return $next($request, $response);
     });

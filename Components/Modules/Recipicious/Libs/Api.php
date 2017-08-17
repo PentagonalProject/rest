@@ -90,6 +90,14 @@ class Api
     }
 
     /**
+     * @return Recipicious
+     */
+    public function getModule() : Recipicious
+    {
+        return $this->module;
+    }
+
+    /**
      * @param array $methods
      * @param string $pattern
      * @param callable $callback

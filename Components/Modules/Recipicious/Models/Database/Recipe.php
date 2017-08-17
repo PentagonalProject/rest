@@ -42,6 +42,9 @@ class Recipe extends DatabaseBaseModel
     const COLUMN_RECIPE_NAME         = 'name';
     const COLUMN_RECIPE_INSTRUCTIONS = 'instructions';
     const COLUMN_RECIPE_USER_ID      = 'user_id';
+    const COLUMN_PUBLISHED_AT        = 'published_at';
+    const COLUMN_CREATED_AT          = self::CREATED_AT;
+    const COLUMN_UPDATED_AT          = self::UPDATED_AT;
 
     /**
      * {@inheritdoc}
@@ -51,6 +54,16 @@ class Recipe extends DatabaseBaseModel
         self::COLUMN_RECIPE_NAME,
         self::COLUMN_RECIPE_INSTRUCTIONS,
         self::COLUMN_RECIPE_USER_ID
+    ];
+
+    /**
+     * @var string[] column that PostGreSQL Date TIMESTAMP possible
+     * Y-m-d H:i:s.u
+     */
+    protected $checkDateFormat = [
+        self::COLUMN_CREATED_AT,
+        self::COLUMN_UPDATED_AT,
+        self::COLUMN_PUBLISHED_AT
     ];
 
     /**

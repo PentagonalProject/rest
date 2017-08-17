@@ -65,7 +65,7 @@ class DatabaseBaseModel extends Model
      * @var string[] column that PostGreSQL Date TIMESTAMP possible
      * Y-m-d H:i:s.u
      */
-    protected $asPGSQLDate = [
+    protected $checkDateFormat = [
         self::UPDATED_AT,
         self::CREATED_AT
     ];
@@ -114,7 +114,7 @@ class DatabaseBaseModel extends Model
     public function setRawAttributes(array $attributes, $sync = false)
     {
         foreach ($attributes as $key => $value) {
-            if (in_array($key, $this->asPGSQLDate)) {
+            if (in_array($key, $this->checkDateFormat)) {
                 $value = $this->fixMaybeTimeStamp($value);
             }
 

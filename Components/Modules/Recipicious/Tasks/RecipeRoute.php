@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace PentagonalProject\Modules\Recipicious\Task;
 
 use Apatis\ArrayStorage\CollectionFetch;
+use PentagonalProject\App\Rest\Exceptions\UserUnauthorizedException;
 use PentagonalProject\App\Rest\Generator\ResponseStandard;
 use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
 use PentagonalProject\Modules\Recipicious\Model\Validator\RecipeValidator;
@@ -40,9 +41,16 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Class RecipeRoute
  * @package PentagonalProject\Modules\Recipicious\Task
+ *
+ * Base On Recipe Route Collections
  */
 class RecipeRoute
 {
+    const LEVEL_GET    = 0;
+    const LEVEL_UPDATE = 1;
+    const LEVEL_DELETE = 2;
+    const LEVEL_CREATE = 3;
+
     /**
      * RecipeRoute constructor.
      */
@@ -60,20 +68,40 @@ class RecipeRoute
         ServerRequestInterface $request,
         ResponseInterface $response
     ) : ResponseInterface {
-        /**
-         * Make request params fetchable.
-         *
-         * @var CollectionFetch $requestParams
-         */
-        $requestParams = new CollectionFetch($request->getQueryParams());
-        return ResponseStandard::withData(
-            $request,
-            $response,
-            Recipe::filterByPage(
-                Recipe::query()->where('user_id', '!=', null),
-                is_null($requestParams['page']) ? 1 : (int) $requestParams['page']
-            )
-        );
+        try {
+            // validate
+            $this->validateAccess($request, $response, self::LEVEL_GET);
+
+            /**
+             * Make request params fetch able.
+             *
+             * @var CollectionFetch $requestParams
+             */
+            $requestParams = new CollectionFetch($request->getQueryParams());
+
+            return ResponseStandard::withData(
+                $request,
+                $response,
+                Recipe::filterByPage(
+                    Recipe::query()->where('user_id', '!=', null),
+                    is_null($requestParams['page']) ? 1 : (int)$requestParams['page']
+                )
+            );
+        } catch (UserUnauthorizedException $exception) {
+            // unauthorized
+            return ResponseStandard::withException(
+                $request,
+                $response->withStatus(401),
+                $exception
+            );
+        } catch (\Exception $exception) {
+            // error exception
+            return ResponseStandard::withException(
+                $request,
+                $response->withStatus(500),
+                $exception
+            );
+        }
     }
 
     /**
@@ -86,14 +114,17 @@ class RecipeRoute
         ServerRequestInterface $request,
         ResponseInterface $response
     ) : ResponseInterface {
-        /**
-         * Make request body fetchable.
-         *
-         * @var CollectionFetch $requestBody
-         */
-        $requestBody = new CollectionFetch($request->getParsedBody());
-
         try {
+            // validate
+            $this->validateAccess($request, $response, self::LEVEL_CREATE);
+
+            /**
+             * Make request body fetch able.
+             *
+             * @var CollectionFetch $requestBody
+             */
+            $requestBody = new CollectionFetch($request->getParsedBody());
+
             // Trim every inputs
             $requestBody->replace(
                 array_map(
@@ -122,7 +153,15 @@ class RecipeRoute
                 $response->withStatus(201),
                 (int) $recipe->getKey()
             );
+        } catch (UserUnauthorizedException $exception) {
+            // unauthorized
+            return ResponseStandard::withException(
+                $request,
+                $response->withStatus(401),
+                $exception
+            );
         } catch (\Exception $exception) {
+            // error exception
             return ResponseStandard::withException(
                 $request,
                 $response->withStatus(406),
@@ -144,12 +183,23 @@ class RecipeRoute
         array $params
     ): ResponseInterface {
         try {
+            // validate
+            $this->validateAccess($request, $response, self::LEVEL_GET);
+
             return ResponseStandard::withData(
                 $request,
                 $response,
                 Recipe::query()->findOrFail($params['id'])
             );
+        } catch (UserUnauthorizedException $exception) {
+            // unauthorized
+            return ResponseStandard::withException(
+                $request,
+                $response->withStatus(401),
+                $exception
+            );
         } catch (\Exception $exception) {
+            // error exception
             return ResponseStandard::withException(
                 $request,
                 $response->withStatus(404),
@@ -170,14 +220,17 @@ class RecipeRoute
         ResponseInterface $response,
         array $params
     ) : ResponseInterface {
-
-        /**
-         * Make request body fetchAble.
-         *
-         * @var CollectionFetch $requestBody
-         */
-        $requestBody = new CollectionFetch($request->getParsedBody());
         try {
+            // validate
+            $this->validateAccess($request, $response, self::LEVEL_UPDATE);
+
+            /**
+             * Make request body fetch able.
+             *
+             * @var CollectionFetch $requestBody
+             */
+            $requestBody = new CollectionFetch($request->getParsedBody());
+
             // Trim every inputs
             $requestBody->replace(
                 array_map(
@@ -206,7 +259,15 @@ class RecipeRoute
                 $response,
                 $recipe
             );
+        } catch (UserUnauthorizedException $exception) {
+            // unauthorized
+            return ResponseStandard::withException(
+                $request,
+                $response->withStatus(401),
+                $exception
+            );
         } catch (\Exception $exception) {
+            // error exception not accepted
             return ResponseStandard::withException(
                 $request,
                 $response->withStatus(406),
@@ -228,6 +289,9 @@ class RecipeRoute
         array $params
     ) : ResponseInterface {
         try {
+            // validate
+            $this->validateAccess($request, $response, self::LEVEL_DELETE);
+
             // Get a recipe by id
             $recipe = Recipe::query()->findOrFail($params['id']);
 
@@ -239,12 +303,38 @@ class RecipeRoute
                 $response,
                 'Recipe has been successfully deleted'
             );
-        } catch (\Exception $exception) {
+        } catch (UserUnauthorizedException $exception) {
+            // unauthorized
             return ResponseStandard::withException(
                 $request,
-                $response->withStatus(404),
+                $response->withStatus(401),
+                $exception
+            );
+        } catch (\Exception $exception) {
+            // error exception error delete
+            return ResponseStandard::withException(
+                $request,
+                $response->withStatus(500),
                 $exception
             );
         }
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param int $level
+     * @throws UserUnauthorizedException
+     */
+    private function validateAccess(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        int $level
+    ) {
+        /*
+        throw new UserUnauthorizedException(
+            "Not enough access"
+        );*/
+        // do validation
     }
 }

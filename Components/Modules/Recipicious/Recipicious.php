@@ -70,7 +70,10 @@ class Recipicious extends ModularAbstract
      */
     protected $worker;
 
-    protected $api;
+    /**
+     * @const string
+     */
+    const PATTERN = '/recipes';
 
     /**
      * {@inheritdoc}
@@ -85,25 +88,23 @@ class Recipicious extends ModularAbstract
             __NAMESPACE__ . '\\Model\\' => __DIR__ . '/Models/',
             __NAMESPACE__ . '\\Task\\'  => __DIR__ . '/Tasks/'
         ])->register();
-
-        $this->api = new Api($this);
-        $this->worker = new MainWorker($this);
+        $this->worker = new MainWorker(new Api($this));
         $this->worker->run();
+    }
+
+    /**
+     * @return string
+     */
+    public function getGroupPattern() : string
+    {
+        return self::PATTERN;
     }
 
     /**
      * @return MainWorker
      */
-    public function getWorker()
+    public function getWorker() : MainWorker
     {
         return $this->worker;
-    }
-
-    /**
-     * @return Api
-     */
-    public function getApi()
-    {
-        return $this->api;
     }
 }

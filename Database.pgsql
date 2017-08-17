@@ -89,13 +89,13 @@ COMMENT ON COLUMN options.option_name IS 'Unique Option Name';
 CREATE TABLE users (
   id BIGSERIAL NOT NULL,
   first_name varchar(64) NOT NULL,
-  last_name varchar(64) NOT NULL,
+  last_name varchar(64) NOT NULL DEFAULT '',
   username varchar(64) NOT NULL,
   email varchar(255) NOT NULL,
   password varchar(60) NOT NULL DEFAULT random_password(),
   private_key varchar(128) DEFAULT random_hex(128),
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT '1990-01-01 00:00:00'
+  updated_at TIMESTAMP DEFAULT '1990-01-01 00:00:00.000000'::timestamp without time zone
 );
 
 --
@@ -107,7 +107,7 @@ ALTER TABLE users
 
 COMMENT ON COLUMN users.password IS 'sha1 string PasswordHash - (phpass by openwall)';
 COMMENT ON COLUMN users.private_key IS 'Private Grant token API';
-COMMENT ON COLUMN users.updated_at IS 'use 1990-01-01 00:00:00 to prevent error sql time stamp zero value';
+COMMENT ON COLUMN users.updated_at IS 'use 1990-01-01 00:00:00.000000 to prevent error sql time stamp zero value';
 
 --
 -- Triggers for table "users"
@@ -132,11 +132,11 @@ CREATE TABLE recipes (
   status BIGINT NOT NULL DEFAULT '1',
   published_at timestamp NULL DEFAULT NULL,
   created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at timestamp NULL DEFAULT '1990-01-01 00:00:00'
+  updated_at TIMESTAMP DEFAULT '1990-01-01 00:00:00.000000'::timestamp without time zone
 );
 
 COMMENT ON COLUMN recipes.user_id IS 'Relation for "users.id"';
-COMMENT ON COLUMN recipes.updated_at IS 'use 1990-01-01 00:00:00 to prevent error sql time stamp zero value';
+COMMENT ON COLUMN recipes.updated_at IS 'use 1990-01-01 00:00:00.000000 to prevent error sql time stamp zero value';
 
 --
 -- Indexes for table recipes

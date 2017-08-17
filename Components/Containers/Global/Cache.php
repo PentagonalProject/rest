@@ -1,6 +1,7 @@
 <?php
 namespace {
 
+    use Monolog\Logger;
     use PentagonalProject\App\Rest\Record\Configurator;
     use phpFastCache\Cache\ExtendedCacheItemPoolInterface;
     use phpFastCache\CacheManager;
@@ -31,6 +32,9 @@ namespace {
             $config['cache[config]']
         );
 
+        /**
+         * @var Logger[] $container
+         */
         $container['log']->debug(
             'Cache initiated',
             [

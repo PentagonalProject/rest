@@ -39,14 +39,10 @@ namespace {
     /**
      * @var AppFacade $this
      */
-    if (!isset($this[1]) || ! $this[1] instanceof AppFacade) {
+    if (!isset($this) || ! $this instanceof AppFacade) {
         return;
     }
 
-    /**
-     * @var AppFacade $facade
-     */
-    $facade = $this[1];
     /**
      * Default Slim Container Settings
      */
@@ -65,8 +61,9 @@ namespace {
      * ------------------------------------------------------------------- */
 
     // declare Root Directory
-    $rootDir = dirname(dirname(__DIR__));
-    $config = (array) $facade->getArgument('config', []);
+    $rootDir = __DIR__ . '/../../../../';
+    $rootDir = realpath($rootDir) ?: $rootDir;
+    $config = (array) $this->getArgument('config', []);
     $config['directory'] = isset($config['directory']) ? $config['directory'] : [];
     if (!is_array($config['directory'])) {
         $config['directory'] =  [];
@@ -111,7 +108,7 @@ namespace {
         : $defaultConfigSetting['httpVersion'];
 
     // replace
-    return $facade
+    return $this
         ->setArgument('config', array_merge($defaultConfigSetting, $config))
         ->getArgument('config');
 }

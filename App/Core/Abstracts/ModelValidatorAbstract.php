@@ -29,6 +29,10 @@ declare(strict_types=1);
 
 namespace PentagonalProject\App\Rest\Abstracts;
 
+/**
+ * Class ModelValidatorAbstract
+ * @package PentagonalProject\App\Rest\Abstracts
+ */
 abstract class ModelValidatorAbstract
 {
     /**
@@ -36,14 +40,17 @@ abstract class ModelValidatorAbstract
      */
     protected $data;
 
+    /**
+     * ModelValidatorAbstract constructor.
+     */
     protected function __construct()
     {
     }
 
     /**
-     * Check the given data
-     *
      * @param \ArrayAccess $data
+     *
+     * @return ModelValidatorAbstract|static
      */
     public static function check(\ArrayAccess $data)
     {
@@ -73,7 +80,7 @@ abstract class ModelValidatorAbstract
      * @param string       $attribute
      * @throws \InvalidArgumentException
      */
-    protected function isString(\ArrayAccess $data, $attribute)
+    protected function mustBeString(\ArrayAccess $data, $attribute)
     {
         if (! is_string($data[$attribute])) {
             throw new \InvalidArgumentException(
@@ -94,7 +101,7 @@ abstract class ModelValidatorAbstract
      * @param string       $attribute
      * @throws \InvalidArgumentException
      */
-    protected function isNotEmpty(\ArrayAccess $data, $attribute)
+    protected function mustBeNotEmpty(\ArrayAccess $data, $attribute)
     {
         if (trim($data[$attribute]) == '') {
             throw new \InvalidArgumentException(
@@ -116,7 +123,7 @@ abstract class ModelValidatorAbstract
      * @param int          $length
      * @throws \LengthException
      */
-    protected function lengthIsNotMoreThan(
+    protected function lengthMustBeLessThan(
         \ArrayAccess $data,
         $attribute,
         $length

@@ -35,6 +35,7 @@ use PentagonalProject\App\Rest\Abstracts\ResponseGeneratorAbstract;
 use PentagonalProject\App\Rest\Generator\Response\Json;
 use PentagonalProject\App\Rest\Generator\Response\Xml;
 use PentagonalProject\App\Rest\Generator\ResponseStandard;
+use PentagonalProject\App\Rest\Record\AppFacade;
 use PentagonalProject\App\Rest\Record\ModularCollection;
 use PentagonalProject\Modules\Recipicious\Lib\Api;
 use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
@@ -64,6 +65,11 @@ class MainWorker
     protected $hasRun = false;
 
     /**
+     * @var string
+     */
+    protected $currentApp;
+
+    /**
      * MainWorker constructor.
      *
      * @param Api $api
@@ -82,89 +88,28 @@ class MainWorker
     }
 
     /**
+     * @param string $appName
      * @return MainWorker
      * @see MainWorker::sendRoutes() to get Routes collection set
      * @todo Just Info
      */
-    public function run()
+    public function run(string $appName)
     {
         if ($this->hasRun) {
             return $this;
         }
+
+        $this->currentApp = $appName;
         $this->hasRun = true;
 
         return $this->sendRoutes();
     }
 
     /**
-     * @return MainWorker
+     * Build Routes REST FULL API
      */
-    private function sendRoutes()
+    private function buildRoutesRestApi()
     {
-        /**
-         * Instance Slim as Container App
-         * or uses ->
-         *          AppFacade::current()->getAccessor()->getApp()
-         *
-         * @var App $slim
-         */
-//        $slim = $this->module->getContainer()['app'];
-//        $class =& $this;
-//        /*
-//         * JUST ACCESS WITH:
-//         * http://target/?output=xml -> to get XML data
-//         */
-//        $slim->any(
-//            '{param: .+}',
-//            function (ServerRequestInterface $request, ResponseInterface $response) use ($class) {
-//                /**
-//                 * @var ContainerInterface $this
-//                 * @var ModularCollection $module
-//                 */
-//                $module = $this->module;
-//
-//                /* -------------------------------------------------------
-//                 * INFO
-//                 * ------------------------------------------------------ */
-//                /**
-//                 * Modular Collection Info
-//                 */
-//                $collection = $module->getModularInformation($class->module->getModularNameSelector());
-//                /**
-//                 * Get From @uses Collection
-//                 */
-//                $info = $collection->all();
-//                // or use below to get module info
-//                $info = $class->module->getModularInfo();
-//
-//                /* -------------------------------------------------------
-//                 * BUILT IN JSON RESPONSE
-//                 * ------------------------------------------------------ */
-//                $responseBuilderClass = Json::class;
-//                // if get param output == xml
-//                if (isset($_GET['output']) && $_GET['output'] == 'xml') {
-//                    // override ResponseGeneratorAbstract to Xml instance
-//                    $responseBuilderClass = Xml::class;
-//                }
-//
-//                /**
-//                 * @uses Json|XML to generate Data JSON and Server it
-//                 * @var ResponseGeneratorAbstract $responseBuilderClass
-//                 */
-//                $responseBuilder = $responseBuilderClass::generate($request, $response);
-//                /**
-//                 * set Data into @uses ResponseGeneratorAbstract
-//                 */
-//                $responseBuilder->setData(["Module" => $info]);
-//                /**
-//                 * Serve / Build The Response
-//                 * @var ResponseInterface $response
-//                 */
-//                $response = $responseBuilder->serve();
-//                return $response;
-//            }
-//        );
-
         $route = RecipeRoute::class;
         # example use instance object
         $this
@@ -202,6 +147,18 @@ class MainWorker
         $this->api->get('/{id: [1-9](?:[0-9]+)?}[/]', "{$route}::getRecipeById");
         $this->api->post('/{id: [1-9](?:[0-9]+)?}[/]', "{$route}::postRecipeById");
         $this->api->delete('/{id: [1-9](?:[0-9]+)?}[/]', "{$route}::deleteRecipeById");
+    }
+
+    /**
+     * @return MainWorker
+     */
+    private function sendRoutes() : MainWorker
+    {
+        // only send routes for REST FULL API ONLY
+        if ($this->currentApp ==  Recipicious::REST_APP_NAME) {
+            // build rest route
+            $this->buildRoutesRestApi();
+        }
 
         return $this;
     }

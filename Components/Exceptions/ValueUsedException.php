@@ -31,6 +31,10 @@ namespace PentagonalProject\Exceptions;
 
 use Exception;
 
+/**
+ * Class ValueUsedException
+ * @package PentagonalProject\Exceptions
+ */
 class ValueUsedException extends Exception
 {
 }

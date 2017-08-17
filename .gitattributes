@@ -3,10 +3,11 @@
 
 # Exclude unused files
 
-/Tests              export-ignore
-/.gitignore         export-ignore
-/.gitattributes     export-ignore
-/.travis            export-ignore
-/README.md          export-ignore
-/phpcs.xml          export-ignore
-/phpunit.xml.dist   export-ignore
+/Tests                          export-ignore
+/.gitignore                     export-ignore
+/.gitattributes                 export-ignore
+/.travis                        export-ignore
+/README.md                      export-ignore
+/Components/Worker/README.md    export-ignore
+/phpcs.xml                      export-ignore
+/phpunit.xml.dist               export-ignore

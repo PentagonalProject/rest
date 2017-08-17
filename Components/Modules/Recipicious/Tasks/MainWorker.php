@@ -52,9 +52,9 @@ use Slim\App;
 class MainWorker
 {
     /**
-     * @var Recipicious
+     * @var Api
      */
-    protected $module;
+    protected $api;
 
     /**
      * @var bool
@@ -63,11 +63,20 @@ class MainWorker
 
     /**
      * MainWorker constructor.
-     * @param Recipicious $module
+     *
+     * @param Api $api
      */
-    public function __construct(Recipicious &$module)
+    public function __construct(Api $api)
     {
-        $this->module = $module;
+        $this->api = $api;
+    }
+
+    /**
+     * @return Api
+     */
+    public function getApi() : Api
+    {
+        return $this->api;
     }
 
     /**
@@ -154,178 +163,13 @@ class MainWorker
 //            }
 //        );
 
-        /**
-         * @var Api $api
-         */
-        $api = $this->module->getApi();
-
-        $api->get(
-            '/recipes',
-            '',
-            function (ServerRequestInterface $request, ResponseInterface $response) {
-                /**
-                 * Make request params fetchable.
-                 *
-                 * @var CollectionFetch $requestParams
-                 */
-                $requestParams = new CollectionFetch($request->getQueryParams());
-
-                return ResponseStandard::withData(
-                    $request,
-                    $response,
-                    Recipe::filterByPage(
-                        Recipe::query()->where('user_id', '!=', 'null'),
-                        is_null($requestParams['page']) ? 1 : (int) $requestParams['page']
-                    )
-                );
-            }
-        );
-
-        $api->post(
-            '/recipes',
-            '',
-            function (ServerRequestInterface $request, ResponseInterface $response) {
-                /**
-                 * Make request body fetchable.
-                 *
-                 * @var CollectionFetch $requestBody
-                 */
-                $requestBody = new CollectionFetch($request->getParsedBody());
-
-                try {
-                    // Trim every inputs
-                    $requestBody->replace(
-                        array_map(
-                            function ($value) {
-                                return trim($value);
-                            },
-                            $requestBody->all()
-                        )
-                    );
-
-                    // Validate request body
-                    RecipeValidator::check($requestBody);
-
-                    // Instantiate recipe
-                    $recipe = new Recipe([
-                        'name'         => $requestBody['name'],
-                        'instructions' => $requestBody['instructions'],
-                        'user_id'      => $requestBody['user_id']
-                    ]);
-
-                    // Save or fail
-                    $recipe->saveOrFail();
-
-                    return ResponseStandard::withData(
-                        $request,
-                        $response->withStatus(201),
-                        (int) $recipe->getKey()
-                    );
-                } catch (\Exception $exception) {
-                    return ResponseStandard::withException(
-                        $request,
-                        $response->withStatus(406),
-                        $exception
-                    );
-                }
-            }
-        );
-
-        $api->get(
-            '/recipes',
-            '/{id}',
-            function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
-                try {
-                    return ResponseStandard::withData(
-                        $request,
-                        $response,
-                        Recipe::query()->findOrFail($params['id'])
-                    );
-                } catch (\Exception $exception) {
-                    return ResponseStandard::withException(
-                        $request,
-                        $response->withStatus(404),
-                        $exception
-                    );
-                }
-            }
-        );
-
-        $api->post(
-            '/recipes',
-            '/{id}',
-            function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
-                /**
-                 * Make request body fetchable.
-                 *
-                 * @var CollectionFetch $requestBody
-                 */
-                $requestBody = new CollectionFetch($request->getParsedBody());
-
-                try {
-                    // Trim every inputs
-                    $requestBody->replace(
-                        array_map(
-                            function ($value) {
-                                return trim($value);
-                            },
-                            $requestBody->all()
-                        )
-                    );
-
-                    // Validate request body
-                    RecipeValidator::check($requestBody);
-
-                    // Get a recipe by id
-                    $recipe = Recipe::query()->findOrFail($params['id']);
-
-                    // Update found recipe
-                    $recipe->update([
-                        'name'         => $requestBody['name'],
-                        'instructions' => $requestBody['instructions'],
-                        'user_id'      => $requestBody['user_id']
-                    ]);
-
-                    return ResponseStandard::withData(
-                        $request,
-                        $response,
-                        $recipe
-                    );
-                } catch (\Exception $exception) {
-                    return ResponseStandard::withException(
-                        $request,
-                        $response->withStatus(406),
-                        $exception
-                    );
-                }
-            }
-        );
-
-        $api->delete(
-            '/recipes',
-            '/{id}',
-            function (ServerRequestInterface $request, ResponseInterface $response, array $params) {
-                try {
-                    // Get a recipe by id
-                    $recipe = Recipe::query()->findOrFail($params['id']);
-
-                    // Delete found recipe
-                    $recipe->delete();
-
-                    return ResponseStandard::withData(
-                        $request,
-                        $response,
-                        'Recipe has been successfully deleted'
-                    );
-                } catch (\Exception $exception) {
-                    return ResponseStandard::withException(
-                        $request,
-                        $response->withStatus(404),
-                        $exception
-                    );
-                }
-            }
-        );
+        $route = RecipeRoute::class;
+        $this->api->get('[/]', [new RecipeRoute, "getIndex"]); # example use instance object
+        $this->api->post('[/]', [RecipeRoute::class, "postIndex"]); # example use class array
+        // example as string and separator is ::
+        $this->api->get('/{id: [1-9](?:[0-9]+)?}[/]', "{$route}::getRecipeById");
+        $this->api->post('/{id: [1-9](?:[0-9]+)?}[/]', "{$route}::postRecipeById");
+        $this->api->delete('/{id: [1-9](?:[0-9]+)?}[/]', "{$route}::deleteRecipeById");
 
         return $this;
     }

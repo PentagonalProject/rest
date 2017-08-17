@@ -31,10 +31,12 @@ namespace {
 
     use PentagonalProject\App\Rest\Generator\ResponseStandard;
     use PentagonalProject\App\Rest\Util\Hook;
+    use PentagonalProject\Model\Handler\PhpError;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;
     use Slim\Handlers\AbstractHandler;
+    use Slim\Handlers\NotAllowed;
     use Slim\Handlers\NotFound;
     use Slim\MiddlewareAwareTrait;
 
@@ -48,7 +50,7 @@ namespace {
          * @var Hook $hook
          */
         $hook = $this['hook'];
-        // add Hooks
+        // add Hook For Not Found
         $hook->add('container.notFoundHandler', function () {
             /**
              * Invoke Hook with anonymous class extends to @uses NotFound
@@ -72,6 +74,66 @@ namespace {
                         new Exception(
                             "Target API endpoint is invalid."
                         )
+                    );
+                }
+            };
+        });
+
+        // add Hook For Not Allowed
+        $hook->add('container.notAllowedHandler', function () {
+            /**
+             * Invoke Hook with anonymous class extends to @uses NotAllowed
+             * instanceof @uses AbstractHandler is important to hook not found
+             * @hook container.notAllowedHandler
+             */
+            return new class() extends NotAllowed {
+                /**
+                 * @param ServerRequestInterface $request
+                 * @param ResponseInterface $response
+                 * @param array $methods
+                 *
+                 * @return ResponseInterface
+                 */
+                public function __invoke(
+                    ServerRequestInterface $request,
+                    ResponseInterface $response,
+                    array $methods
+                ) : ResponseInterface {
+                    return ResponseStandard::withException(
+                        $request,
+                        $response->withStatus(405),
+                        new Exception(
+                            "Method not allowed on current target API."
+                        )
+                    );
+                }
+            };
+        });
+
+        // add Hook For PhpError
+        $hook->add('container.phpErrorHandler', function () {
+            /**
+             * Invoke Hook with anonymous class extends to @uses PhpError
+             * instanceof @uses AbstractError is important to hook not found
+             * @hook container.phpErrorHandler
+             */
+            return new class() extends PhpError {
+                /**
+                 * @param ServerRequestInterface $request
+                 * @param ResponseInterface $response
+                 * @param Throwable $error
+                 *
+                 * @return ResponseInterface
+                 */
+                public function __invoke(
+                    ServerRequestInterface $request,
+                    ResponseInterface $response,
+                    Throwable $error
+                ) : ResponseInterface {
+                    return ResponseStandard::withException(
+                        $request,
+                        $response->withStatus(500),
+                        $error
                     );
                 }
             };

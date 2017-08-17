@@ -69,7 +69,7 @@ namespace {
                         $request,
                         $response->withStatus(404),
                         new Exception(
-                            "Target API Endpoint has not found!"
+                            "Target API endpoint is invalid."
                         )
                     );
                 }

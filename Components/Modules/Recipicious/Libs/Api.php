@@ -31,80 +31,132 @@ namespace PentagonalProject\Modules\Recipicious\Lib;
 
 use PentagonalProject\Modules\Recipicious\Recipicious;
 use Slim\App;
+use Slim\Interfaces\RouteGroupInterface;
 
 /**
  * Class Api
  * @package PentagonalProject\Modules\Recipicious\Lib
+ *
+ * @method RouteGroupInterface get(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface post(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface patch(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface head(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface put(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface delete(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface options(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface trace(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface view(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface purge(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface copy(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface lock(string $pattern, callable $callable, \Closure $routeCallback = null)
+ * @method RouteGroupInterface unlock(string $pattern, callable $callable, \Closure $routeCallback = null)
  */
 class Api
 {
     /**
-     * Lib module
-     *
-     * @var Recipicious $module
+     * @var Recipicious
      */
-    private $module;
+    protected $module;
 
-    public function __construct(Recipicious &$module)
+    /**
+     * @var array
+     */
+    protected $lastRoutes = [];
+
+    const AVAILABLE_METHODS = [
+        'GET',
+        'POST',
+        'PUT',
+        'HEAD',
+        'PATCH',
+        'DELETE',
+        'OPTIONS',
+        "VIEW",
+        "PURGE",
+        "COPY",
+        'PURGE',
+        'LOCK',
+        'UNLOCK',
+    ];
+
+    /**
+     * Api constructor.
+     *
+     * @param Recipicious $module
+     */
+    public function __construct(Recipicious $module)
     {
         $this->module = $module;
     }
 
     /**
-     * Api get route
+     * @param array $methods
+     * @param string $pattern
+     * @param callable $callback
+     * @param \closure|null $routeCallback as route for as params
      *
-     * @param string   $group
-     * @param string   $pattern
-     * @param callable $callable
+     * @return RouteGroupInterface
      */
-    public function get($group, $pattern, callable $callable)
-    {
-        $this->group($group, ['GET'], $pattern, $callable);
-    }
-
-    /**
-     * Api post route
-     *
-     * @param string   $group
-     * @param string   $pattern
-     * @param callable $callable
-     */
-    public function post($group, $pattern, $callable)
-    {
-        $this->group($group, ['POST'], $pattern, $callable);
-    }
-
-    /**
-     * Api delete route
-     *
-     * @param string   $group
-     * @param string   $pattern
-     * @param callable $callable
-     */
-    public function delete($group, $pattern, $callable)
-    {
-        $this->group($group, ['DELETE'], $pattern, $callable);
-    }
-
-    /**
-     * Group api route
-     *
-     * @param string   $name
-     * @param array    $methods
-     * @param string   $pattern
-     * @param callable $callable
-     */
-    private function group($name, array $methods, $pattern, $callable)
-    {
+    public function map(
+        array $methods,
+        string $pattern,
+        callable $callback,
+        \closure $routeCallback = null
+    ) : RouteGroupInterface {
         /**
          * @var App $app
          */
-        $app = $this->module->getContainer()['app'];
-        $app->group(
-            $name,
-            function () use ($app, $methods, $pattern, $callable) {
-                $app->map($methods, $pattern, $callable);
+        $app = $this->module->getContainer()->get('app');
+        $this->lastRoutes = func_get_args();
+        $c =& $this;
+        return $app->group(
+            $this->module->getGroupPattern(),
+            function () use ($c) {
+                /**
+                 * @var App $app
+                 */
+                $app = $this;
+                $console = $c->lastRoutes;
+                $result = $app->map(
+                    $console[0],
+                    $console[1],
+                    $console[2]
+                );
+                if (isset($console[4]) && $console[4] instanceof \Closure) {
+                    $console[4]($result, $c);
+                }
             }
         );
+    }
+
+    /**
+     * @param string $pattern
+     * @param callable $callback
+     * @param \closure|null $routeCallback
+     *
+     * @return mixed
+     */
+    public function any(
+        string $pattern,
+        callable $callback,
+        \closure $routeCallback = null
+    ) {
+        $args = func_get_args();
+        array_unshift($args, self::AVAILABLE_METHODS);
+        return call_user_func_array([$this, 'map'], $args);
+    }
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     *
+     * @return mixed
+     */
+    public function __call(string $name, array $arguments)
+    {
+        // add arguments
+        array_unshift($arguments, [strtoupper($name)]);
+        $result = call_user_func_array([$this, 'map'], $arguments);
+        return $result;
     }
 }

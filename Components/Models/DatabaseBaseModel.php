@@ -59,6 +59,17 @@ use PentagonalProject\App\Rest\Util\Sanitizer;
  */
 class DatabaseBaseModel extends Model
 {
+    const REGEX_DATE_U = '/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2})\:(\d{1,2})\:(\d{1,2})\.\d+$/';
+
+    /**
+     * @var string[] column that PostGreSQL Date TIMESTAMP possible
+     * Y-m-d H:i:s.u
+     */
+    protected $asPGSQLDate = [
+        self::UPDATED_AT,
+        self::CREATED_AT
+    ];
+
     /**
      * @param mixed $values
      * @return mixed
@@ -78,12 +89,35 @@ class DatabaseBaseModel extends Model
     }
 
     /**
+     * TimeStamp Resolver
+     *
+     * @param string $value
+     *
+     * @return string  with Y-m-d H:i:s
+     */
+    public function fixMaybeTimeStamp($value)
+    {
+        if (is_string($value) && preg_match(self::REGEX_DATE_U, $value, $match)) {
+            /**
+             * will return Y-m-d H:i:s
+             */
+            $value = date('Y-m-d H:i:s', strtotime($value));
+        }
+
+        return $value;
+    }
+
+    /**
      * {@inheritdoc}
      * Perform UnSerialize
      */
     public function setRawAttributes(array $attributes, $sync = false)
     {
         foreach ($attributes as $key => $value) {
+            if (in_array($key, $this->asPGSQLDate)) {
+                $value = $this->fixMaybeTimeStamp($value);
+            }
+
             $attributes[$key] = $this->resolveResult($value);
         }
 

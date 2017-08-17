@@ -122,8 +122,8 @@ class Api
                     $console[1],
                     $console[2]
                 );
-                if (isset($console[4]) && $console[4] instanceof \Closure) {
-                    $console[4]($result, $c);
+                if (isset($console[3]) && $console[3] instanceof \Closure) {
+                    $console[3]($result, $c);
                 }
             }
         );

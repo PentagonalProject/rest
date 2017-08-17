@@ -199,6 +199,42 @@ class AppFacade
     }
 
     /**
+     * Include Scope Binding Object
+     *
+     * @param-read string $file
+     * @return mixed
+     * @throws FileNotFoundException
+     */
+    public static function includeScopeBind()
+    {
+        /**
+         * closure include of scope to prevent access
+         * bind to @uses Object arguments
+         * if inside of include call $this it wil be access as @uses Arguments object
+         */
+        $args = self::validateScope(func_get_args());
+        return \Closure::bind(
+            function ($file) {
+                /** @noinspection PhpIncludeInspection */
+                return include $file;
+            },
+            !is_object($args[1]) ? null : $args[1]
+        )($args[0]);
+    }
+
+    /**
+     * @param string $file
+     * Binding To Slim Application
+     *
+     * @return mixed
+     */
+    public function includeBindToSlim(string $file)
+    {
+        $app = $this->getAccessor()->getApp();
+        return $this->includeScopeBind($file, $app);
+    }
+
+    /**
      * Include Scope
      *
      * @param-read string $file
@@ -213,13 +249,7 @@ class AppFacade
          * if inside of include call $this it wil be access as @uses Arguments object
          */
         $args = self::validateScope(func_get_args());
-        return \Closure::bind(
-            function ($file) {
-                /** @noinspection PhpIncludeInspection */
-                return include $file;
-            },
-            $args
-        )($args[0]);
+        return self::includeScopeBind($args[0], $args);
     }
 
     /**
@@ -251,7 +281,7 @@ class AppFacade
      * @return Arguments
      * @throws FileNotFoundException
      */
-    private static function validateScope(array $args)
+    private static function validateScope(array $args) : Arguments
     {
         if (count($args) < 1) {
             throw new InvalidArgumentException(

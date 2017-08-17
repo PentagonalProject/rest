@@ -29,7 +29,7 @@ declare(strict_types=1);
 
 namespace PentagonalProject\Model\Validator;
 
-use function gettype;
+use PentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
 use PentagonalProject\App\Rest\Util\Domain\Verify;
 use PentagonalProject\Exceptions\ValueUsedException;
 use PentagonalProject\Model\Database\User;
@@ -38,7 +38,7 @@ use PentagonalProject\Model\Database\User;
  * Class UserValidator
  * @package PentagonalProject\Model\Validator
  */
-class UserValidator
+class UserValidator extends ModelValidatorAbstract
 {
     // Attributes
     const ATTRIBUTE_FIRST_NAME = 'first_name';
@@ -54,40 +54,14 @@ class UserValidator
     const RULE_PASSWORD_MAX_LENGTH   = 60;
 
     /**
-     * @var \ArrayAccess
-     */
-    private $data;
-
-    /**
      * @var string
      */
     private $caseFixedEmail;
 
-    private function __construct()
-    {
-    }
-
     /**
-     * Check the given data
-     *
-     * @param \ArrayAccess $data
-     * @return self
+     * {@inheritdoc}
      */
-    public static function check(\ArrayAccess $data)
-    {
-        $userValidator = new self();
-        $userValidator->data = $data;
-        $userValidator->run();
-
-        return $userValidator;
-    }
-
-    /**
-     * Attributes to check
-     *
-     * @return array
-     */
-    private function toCheck()
+    protected function toCheck() : array
     {
         return [
             self::ATTRIBUTE_FIRST_NAME => ['length' => self::RULE_FIRST_NAME_MAX_LENGTH],
@@ -96,72 +70,6 @@ class UserValidator
             self::ATTRIBUTE_EMAIL      => ['length' => self::RULE_EMAIL_MAX_LENGTH],
             self::ATTRIBUTE_PASSWORD   => ['length' => self::RULE_PASSWORD_MAX_LENGTH]
         ];
-    }
-
-    /**
-     * Check whether data is string
-     *
-     * @param \ArrayAccess $data
-     * @param string       $attribute
-     * @throws \InvalidArgumentException
-     */
-    private function isString(\ArrayAccess $data, $attribute)
-    {
-        if (!is_string($data[$attribute])) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "%s should be as a string, %s given",
-                    ucwords(str_replace('_', ' ', $attribute)),
-                    gettype($data[$attribute])
-                ),
-                E_USER_WARNING
-            );
-        }
-    }
-
-    /**
-     * Check whether data is not empty
-     *
-     * @param \ArrayAccess $data
-     * @param string       $attribute
-     * @throws \InvalidArgumentException
-     */
-    private function isNotEmpty(\ArrayAccess $data, $attribute)
-    {
-        if (trim($data[$attribute]) == '') {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "%s should not be empty",
-                    ucwords(str_replace('_', ' ', $attribute))
-                ),
-                E_USER_WARNING
-            );
-        }
-    }
-
-    /**
-     * Check whether data length is not more than given number of characters
-     *
-     * @param \ArrayAccess $data
-     * @param string       $attribute
-     * @param int          $length
-     * @throws \LengthException
-     */
-    private function lengthIsNotMoreThan(
-        \ArrayAccess $data,
-        $attribute,
-        $length
-    ) {
-        if (strlen($data[$attribute]) > $length) {
-            throw new \LengthException(
-                sprintf(
-                    "%s length should not more than %s characters",
-                    ucwords(str_replace('_', ' ', $attribute)),
-                    $length
-                ),
-                E_USER_WARNING
-            );
-        }
     }
 
     /**
@@ -228,7 +136,7 @@ class UserValidator
         $this->caseFixedEmail = $email;
     }
 
-    private function run()
+    protected function run()
     {
         foreach ($this->toCheck() as $toCheck => $value) {
             $this->isString($this->data, $toCheck);

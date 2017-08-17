@@ -29,11 +29,13 @@ declare(strict_types=1);
 
 namespace PentagonalProject\Modules\Recipicious\Model\Validator;
 
+use PentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
+
 /**
  * Class RecipeValidator
  * @package PentagonalProject\Modules\Recipicious\Model\Validator
  */
-class RecipeValidator
+class RecipeValidator extends ModelValidatorAbstract
 {
     // Attributes
     const ATTRIBUTE_NAME         = 'name';
@@ -43,32 +45,9 @@ class RecipeValidator
     const RULE_NAME_MAX_LENGTH   = 60;
 
     /**
-     * @var \ArrayAccess
+     * {@inheritdoc}
      */
-    private $data;
-
-    private function __construct()
-    {
-    }
-
-    /**
-     * Check the given data
-     *
-     * @param \ArrayAccess $data
-     */
-    public static function check(\ArrayAccess $data)
-    {
-        $recipeValidator = new self();
-        $recipeValidator->data = $data;
-        $recipeValidator->run();
-    }
-
-    /**
-     * Attributes to check
-     *
-     * @return array
-     */
-    private function toCheck()
+    protected function toCheck() : array
     {
         return [
             self::ATTRIBUTE_NAME,
@@ -78,75 +57,9 @@ class RecipeValidator
     }
 
     /**
-     * Check whether data is string
-     *
-     * @param \ArrayAccess $data
-     * @param string       $attribute
-     * @throws \InvalidArgumentException
+     * {@inheritdoc}
      */
-    private function isString(\ArrayAccess $data, $attribute)
-    {
-        if (! is_string($data[$attribute])) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Recipe %s should be as a string, %s given.",
-                    ucwords(str_replace('_', ' ', $attribute)),
-                    gettype($data[$attribute])
-                ),
-                E_USER_WARNING
-            );
-        }
-    }
-
-    /**
-     * Check whether data is not empty
-     *
-     * @param \ArrayAccess $data
-     * @param string       $attribute
-     * @throws \InvalidArgumentException
-     */
-    private function isNotEmpty(\ArrayAccess $data, $attribute)
-    {
-        if (trim($data[$attribute]) == '') {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "Recipe %s should not be empty.",
-                    ucwords(str_replace('_', ' ', $attribute))
-                ),
-                E_USER_WARNING
-            );
-        }
-    }
-
-    /**
-     * Check whether recipe name length is not more than given number of
-     * characters
-     *
-     * @param \ArrayAccess $data
-     * @param string       $attribute
-     * @param int          $length
-     * @throws \LengthException
-     */
-    private function lengthIsNotMoreThan(
-        \ArrayAccess $data,
-        $attribute,
-        $length
-    ) {
-        if (strlen($data[$attribute]) > $length) {
-            throw new \LengthException(
-                sprintf(
-                    "Recipe Name length should not more than %s characters.",
-                    $length
-                ),
-                E_USER_WARNING
-            );
-        }
-    }
-
-    /**
-     * Run the validator
-     */
-    private function run()
+    protected function run()
     {
         foreach ($this->toCheck() as $toCheck) {
             $this->isString($this->data, $toCheck);

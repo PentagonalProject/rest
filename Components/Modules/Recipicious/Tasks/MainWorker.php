@@ -41,9 +41,11 @@ use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
 use PentagonalProject\Modules\Recipicious\Model\Validator\RecipeValidator;
 use PentagonalProject\Modules\Recipicious\Recipicious;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
+use Slim\Interfaces\RouteInterface;
 
 /**
  * Class MainWorker
@@ -164,9 +166,39 @@ class MainWorker
 //        );
 
         $route = RecipeRoute::class;
-        $this->api->get('[/]', [new RecipeRoute, "getIndex"]); # example use instance object
-        $this->api->post('[/]', [RecipeRoute::class, "postIndex"]); # example use class array
-        // example as string and separator is ::
+        # example use instance object
+        $this
+            ->api
+            ->get(
+                # pattern no group again to prevent inject to other group
+                '[/]',
+                # call getIndex
+                [new RecipeRoute, "getIndex"],
+                /**
+                 * Ass callback
+                 * 2 pass parameter RouteInterface -> (Route)
+                 *              and API
+                 */
+                function (RouteInterface $route, Api $api) {
+                    // no need to return
+                }
+            )
+            /**
+             * MiddleWare after group success
+             */
+            ->add(function (RequestInterface $request, ResponseInterface $response, $next) {
+                // return next(RequestInterface, ResponseInterface);
+                return $next($request, $response);
+            });
+
+        # example use class array [/] -> allow with end slash or no
+        # optional as [] <- square bracket and must be on the end of pattern
+        $this->api->post('[/]', [RecipeRoute::class, "postIndex"]);
+        /**
+         * example as string and separator is ::
+         * {id: [1-9](?:[0-9]+)?} -> determine as a regex numeric only
+         * 1. Must be start with 1-9 and end toh numeric 0-9 exist or no (optionals)
+         */
         $this->api->get('/{id: [1-9](?:[0-9]+)?}[/]', "{$route}::getRecipeById");
         $this->api->post('/{id: [1-9](?:[0-9]+)?}[/]', "{$route}::postRecipeById");
         $this->api->delete('/{id: [1-9](?:[0-9]+)?}[/]', "{$route}::deleteRecipeById");

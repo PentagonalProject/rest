@@ -266,14 +266,14 @@ class ResponseStandard
     /**
      * @param RequestInterface $request
      * @param ResponseInterface $response
-     * @param Exception $exception
+     * @param Throwable $exception
      * @param string|ResponseGeneratorAbstract|null $generator
      * @return ResponseInterface
      */
     public static function withException(
         RequestInterface $request,
         ResponseInterface $response,
-        Exception $exception,
+        Throwable $exception,
         $generator = null
     ) : ResponseInterface {
         $args = func_get_args();

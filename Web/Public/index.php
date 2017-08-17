@@ -30,18 +30,16 @@ declare(strict_types=1);
 namespace {
 
     use PentagonalProject\App\Rest\Record\AppFacade;
+    use Slim\App;
 
+    // require BootStrap
     require_once __DIR__ . '/../../App/Bootstrap.php';
+    $facade = AppFacade::register('public');
+    $facade->setArgument('config', $facade->includeScope(__DIR__ . '/../../Configuration.php'));
     /**
      * AppFacade Scope Returning @uses \Slim\App
+     * @var App $app
      */
-    return AppFacade::includeScope(
-        __DIR__ . '/../../App/Task/Public.php',
-        AppFacade::register('public')
-            ->setArgument(
-                'config',
-                // add array config
-                AppFacade::includeScope(__DIR__ . '/../../Configuration.php')
-            )
-    )->run();
+    $app = $facade->includeScopeBind(__DIR__ . '/../../Components/Worker/Public.php', $facade);
+    return $app->run();
 }

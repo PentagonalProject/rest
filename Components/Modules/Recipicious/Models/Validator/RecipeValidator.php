@@ -58,7 +58,7 @@ class RecipeValidator
      */
     public static function check(\ArrayAccess $data)
     {
-        $recipeValidator = new RecipeValidator();
+        $recipeValidator = new self();
         $recipeValidator->data = $data;
         $recipeValidator->run();
     }

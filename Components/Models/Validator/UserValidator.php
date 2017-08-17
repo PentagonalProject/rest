@@ -58,6 +58,11 @@ class UserValidator
      */
     private $data;
 
+    /**
+     * @var string
+     */
+    private $caseFixedEmail;
+
     private function __construct()
     {
     }
@@ -66,12 +71,15 @@ class UserValidator
      * Check the given data
      *
      * @param \ArrayAccess $data
+     * @return self
      */
     public static function check(\ArrayAccess $data)
     {
-        $userValidator = new UserValidator();
+        $userValidator = new self();
         $userValidator->data = $data;
         $userValidator->run();
+
+        return $userValidator;
     }
 
     /**
@@ -216,6 +224,8 @@ class UserValidator
                 E_USER_ERROR
             );
         }
+
+        $this->caseFixedEmail = $email;
     }
 
     private function run()
@@ -242,5 +252,15 @@ class UserValidator
                 $this->isValidEmail($this->data);
             }
         }
+    }
+
+    /**
+     * Get case fixed email
+     *
+     * @return string
+     */
+    public function getCaseFixedEmail()
+    {
+        return $this->caseFixedEmail;
     }
 }

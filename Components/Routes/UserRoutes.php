@@ -30,7 +30,10 @@ namespace {
             );
 
             // Validate request body
-            UserValidator::check($requestBody);
+            $userValidator = UserValidator::check($requestBody);
+
+            // Set email as case fixed
+            $requestBody['email'] = $userValidator->getCaseFixedEmail();
 
             // Instantiate password hash
             $passwordHash = new PasswordHash();

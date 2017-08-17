@@ -62,13 +62,13 @@ class RecipeValidator extends ModelValidatorAbstract
     protected function run()
     {
         foreach ($this->toCheck() as $toCheck) {
-            $this->isString($this->data, $toCheck);
+            $this->mustBeString($this->data, $toCheck);
 
-            $this->isNotEmpty($this->data, $toCheck);
+            $this->mustBeNotEmpty($this->data, $toCheck);
 
             // Specific validation for name attribute
             if ($toCheck === self::ATTRIBUTE_NAME) {
-                $this->lengthIsNotMoreThan(
+                $this->lengthMustBeLessThan(
                     $this->data,
                     $toCheck,
                     self::RULE_NAME_MAX_LENGTH

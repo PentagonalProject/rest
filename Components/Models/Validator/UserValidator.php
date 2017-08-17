@@ -139,11 +139,11 @@ class UserValidator extends ModelValidatorAbstract
     protected function run()
     {
         foreach ($this->toCheck() as $toCheck => $value) {
-            $this->isString($this->data, $toCheck);
+            $this->mustBeString($this->data, $toCheck);
 
-            $this->isNotEmpty($this->data, $toCheck);
+            $this->mustBeNotEmpty($this->data, $toCheck);
 
-            $this->lengthIsNotMoreThan($this->data, $toCheck, $value['length']);
+            $this->lengthMustBeLessThan($this->data, $toCheck, $value['length']);
 
             // Specific validation for username or email attributes
             if ($toCheck === self::ATTRIBUTE_USERNAME || $toCheck === self::ATTRIBUTE_EMAIL) {

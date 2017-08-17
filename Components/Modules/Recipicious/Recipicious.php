@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace PentagonalProject\Modules\Recipicious;
 
 use PentagonalProject\App\Rest\Abstracts\ModularAbstract;
+use PentagonalProject\App\Rest\Record\AppFacade;
 use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
 use PentagonalProject\Modules\Recipicious\Lib\Api;
 use PentagonalProject\Modules\Recipicious\Task\MainWorker;
@@ -71,13 +72,23 @@ class Recipicious extends ModularAbstract
     protected $worker;
 
     /**
+     * @var string
+     */
+    protected $groupPattern = self::PATTERN;
+
+    /**
      * @const string
      */
     const PATTERN = '/recipes';
 
     /**
+     * Determine RestFull api application name
+     */
+    const REST_APP_NAME = 'rest';
+
+    /**
      * {@inheritdoc}
-     * @see MainWorker::run()
+     * @see MainWorker::run(string $appName)
      */
     public function init()
     {
@@ -88,8 +99,22 @@ class Recipicious extends ModularAbstract
             __NAMESPACE__ . '\\Model\\' => __DIR__ . '/Models/',
             __NAMESPACE__ . '\\Task\\'  => __DIR__ . '/Tasks/'
         ])->register();
+        /**
+         * @var string $appName the Application Name
+         */
+        $appName = AppFacade::current()->getName();
+        $this->setGroupPattern(self::PATTERN);
         $this->worker = new MainWorker(new Api($this));
-        $this->worker->run();
+        // set app name
+        $this->worker->run($appName);
+    }
+
+    /**
+     * @param string $pattern
+     */
+    public function setGroupPattern(string $pattern)
+    {
+        $this->groupPattern = $pattern;
     }
 
     /**
@@ -97,7 +122,7 @@ class Recipicious extends ModularAbstract
      */
     public function getGroupPattern() : string
     {
-        return self::PATTERN;
+        return $this->groupPattern;
     }
 
     /**

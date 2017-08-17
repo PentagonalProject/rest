@@ -39,6 +39,13 @@ namespace {
 
     // middleware public
     $this->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+        /**
+         * Returning next execution
+         * @see MiddlewareAwareTrait::addMiddleware
+         * on line 73 with :
+         * --> $result = call_user_func($callable, $request, $response, $next);
+         * Returning result must be as @return ResponseInterface
+         */
         return $next($request, $response);
     });
 }

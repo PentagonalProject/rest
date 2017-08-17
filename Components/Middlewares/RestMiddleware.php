@@ -36,6 +36,7 @@ namespace {
     use Slim\App;
     use Slim\Handlers\AbstractHandler;
     use Slim\Handlers\NotFound;
+    use Slim\MiddlewareAwareTrait;
 
     if (! isset($this) || ! $this instanceof App) {
         return;
@@ -76,6 +77,13 @@ namespace {
             };
         });
 
+        /**
+         * Returning next execution
+         * @see MiddlewareAwareTrait::addMiddleware
+         * on line 73 with :
+         * --> $result = call_user_func($callable, $request, $response, $next);
+         * Returning result must be as @return ResponseInterface
+         */
         return $next($request, $response);
     });
 }

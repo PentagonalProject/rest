@@ -29,18 +29,6 @@ declare(strict_types=1);
 
 namespace {
 
-    use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
-
     // require Vendor Auto Load
     require_once __DIR__ . '/../vendor/autoload.php';
-
-    /**
-     * Load PSR4
-     */
-    ComposerLoaderPSR4::create(
-        [
-            // add Override
-            "PentagonalProject\\App\\Rest\\Override\\" => __DIR__ . '/ClassOverride/'
-        ]
-    )->register(); // register
 }

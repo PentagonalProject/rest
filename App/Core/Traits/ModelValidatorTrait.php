@@ -94,7 +94,7 @@ trait ModelValidatorTrait
      */
     protected function mustBeNotEmpty(string $attribute)
     {
-        if ($this->determineLength($this->data[$attribute]) !== 0) {
+        if ($this->determineLength($this->data[$attribute]) === 0) {
             throw new \InvalidArgumentException(
                 sprintf(
                     "%s should not be empty.",
@@ -174,7 +174,7 @@ trait ModelValidatorTrait
         }
 
         throw new \TypeError(
-            'Type value must be count able %s given',
+            'Type value must be countable %s given',
             gettype($value)
         );
     }

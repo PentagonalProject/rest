@@ -18,7 +18,7 @@ before_script:
 
 script:
     - ./vendor/bin/phpcs
-    - ./vendor/bin/phpunit --configuration phpunit.xml.dist --coverage-text
+    - ./vendor/bin/phpunit --configuration phpunit.xml.dist --coverage-text --testdox
 
 matrix:
   fast_finish: true

@@ -40,22 +40,22 @@ return [
     'database' => [
         'driver'    => isset($_SERVER['OPENSHIFT_MYSQL_DB_DRIVER'])
             ? $_SERVER['OPENSHIFT_MYSQL_DB_DRIVER']
-            : 'mysql',
+            : 'pgsql',
         // example database host
         'host'      => isset($_SERVER['OPENSHIFT_MYSQL_DB_HOST'])
             ? $_SERVER['OPENSHIFT_MYSQL_DB_HOST']
             : 'localhost',
         'port'      => isset($_SERVER['OPENSHIFT_MYSQL_DB_PORT'])
             ? $_SERVER['OPENSHIFT_MYSQL_DB_PORT']
-            : 3306,
+            : 5432,
         // example database user
         'username'  => isset($_SERVER['OPENSHIFT_MYSQL_DB_USERNAME'])
             ? $_SERVER['OPENSHIFT_MYSQL_DB_USERNAME']
-            : 'root',
+            : 'postgres',
         // example database user password
         'password'  => isset($_SERVER['OPENSHIFT_MYSQL_DB_PASSWORD'])
             ? $_SERVER['OPENSHIFT_MYSQL_DB_PASSWORD']
-            : 'mysql',
+            : 'postgres',
         'charset'   => 'utf8',
         // Database Name
         'database'  => isset($_SERVER['OPENSHIFT_MYSQL_DB_NAME'])

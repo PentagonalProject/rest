@@ -30,7 +30,7 @@ declare(strict_types=1);
 namespace PentagonalProject\Tests\PhpUnit\Core;
 
 use Apatis\ArrayStorage\CollectionFetch;
-use PentagonalProject\App\Rest\Abstracts\ContainerAccessorAbstracts;
+use PentagonalProject\App\Rest\Abstracts\ContainerAccessorAbstract;
 use PentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
 use PentagonalProject\App\Rest\Traits\ModelValidatorTrait;
 use Psr\Container\ContainerInterface;
@@ -71,7 +71,7 @@ class AbstractsTest extends \PHPUnit_Framework_TestCase
 
     public function testContainerAccessor()
     {
-        $class = new class($this->container) extends ContainerAccessorAbstracts {
+        $class = new class($this->container) extends ContainerAccessorAbstract {
             public function __construct(ContainerInterface $container)
             {
                 $this->setContainerAggregate($container);
@@ -83,7 +83,7 @@ class AbstractsTest extends \PHPUnit_Framework_TestCase
             $class,
             sprintf(
                 '%1$s instance of %2$s',
-                ContainerAccessorAbstracts::class,
+                ContainerAccessorAbstract::class,
                 \ArrayAccess::class
             )
         );
@@ -93,7 +93,7 @@ class AbstractsTest extends \PHPUnit_Framework_TestCase
             $class->getContainer(),
             sprintf(
                 '%1$s instance of %2$s',
-                ContainerAccessorAbstracts::class . '::getContainer()',
+                ContainerAccessorAbstract::class . '::getContainer()',
                 ContainerInterface::class
             )
         );

@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace PentagonalProject\Modules\Recipicious\Model\Validator;
 
 use PentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
+use PentagonalProject\App\Rest\Traits\ModelValidatorTrait;
 
 /**
  * Class RecipeValidator
@@ -37,6 +38,8 @@ use PentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
  */
 class RecipeValidator extends ModelValidatorAbstract
 {
+    use ModelValidatorTrait;
+
     // Attributes
     const ATTRIBUTE_NAME         = 'name';
     const ATTRIBUTE_INSTRUCTIONS = 'instructions';
@@ -62,14 +65,12 @@ class RecipeValidator extends ModelValidatorAbstract
     protected function run()
     {
         foreach ($this->toCheck() as $toCheck) {
-            $this->mustBeString($this->data, $toCheck);
-
-            $this->mustBeNotEmpty($this->data, $toCheck);
+            $this->mustBeString($toCheck);
+            $this->mustBeNotEmpty($toCheck);
 
             // Specific validation for name attribute
             if ($toCheck === self::ATTRIBUTE_NAME) {
                 $this->lengthMustBeLessThan(
-                    $this->data,
                     $toCheck,
                     self::RULE_NAME_MAX_LENGTH
                 );

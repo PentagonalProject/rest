@@ -29,7 +29,7 @@ declare(strict_types=1);
 
 namespace PentagonalProject\App\Rest\Record;
 
-use PentagonalProject\App\Rest\Abstracts\ContainerAccessor;
+use PentagonalProject\App\Rest\Abstracts\ContainerAccessorAbstract;
 use PentagonalProject\App\Rest\Util\Sanitizer;
 use Psr\Container\ContainerInterface;
 use Slim\App;
@@ -39,7 +39,7 @@ use Slim\Http\Environment;
  * Class AppFacadeAccessor
  * @package PentagonalProject\App\Rest\Record
  */
-class AppFacadeAccessor extends ContainerAccessor
+class AppFacadeAccessor extends ContainerAccessorAbstract
 {
     /**
      * @var AppFacade

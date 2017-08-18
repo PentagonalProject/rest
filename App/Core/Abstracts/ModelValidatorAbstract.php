@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace PentagonalProject\App\Rest\Abstracts;
 
+use Slim\Collection;
+
 /**
  * Class ModelValidatorAbstract
  * @package PentagonalProject\App\Rest\Abstracts
@@ -43,23 +45,18 @@ abstract class ModelValidatorAbstract
     /**
      * ModelValidatorAbstract constructor.
      */
-    protected function __construct()
+    public function __construct()
     {
+        // set default
+        $this->data = new Collection();
     }
 
     /**
      * @param \ArrayAccess $data
      *
-     * @return ModelValidatorAbstract|static
+     * @return static
      */
-    public static function check(\ArrayAccess $data)
-    {
-        $modelValidator = new static();
-        $modelValidator->data = $data;
-        $modelValidator->run();
-
-        return $modelValidator;
-    }
+    abstract public static function check(\ArrayAccess $data);
 
     /**
      * Attributes to check
@@ -76,67 +73,71 @@ abstract class ModelValidatorAbstract
     /**
      * Check whether data attribute value is string
      *
-     * @param \ArrayAccess $data
      * @param string       $attribute
      * @throws \InvalidArgumentException
      */
-    protected function mustBeString(\ArrayAccess $data, $attribute)
-    {
-        if (! is_string($data[$attribute])) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "%s should be as a string, %s given.",
-                    ucwords(str_replace('_', ' ', $attribute)),
-                    gettype($data[$attribute])
-                ),
-                E_USER_WARNING
-            );
-        }
-    }
+    abstract protected function mustBeString(string $attribute);
 
     /**
      * Check whether data attribute value is not empty
      *
-     * @param \ArrayAccess $data
      * @param string       $attribute
      * @throws \InvalidArgumentException
      */
-    protected function mustBeNotEmpty(\ArrayAccess $data, $attribute)
-    {
-        if (trim($data[$attribute]) == '') {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    "%s should not be empty.",
-                    ucwords(str_replace('_', ' ', $attribute))
-                ),
-                E_USER_WARNING
-            );
-        }
-    }
+    abstract protected function mustBeNotEmpty(string $attribute);
 
     /**
      * Check whether data attribute value length is not more than given
      * number of characters
      *
-     * @param \ArrayAccess $data
      * @param string       $attribute
      * @param int          $length
      * @throws \LengthException
      */
-    protected function lengthMustBeLessThan(
-        \ArrayAccess $data,
-        $attribute,
-        $length
-    ) {
-        if (strlen($data[$attribute]) > $length) {
-            throw new \LengthException(
-                sprintf(
-                    "%s length should not more than %s characters.",
-                    ucwords(str_replace('_', ' ', $attribute)),
-                    $length
-                ),
-                E_USER_WARNING
-            );
-        }
-    }
+    abstract protected function lengthMustBeLessThan(
+        string $attribute,
+        int $length
+    );
+
+    /**
+     * Check whether data attribute value length is more than given
+     * number of characters
+     *
+     * @param string       $attribute
+     * @param int          $length
+     * @throws \LengthException
+     */
+    abstract protected function lengthMustBeMoreThan(
+        string $attribute,
+        int $length
+    );
+
+    /**
+     * Check whether data attribute value length is between range than given
+     * number of characters
+     *
+     * @param string       $attribute
+     * @param int          $min
+     * @param int          $max
+     *
+     * @throws \LengthException
+     */
+    abstract protected function lengthMustBeBetween(
+        string $attribute,
+        int $min,
+        int $max
+    );
+
+    /**
+     * Check whether data attribute value length is equal than given
+     * number of characters
+     *
+     * @param string       $attribute
+     * @param int          $length
+     * @throws \LengthException
+     */
+    abstract protected function lengthMustBeEqual(
+        string $attribute,
+        int $length
+    );
 }

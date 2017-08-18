@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace PentagonalProject\Model\Validator;
 
 use PentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
+use PentagonalProject\App\Rest\Traits\ModelValidatorTrait;
 use PentagonalProject\App\Rest\Util\Domain\Verify;
 use PentagonalProject\Exceptions\ValueUsedException;
 use PentagonalProject\Model\Database\User;
@@ -40,6 +41,8 @@ use PentagonalProject\Model\Database\User;
  */
 class UserValidator extends ModelValidatorAbstract
 {
+    use ModelValidatorTrait;
+
     // Attributes
     const ATTRIBUTE_FIRST_NAME = 'first_name';
     const ATTRIBUTE_LAST_NAME  = 'last_name';
@@ -75,13 +78,12 @@ class UserValidator extends ModelValidatorAbstract
     /**
      * Check whether data is already used
      *
-     * @param \ArrayAccess $data
      * @param $attribute
      * @throws ValueUsedException
      */
-    private function isAlreadyUsed(\ArrayAccess $data, $attribute)
+    private function isAlreadyUsed($attribute)
     {
-        if (User::query()->where($attribute, $data[$attribute])->first()) {
+        if (User::query()->where($attribute, $this->data[$attribute])->first()) {
             throw new ValueUsedException(
                 sprintf(
                     "%s is already used",
@@ -95,14 +97,13 @@ class UserValidator extends ModelValidatorAbstract
     /**
      * Check whether username is valid
      *
-     * @param \ArrayAccess $data
      * @throws \InvalidArgumentException
      */
-    private function isValidUsername(\ArrayAccess $data)
+    private function isValidUsername()
     {
         if (!preg_match(
             '/(?=^[a-z0-9_]{3,64}$)^[a-z0-9]+[_]?(?:[a-z0-9]+[_]?)?[a-z0-9]+$/',
-            $data[self::ATTRIBUTE_USERNAME]
+            $this->data[self::ATTRIBUTE_USERNAME]
         )
         ) {
             throw new \InvalidArgumentException(
@@ -115,14 +116,13 @@ class UserValidator extends ModelValidatorAbstract
     /**
      * Check whether email is valid
      *
-     * @param \ArrayAccess $data
      * @throws \InvalidArgumentException
      */
-    private function isValidEmail(\ArrayAccess $data)
+    private function isValidEmail()
     {
         $domain = new Verify();
         $email = $domain->validateEmail(
-            (string) $data[self::ATTRIBUTE_EMAIL]
+            (string) $this->data[self::ATTRIBUTE_EMAIL]
         );
 
         // Check whether email is valid
@@ -139,25 +139,25 @@ class UserValidator extends ModelValidatorAbstract
     protected function run()
     {
         foreach ($this->toCheck() as $toCheck => $value) {
-            $this->mustBeString($this->data, $toCheck);
+            $this->mustBeString($toCheck);
 
-            $this->mustBeNotEmpty($this->data, $toCheck);
+            $this->mustBeNotEmpty($toCheck);
 
-            $this->lengthMustBeLessThan($this->data, $toCheck, $value['length']);
+            $this->lengthMustBeLessThan($toCheck, $value['length']);
 
             // Specific validation for username or email attributes
             if ($toCheck === self::ATTRIBUTE_USERNAME || $toCheck === self::ATTRIBUTE_EMAIL) {
-                $this->isAlreadyUsed($this->data, $toCheck);
+                $this->isAlreadyUsed($toCheck);
             }
 
             // Specific validation for username attribute
             if ($toCheck === self::ATTRIBUTE_USERNAME) {
-                $this->isValidUsername($this->data);
+                $this->isValidUsername();
             }
 
             // Specific validation for email attribute
             if ($toCheck === self::ATTRIBUTE_EMAIL) {
-                $this->isValidEmail($this->data);
+                $this->isValidEmail();
             }
         }
     }

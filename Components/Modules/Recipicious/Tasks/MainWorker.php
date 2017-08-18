@@ -136,9 +136,7 @@ class MainWorker
                 return $next($request, $response);
             });
 
-        # example use class array [/] -> allow with end slash or no
-        # optional as [] <- square bracket and must be on the end of pattern
-        $this->api->post('[/]', [RecipeRoute::class, "postIndex"]);
+        $this->api->post('[/]', "{$route}:postIndex");
         /**
          * example as string and separator is ::
          * {id: [1-9](?:[0-9]+)?} -> determine as a regex numeric only

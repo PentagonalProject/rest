@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace {
 
     use PentagonalProject\App\Rest\Util\Hook;
-    use PentagonalProject\App\Rest\Override\PhpError;
+    use PentagonalProject\Model\Handler\PhpError;
     use Psr\Container\ContainerInterface;
     use Slim\Handlers\AbstractError;
 

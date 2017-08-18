@@ -29,7 +29,10 @@ declare(strict_types=1);
 
 namespace PentagonalProject\Tests\PhpUnit\Core;
 
-use PentagonalProject\App\Rest\Abstracts\ContainerAccessor;
+use Apatis\ArrayStorage\CollectionFetch;
+use PentagonalProject\App\Rest\Abstracts\ContainerAccessorAbstracts;
+use PentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
+use PentagonalProject\App\Rest\Traits\ModelValidatorTrait;
 use Psr\Container\ContainerInterface;
 use Slim\Container;
 
@@ -44,19 +47,31 @@ class AbstractsTest extends \PHPUnit_Framework_TestCase
      */
     protected $container;
 
+    /**
+     * @var \Closure
+     */
+    protected $fallBackClosure;
+
+    /**
+     * AbstractsTest constructor.
+     *
+     * {@inheritdoc}
+     */
     public function __construct($name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
-        $this->container = new \Slim\Container([
-            'test' => function($c) {
+        $this->fallBackClosure = function ($c) {
                 return $c;
-            }
+        };
+
+        $this->container = new Container([
+            'test' => $this->fallBackClosure
         ]);
     }
 
     public function testContainerAccessor()
     {
-        $class = new class($this->container) extends ContainerAccessor {
+        $class = new class($this->container) extends ContainerAccessorAbstracts {
             public function __construct(ContainerInterface $container)
             {
                 $this->setContainerAggregate($container);
@@ -68,7 +83,7 @@ class AbstractsTest extends \PHPUnit_Framework_TestCase
             $class,
             sprintf(
                 '%1$s instance of %2$s',
-                ContainerAccessor::class,
+                ContainerAccessorAbstracts::class,
                 \ArrayAccess::class
             )
         );
@@ -78,7 +93,7 @@ class AbstractsTest extends \PHPUnit_Framework_TestCase
             $class->getContainer(),
             sprintf(
                 '%1$s instance of %2$s',
-                ContainerAccessor::class .'::getContainer()',
+                ContainerAccessorAbstracts::class . '::getContainer()',
                 ContainerInterface::class
             )
         );
@@ -87,6 +102,12 @@ class AbstractsTest extends \PHPUnit_Framework_TestCase
             $this->container,
             'container',
             $class
+        );
+
+        $this->assertNotSame(
+            $class['test'],
+            $this->fallBackClosure,
+            'Object container array access is a return value of closure'
         );
 
         $this->assertInstanceOf(
@@ -98,5 +119,92 @@ class AbstractsTest extends \PHPUnit_Framework_TestCase
                 ContainerInterface::class
             )
         );
+    }
+
+    public function testModelValidator()
+    {
+        $class = new class() extends ModelValidatorAbstract {
+            use ModelValidatorTrait;
+
+            protected function toCheck(): array
+            {
+                // make values invalid
+                return [
+                    'test' => ['between' => [5, 6]],
+                    'test2' => ['more' => 5],
+                    'test3' => ['less' => 6],
+                ];
+            }
+
+            public function getValuesToCheck()
+            {
+                return $this->toCheck();
+            }
+
+            public function lengthMustBeLessThanAlt(
+                string $attribute,
+                int $length
+            ) {
+                $this->lengthMustBeLessThan($attribute, $length);
+            }
+            public function lengthMustBeMoreThanAlt(
+                string $attribute,
+                int $length
+            ) {
+                $this->lengthMustBeMoreThan($attribute, $length);
+            }
+
+            public function lengthMustBeBetweenAlt(
+                string $attribute,
+                int $min,
+                int $max
+            ) {
+                $this->lengthMustBeBetween($attribute, $min, $max);
+            }
+
+            public function run()
+            {
+                return $this;
+            }
+        };
+
+        $class = $class::check(new CollectionFetch(
+            [
+                // set as invalid
+                'test' => '1234',
+                'test2' => '12345',
+                'test3' => '123456',
+            ]
+        ));
+        /** @noinspection PhpUndefinedMethodInspection */
+        foreach ($class->getValuesToCheck() as $key => $value) {
+            foreach ($value as $keyName => $realValue) {
+                try {
+                    switch ($keyName) {
+                        case 'between':
+                            /** @noinspection PhpUndefinedMethodInspection */
+                            $class->lengthMustBeBetweenAlt(
+                                $keyName,
+                                reset($realValue),
+                                next($realValue)
+                            );
+                            break;
+                        case 'more':
+                            /** @noinspection PhpUndefinedMethodInspection */
+                            $class->lengthMustBeMoreThanAlt($keyName, $realValue);
+                            break;
+                        case 'less':
+                            /** @noinspection PhpUndefinedMethodInspection */
+                            $class->lengthMustBeLessThanAlt($keyName, $realValue);
+                            break;
+                    }
+                } catch (\Throwable $exception) {
+                    $this->assertInstanceOf(
+                        \LengthException::class,
+                        $exception
+                    );
+                }
+            }
+        }
     }
 }

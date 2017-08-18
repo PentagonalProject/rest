@@ -31,7 +31,7 @@ declare(strict_types=1);
 namespace PentagonalProject\Modules\Recipicious\Task;
 
 use Apatis\ArrayStorage\CollectionFetch;
-use PentagonalProject\App\Rest\Exceptions\UserUnauthorizedException;
+use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
 use PentagonalProject\App\Rest\Generator\ResponseStandard;
 use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
 use PentagonalProject\Modules\Recipicious\Model\Validator\RecipeValidator;
@@ -87,7 +87,7 @@ class RecipeRoute
                     is_null($requestParams['page']) ? 1 : (int)$requestParams['page']
                 )
             );
-        } catch (UserUnauthorizedException $exception) {
+        } catch (UnauthorizedException $exception) {
             // unauthorized
             return ResponseStandard::withException(
                 $request,
@@ -153,7 +153,7 @@ class RecipeRoute
                 $response->withStatus(201),
                 (int) $recipe->getKey()
             );
-        } catch (UserUnauthorizedException $exception) {
+        } catch (UnauthorizedException $exception) {
             // unauthorized
             return ResponseStandard::withException(
                 $request,
@@ -191,7 +191,7 @@ class RecipeRoute
                 $response,
                 Recipe::query()->findOrFail($params['id'])
             );
-        } catch (UserUnauthorizedException $exception) {
+        } catch (UnauthorizedException $exception) {
             // unauthorized
             return ResponseStandard::withException(
                 $request,
@@ -259,7 +259,7 @@ class RecipeRoute
                 $response,
                 $recipe
             );
-        } catch (UserUnauthorizedException $exception) {
+        } catch (UnauthorizedException $exception) {
             // unauthorized
             return ResponseStandard::withException(
                 $request,
@@ -303,7 +303,7 @@ class RecipeRoute
                 $response,
                 'Recipe has been successfully deleted'
             );
-        } catch (UserUnauthorizedException $exception) {
+        } catch (UnauthorizedException $exception) {
             // unauthorized
             return ResponseStandard::withException(
                 $request,
@@ -324,7 +324,8 @@ class RecipeRoute
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param int $level
-     * @throws UserUnauthorizedException
+     *
+     * @throws UnauthorizedException
      */
     private function validateAccess(
         ServerRequestInterface $request,
@@ -332,7 +333,7 @@ class RecipeRoute
         int $level
     ) {
         /*
-        throw new UserUnauthorizedException(
+        throw new UnauthorizedException(
             "Not enough access"
         );*/
         // do validation

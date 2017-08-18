@@ -54,7 +54,7 @@ abstract class ContainerAccessor implements ArrayAccess
     /**
      * @return ContainerInterface
      */
-    public function getContainer()
+    public function getContainer() : ContainerInterface
     {
         return $this->container;
     }

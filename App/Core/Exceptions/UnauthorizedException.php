@@ -30,9 +30,9 @@ declare(strict_types=1);
 namespace PentagonalProject\App\Rest\Exceptions;
 
 /**
- * Class UserUnauthorizedException
+ * Class UnauthorizedException
  * @package PentagonalProject\App\Rest\Exceptions
  */
-class UserUnauthorizedException extends \ErrorException
+class UnauthorizedException extends \ErrorException
 {
 }

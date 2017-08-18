@@ -25,10 +25,17 @@
  * @author pentagonal <org@pentagonal.org>
  */
 
+declare(strict_types=1);
+
 namespace PentagonalProject\Tests\PhpUnit\Core;
 
 use PentagonalProject\App\Rest\Exceptions\EmptyFileException;
+use PentagonalProject\App\Rest\Exceptions\FileNotFoundException;
+use PentagonalProject\App\Rest\Exceptions\InvalidModularException;
 use PentagonalProject\App\Rest\Exceptions\InvalidPathException;
+use PentagonalProject\App\Rest\Exceptions\ModularNotFoundException;
+use PentagonalProject\App\Rest\Exceptions\StreamConnectionException;
+use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
 
 /**
  * Class ExceptionTest
@@ -45,6 +52,84 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
                 '%1$s instance of %2$s',
                 EmptyFileException::class,
                 InvalidPathException::class
+            )
+        );
+    }
+
+    public function testFileNotFoundException()
+    {
+        $this->assertInstanceOf(
+            InvalidPathException::class,
+            new FileNotFoundException(__FILE__),
+            sprintf(
+                '%1$s instance of %2$s',
+                FileNotFoundException::class,
+                InvalidPathException::class
+            )
+        );
+    }
+
+    public function testInvalidModularException()
+    {
+        $this->assertInstanceOf(
+            \Exception::class,
+            new InvalidModularException(__FILE__),
+            sprintf(
+                '%1$s instance of %2$s',
+                InvalidModularException::class,
+                \Exception::class
+            )
+        );
+    }
+
+    public function testInvalidPathException()
+    {
+        $this->assertInstanceOf(
+            \Exception::class,
+            new InvalidPathException(__FILE__),
+            sprintf(
+                '%1$s instance of %2$s',
+                InvalidPathException::class,
+                \Exception::class
+            )
+        );
+    }
+
+    public function testModularNotFoundException()
+    {
+        $this->assertInstanceOf(
+            \Exception::class,
+            new ModularNotFoundException(__FILE__),
+            sprintf(
+                '%1$s instance of %2$s',
+                ModularNotFoundException::class,
+                InvalidPathException::class
+            )
+        );
+    }
+
+    public function testStreamConnectionException()
+    {
+        $this->assertInstanceOf(
+            \Exception::class,
+            new StreamConnectionException(),
+            sprintf(
+                '%1$s instance of %2$s',
+                StreamConnectionException::class,
+                \RuntimeException::class
+            )
+        );
+    }
+
+    public function testUnauthorizedException()
+    {
+        $this->assertInstanceOf(
+            \Exception::class,
+            new UnauthorizedException(),
+            sprintf(
+                '%1$s instance of %2$s',
+                UnauthorizedException::class,
+                \ErrorException::class
             )
         );
     }

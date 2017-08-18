@@ -30,5 +30,5 @@ declare(strict_types=1);
 namespace {
 
     // require Vendor Auto Load
-    require_once __DIR__ . '/../vendor/autoload.php';
+    return require_once __DIR__ . '/../vendor/autoload.php';
 }

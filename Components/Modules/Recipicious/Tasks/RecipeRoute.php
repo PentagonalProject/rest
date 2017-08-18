@@ -43,6 +43,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @package PentagonalProject\Modules\Recipicious\Task
  *
  * Base On Recipe Route Collections
+ * add change to static functions
  */
 class RecipeRoute
 {
@@ -64,13 +65,13 @@ class RecipeRoute
      * @param ResponseInterface $response
      * @return ResponseInterface
      */
-    public function getIndex(
+    public static function getIndex(
         ServerRequestInterface $request,
         ResponseInterface $response
     ) : ResponseInterface {
         try {
             // validate
-            $this->validateAccess($request, $response, self::LEVEL_GET);
+            self::validateAccess($request, $response, self::LEVEL_GET);
 
             /**
              * Make request params fetch able.
@@ -110,13 +111,13 @@ class RecipeRoute
      *
      * @return ResponseInterface
      */
-    public function postIndex(
+    public static function postIndex(
         ServerRequestInterface $request,
         ResponseInterface $response
     ) : ResponseInterface {
         try {
             // validate
-            $this->validateAccess($request, $response, self::LEVEL_CREATE);
+            self::validateAccess($request, $response, self::LEVEL_CREATE);
 
             /**
              * Make request body fetch able.
@@ -177,14 +178,14 @@ class RecipeRoute
      *
      * @return ResponseInterface
      */
-    public function getRecipeById(
+    public static function getRecipeById(
         ServerRequestInterface $request,
         ResponseInterface $response,
         array $params
     ): ResponseInterface {
         try {
             // validate
-            $this->validateAccess($request, $response, self::LEVEL_GET);
+            self::validateAccess($request, $response, self::LEVEL_GET);
 
             return ResponseStandard::withData(
                 $request,
@@ -215,14 +216,14 @@ class RecipeRoute
      *
      * @return ResponseInterface
      */
-    public function postRecipeById(
+    public static function postRecipeById(
         ServerRequestInterface $request,
         ResponseInterface $response,
         array $params
     ) : ResponseInterface {
         try {
             // validate
-            $this->validateAccess($request, $response, self::LEVEL_UPDATE);
+            self::validateAccess($request, $response, self::LEVEL_UPDATE);
 
             /**
              * Make request body fetch able.
@@ -283,14 +284,14 @@ class RecipeRoute
      *
      * @return ResponseInterface
      */
-    public function deleteRecipeById(
+    public static function deleteRecipeById(
         ServerRequestInterface $request,
         ResponseInterface $response,
         array $params
     ) : ResponseInterface {
         try {
             // validate
-            $this->validateAccess($request, $response, self::LEVEL_DELETE);
+            self::validateAccess($request, $response, self::LEVEL_DELETE);
 
             // Get a recipe by id
             $recipe = Recipe::query()->findOrFail($params['id']);
@@ -327,7 +328,7 @@ class RecipeRoute
      *
      * @throws UnauthorizedException
      */
-    private function validateAccess(
+    private static function validateAccess(
         ServerRequestInterface $request,
         ResponseInterface $response,
         int $level

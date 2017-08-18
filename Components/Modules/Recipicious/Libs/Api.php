@@ -108,7 +108,7 @@ class Api
     public function map(
         array $methods,
         string $pattern,
-        callable $callback,
+        $callback,
         \closure $routeCallback = null
     ) : RouteGroupInterface {
         /**
@@ -146,7 +146,7 @@ class Api
      */
     public function any(
         string $pattern,
-        callable $callback,
+        $callback,
         \closure $routeCallback = null
     ) {
         $args = func_get_args();

@@ -52,7 +52,8 @@ use PentagonalProject\App\Rest\Util\Sanitizer;
  * @method static Model|static firstOrFail($columns = ['*'])
  * @method static Model|static|mixed firstOr($columns = ['*'], \Closure $callback = null)
  * @method static mixed value($column)
- * @method static Collection|static[] get($column)
+ * @method static Builder where($column, $operator = null, $value = null, $boolean = 'and')
+ * @method static static[]|Collection get(array $columns = ['*'])
  * ... @method static mixed *
  *
  * @uses Builder for more usage

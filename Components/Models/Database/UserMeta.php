@@ -29,56 +29,36 @@ declare(strict_types=1);
 
 namespace PentagonalProject\Model\Database;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use PentagonalProject\Model\DatabaseBaseModel;
 
 /**
- * Class User
- * @package PentagonalProject\Model\Database
+ * Class UserMeta
+ * @package PentagonalProject\Modules\Recipicious\Model\Database
  */
-class User extends DatabaseBaseModel
+class UserMeta extends DatabaseBaseModel
 {
-
     /*-------------------------------------
      * TABLE NAME DEFINITION
      * ----------------------------------- */
-    const TABLE_NAME         = 'users';
+    const TABLE_NAME = 'users_meta';
 
     /*-------------------------------------
      * COLUMN DEFINITION
      * ----------------------------------- */
-    const COLUMN_ID          = 'id';
-    const COLUMN_FIRST_NAME  = 'first_name';
-    const COLUMN_LAST_NAME   = 'last_name';
-    const COLUMN_USERNAME    = 'username';
-    const COLUMN_EMAIL       = 'email';
-    const COLUMN_PASSWORD    = 'password';
-    const COLUMN_PRIVATE_KEY = 'private_key';
-    const COLUMN_CREATED_AT = 'created_at';
-    const COLUMN_UPDATED_AT = 'updated_at';
-
-    /*-------------------------------------
-     * RELATION DEFINITION
-     * ----------------------------------- */
-    /**
-     * @see meta();
-     */
-    const RELATION_META = 'meta';
+    const COLUMN_ID = 'id';
+    const COLUMN_USER_ID = 'user_id';
+    const COLUMN_NAME = 'meta_name';
+    const COLUMN_VALUE = 'meta_value';
 
     /*-------------------------------------
      * OVERRIDE
      * ----------------------------------- */
-    const CREATED_AT = self::COLUMN_CREATED_AT;
-    const UPDATED_AT = self::COLUMN_UPDATED_AT;
-
     /**
-     * Enable Time Stamp
+     * Disable Time Stamp
      *
      * @var bool
      */
-    public $timestamps = true;
+    public $timestamps = false;
 
     /**
      * {@inheritdoc}
@@ -87,40 +67,11 @@ class User extends DatabaseBaseModel
     protected $table = self::TABLE_NAME;
 
     /**
-     * {@inheritdoc}
+     * Fill-able
      * @var array
      */
     protected $fillable = [
-        self::COLUMN_FIRST_NAME,
-        self::COLUMN_LAST_NAME,
-        self::COLUMN_USERNAME,
-        self::COLUMN_EMAIL,
-        self::COLUMN_PASSWORD,
-        self::COLUMN_PRIVATE_KEY
+        self::COLUMN_NAME,
+        self::COLUMN_VALUE
     ];
-
-    /**
-     * @return Collection
-     */
-    public function getAllMeta() : Collection
-    {
-        /**
-         * @var Builder $meta
-         */
-        return $this->meta()->getResults();
-    }
-
-    /**
-     * Get Relational Meta
-     *
-     * @return HasMany
-     */
-    public function meta() : HasMany
-    {
-        return $this->hasMany(
-            UserMetaByUserId::class,
-            UserMetaByUserId::COLUMN_USER_ID,
-            User::COLUMN_ID
-        );
-    }
 }

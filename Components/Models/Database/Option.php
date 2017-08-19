@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace PentagonalProject\Model\Database;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use PentagonalProject\Model\DatabaseBaseModel;
 
 /**
@@ -38,9 +39,33 @@ use PentagonalProject\Model\DatabaseBaseModel;
  */
 class Option extends DatabaseBaseModel
 {
+    /*-------------------------------------
+     * TABLE NAME DEFINITION
+     * ----------------------------------- */
+    const TABLE_NAME = 'options';
+
+    /*-------------------------------------
+     * COLUMN DEFINITION
+     * ----------------------------------- */
     const COLUMN_OPTION_ID    = 'id';
     const COLUMN_OPTION_NAME  = 'option_name';
     const COLUMN_OPTION_VALUE = 'option_value';
+
+    /*-------------------------------------
+     * OVERRIDE
+     * ----------------------------------- */
+    /**
+     * Disable Time Stamp
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
+     * {@inheritdoc}
+     * @var string
+     */
+    protected $table = self::TABLE_NAME;
 
     /**
      * @var string
@@ -60,15 +85,14 @@ class Option extends DatabaseBaseModel
     public static function getFrom(string $name, $default = null)
     {
         /**
-         * @var Collection $model
+         * @var Option $model
          */
-        $model = parent::find($name);
-        if (!$model) {
+        $model = self::find($name);
+        if (! $model || ! $model instanceof Model) {
             return $default;
         }
 
-        return static::resolveResult(
-            $model->get(self::COLUMN_OPTION_VALUE, $default)
-        );
+        $model = new Collection($model->toArray());
+        return $model->get(self::COLUMN_OPTION_VALUE, $default);
     }
 }

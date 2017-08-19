@@ -1,6 +1,7 @@
 <?php
 namespace PentagonalProject\App\Rest\Abstracts;
 
+use Psr\Container\ContainerInterface;
 use Slim\App;
 use Slim\Interfaces\RouteGroupInterface;
 
@@ -78,6 +79,8 @@ abstract class RouteMapperBaseAbstract
          */
         $app = $this->getApp();
         $this->lastRoutes = func_get_args();
+        // fix
+        $this->callableFixLastRoute();
         $c =& $this;
         return $app->group(
             $this->getGroupPattern(),
@@ -100,6 +103,56 @@ abstract class RouteMapperBaseAbstract
     }
 
     /**
+     * Fix Route Callable
+     */
+    private function callableFixLastRoute()
+    {
+        if (! is_array($this->lastRoutes[2]) || count($this->lastRoutes[2]) !== 2) {
+            return;
+        }
+
+        $key = key($this->lastRoutes[2]);
+        $class = reset($this->lastRoutes[2]);
+        $method = next($this->lastRoutes[2]);
+        if (is_string($class)
+            && is_string($method)
+            && class_exists($class)
+            && method_exists($class, $method)
+        ) {
+            $refMethod = new \ReflectionMethod($class, $method);
+            if ($refMethod->isStatic()) {
+                return;
+            }
+
+            $reflection = new \ReflectionClass($class);
+            if (!$reflection->isInstantiable()) {
+                return;
+            }
+
+            $constructor = $reflection->getConstructor();
+            if (! $constructor
+                || $constructor->isPublic()
+                && (
+                    $constructor->getNumberOfRequiredParameters() === 0
+                    || $constructor->getNumberOfRequiredParameters() === 1
+                )
+            ) {
+                $container = $this->getApp()->getContainer();
+                if ($constructor->getNumberOfRequiredParameters() === 1) {
+                    $param = $constructor->getParameters()[0];
+                    if ($param->allowsNull() || ! $param->hasType()
+                        || ! $param->getType()
+                        || is_subclass_of($param->getType()->getName(), ContainerInterface::class)
+                    ) {
+                        $this->lastRoutes[2][$key] = new $class($container);
+                    }
+                } else {
+                    $this->lastRoutes[2][$key] = new $class($container);
+                }
+            }
+        }
+    }
+    /**
      * @param string $pattern
      * @param callable $callback
      * @param \closure|null $routeCallback
@@ -111,25 +164,6 @@ abstract class RouteMapperBaseAbstract
         $callback,
         \closure $routeCallback = null
     ) {
-        if (is_array($callback) && count($callback) === 2) {
-            $key = key($callback);
-            if (isset($callback[$key])
-                && is_string($callback[$key])
-                && class_exists($callback[$key])
-            ) {
-                $reflection = new \ReflectionClass($callback[$key]);
-                if ($reflection->isInstantiable()) {
-                    $constructor = $reflection->getConstructor();
-                    if (! $constructor
-                         || $constructor->isPublic()
-                            && $constructor->getNumberOfRequiredParameters() === 0
-                    ) {
-                        $callback[$key] = new $callback[$key]();
-                    }
-                }
-            }
-        }
-
         $args = func_get_args();
         array_unshift($args, self::AVAILABLE_METHODS);
         return call_user_func_array([$this, 'map'], $args);

@@ -68,7 +68,7 @@ $$ language plpgsql;
 CREATE TABLE options (
   id BIGSERIAL NOT NULL,
   option_name varchar(255) NOT NULL,
-  option_value TEXT NOT NULL
+  option_value TEXT DEFAULT NULL
 );
 
 --
@@ -121,17 +121,36 @@ CREATE TRIGGER update_change_updated_at_users BEFORE UPDATE
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `users_meta`
+--
+CREATE TABLE users_meta (
+  id BIGSERIAL NOT NULL,
+  user_id BIGINT NOT NULL,
+  meta_name VARCHAR(255) NOT NULL,
+  meta_value TEXT DEFAULT NULL
+);
+
+--
+-- Indexes for table "users_meta"
+--
+ALTER TABLE users_meta
+  ADD PRIMARY KEY (id);
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table recipes
 --
 
 CREATE TABLE recipes (
   id BIGSERIAL NOT NULL,
   user_id BIGINT NOT NULL,
-  name varchar(60) NOT NULL,
+  name VARCHAR(160) NOT NULL,
   instructions text NOT NULL,
   status BIGINT NOT NULL DEFAULT '1',
-  published_at timestamp NULL DEFAULT NULL,
-  created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  published_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT '1990-01-01 00:00:00.000000'::timestamp without time zone
 );
 

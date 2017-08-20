@@ -147,7 +147,7 @@ abstract class RouteMapperBaseAbstract
                         $this->lastRoutes[2][$key] = new $class($container);
                     }
                 } else {
-                    $this->lastRoutes[2][$key] = new $class($container);
+                    $this->lastRoutes[2][$key] = new $class();
                 }
             }
         }

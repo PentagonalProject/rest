@@ -60,7 +60,7 @@ use PentagonalProject\App\Rest\Util\Sanitizer;
  */
 class DatabaseBaseModel extends Model
 {
-    const REGEX_DATE_U = '/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2})\:(\d{1,2})\:(\d{1,2})\.\d+$/';
+    const REGEX_DATE_U = '/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2})\:(\d{1,2})\:(\d{1,2})(\.\d+)?$/';
 
     /**
      * @var string[] column that PostGreSQL Date TIMESTAMP possible

@@ -46,8 +46,16 @@ namespace {
          * @var Configurator $config
          */
         $config = $container['config'];
+        $database = $config->get('database', []);
+        $database['options'] = isset($database['options'])
+            && is_array($database['options'])
+            ? $database['options']
+            : [];
+        $database['options'][PDO::ATTR_CASE] = PDO::CASE_LOWER;
+        $config->set('database', $database);
+
         $capsule->addConnection(
-            $config->get('database'),
+            $database,
             AppFacade::current()->getName()
         );
 

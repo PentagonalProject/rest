@@ -41,7 +41,6 @@ use PentagonalProject\Model\DatabaseBaseModel;
  */
 class User extends DatabaseBaseModel
 {
-
     /*-------------------------------------
      * TABLE NAME DEFINITION
      * ----------------------------------- */
@@ -144,7 +143,7 @@ class User extends DatabaseBaseModel
                     $type = self::PASSWORD_PLAIN;
                 }
                 if ($type === self::PASSWORD_PLAIN) {
-                    $attributes[self::COLUMN_PASSWORD] = sha1($attributes[self::COLUMN_PASSWORD]);
+                    $attributes[self::COLUMN_PASSWORD] = sha1((string) $attributes[self::COLUMN_PASSWORD]);
                     $type                              = self::PASSWORD_SHA1;
                 }
                 if ($type === self::PASSWORD_SHA1) {

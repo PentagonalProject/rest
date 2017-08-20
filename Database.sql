@@ -108,7 +108,8 @@ ALTER TABLE `users_meta`
 CREATE TABLE `recipes` (
   `id` BIGINT(11) NOT NULL,
   `user_id` BIGINT(11) NOT NULL COMMENT 'Relation for `users.id`',
-  `name` VARCHAR(160) COLLATE utf8_unicode_ci NOT NULL,
+  `title` VARCHAR(160) COLLATE utf8_unicode_ci NOT NULL,
+  `slug`  VARCHAR(160) COLLATE utf8_unicode_ci NOT NULL,
   `instructions` TEXT COLLATE utf8_unicode_ci NOT NULL,
   `status` INT(11) NOT NULL DEFAULT '1',
   `published_at` TIMESTAMP NULL DEFAULT NULL,
@@ -121,6 +122,7 @@ CREATE TABLE `recipes` (
 --
 ALTER TABLE `recipes`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE INDEX `unique_slug`(`slug`),
   ADD KEY `user_id` (`user_id`);
 
 --

@@ -41,9 +41,9 @@ class RecipeValidator extends ModelValidatorAbstract
     use ModelValidatorTrait;
 
     // Attributes
-    const ATTRIBUTE_NAME         = 'name';
-    const ATTRIBUTE_INSTRUCTIONS = 'instructions';
-    const ATTRIBUTE_USER_ID      = 'user_id';
+    const ATTRIBUTE_TITLE         = 'title';
+    const ATTRIBUTE_INSTRUCTIONS  = 'instructions';
+    const ATTRIBUTE_USER_ID       = 'user_id';
     // Rules
     const RULE_NAME_MAX_LENGTH   = 60;
 
@@ -53,7 +53,7 @@ class RecipeValidator extends ModelValidatorAbstract
     protected function toCheck() : array
     {
         return [
-            self::ATTRIBUTE_NAME,
+            self::ATTRIBUTE_TITLE,
             self::ATTRIBUTE_INSTRUCTIONS,
             self::ATTRIBUTE_USER_ID
         ];
@@ -69,7 +69,7 @@ class RecipeValidator extends ModelValidatorAbstract
             $this->mustBeNotEmpty($toCheck);
 
             // Specific validation for name attribute
-            if ($toCheck === self::ATTRIBUTE_NAME) {
+            if ($toCheck === self::ATTRIBUTE_TITLE) {
                 $this->lengthMustBeLessThan(
                     $toCheck,
                     self::RULE_NAME_MAX_LENGTH

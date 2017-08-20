@@ -39,9 +39,11 @@ use stdClass;
  */
 class Recipe extends DatabaseBaseModel
 {
-    const COLUMN_RECIPE_NAME         = 'name';
+    const COLUMN_RECIPE_TITLE        = 'title';
+    const COLUMN_RECIPE_SLUG         = 'slug';
     const COLUMN_RECIPE_INSTRUCTIONS = 'instructions';
     const COLUMN_RECIPE_USER_ID      = 'user_id';
+    const COLUMN_RECIPE_STATUS       = 'status';
     const COLUMN_PUBLISHED_AT        = 'published_at';
     const COLUMN_CREATED_AT          = self::CREATED_AT;
     const COLUMN_UPDATED_AT          = self::UPDATED_AT;
@@ -51,7 +53,7 @@ class Recipe extends DatabaseBaseModel
      * @var array
      */
     protected $fillable = [
-        self::COLUMN_RECIPE_NAME,
+        self::COLUMN_RECIPE_TITLE,
         self::COLUMN_RECIPE_INSTRUCTIONS,
         self::COLUMN_RECIPE_USER_ID
     ];

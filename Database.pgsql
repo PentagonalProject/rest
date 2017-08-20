@@ -142,11 +142,11 @@ ALTER TABLE users_meta
 --
 -- Table structure for table recipes
 --
-
 CREATE TABLE recipes (
   id BIGSERIAL NOT NULL,
   user_id BIGINT NOT NULL,
-  name VARCHAR(160) NOT NULL,
+  title VARCHAR(160) NOT NULL,
+  slug  VARCHAR(160) NOT NULL,
   instructions text NOT NULL,
   status BIGINT NOT NULL DEFAULT '1',
   published_at TIMESTAMP NULL DEFAULT NULL,
@@ -161,7 +161,8 @@ COMMENT ON COLUMN recipes.updated_at IS 'use 1990-01-01 00:00:00.000000 to preve
 -- Indexes for table recipes
 --
 ALTER TABLE recipes
-  ADD PRIMARY KEY (id);
+  ADD PRIMARY KEY (id),
+  ADD UNIQUE (slug);
 
 --
 -- Triggers for table "recipes"

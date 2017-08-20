@@ -39,6 +39,7 @@ use stdClass;
  */
 class Recipe extends DatabaseBaseModel
 {
+    const COLUMN_RECIPE_ID           = 'id';
     const COLUMN_RECIPE_TITLE        = 'title';
     const COLUMN_RECIPE_SLUG         = 'slug';
     const COLUMN_RECIPE_INSTRUCTIONS = 'instructions';
@@ -48,6 +49,8 @@ class Recipe extends DatabaseBaseModel
     const COLUMN_CREATED_AT          = self::CREATED_AT;
     const COLUMN_UPDATED_AT          = self::UPDATED_AT;
 
+    protected $primaryKey = self::COLUMN_RECIPE_ID;
+
     /**
      * {@inheritdoc}
      * @var array
@@ -55,6 +58,7 @@ class Recipe extends DatabaseBaseModel
     protected $fillable = [
         self::COLUMN_RECIPE_TITLE,
         self::COLUMN_RECIPE_INSTRUCTIONS,
+        self::COLUMN_RECIPE_SLUG,
         self::COLUMN_RECIPE_USER_ID
     ];
 
@@ -67,6 +71,157 @@ class Recipe extends DatabaseBaseModel
         self::COLUMN_UPDATED_AT,
         self::COLUMN_PUBLISHED_AT
     ];
+
+    /**
+     * @var bool hanlde to prevent multiple looping
+     */
+    private static $performCheckSlug = false;
+
+    /**
+     * @param string $slug
+     *
+     * @return bool|mixed|string
+     */
+    public function checkUniqueSlug(string $slug)
+    {
+        if (self::$performCheckSlug) {
+            return $slug;
+        }
+        self::$performCheckSlug = true;
+        $sanity = preg_replace(
+            [
+                '/[^a-z0-9\_-]/',
+                '/[\-]+/'
+            ],
+            '-',
+            strtolower($slug)
+        );
+        $sanity = trim($sanity, '-_');
+        $length = 160;
+        $sanity = substr($sanity, 0, $length);
+        if (strlen($sanity) === 0) {
+            $sanity = sha1((string) microtime(true));
+        }
+        $newSanity = $sanity;
+        if (isset($this->id)) {
+            if ($this->slug == $sanity) {
+                self::$performCheckSlug = false;
+                return $sanity;
+            }
+
+            if (!is_int(abs($this->id))) {
+                throw new \LogicException(
+                    sprintf(
+                        'Id must be as a integer %s given.',
+                        gettype($this->id)
+                    )
+                );
+            }
+
+            $data = self::where([
+                [self::COLUMN_RECIPE_SLUG, '=', $sanity],
+                [self::COLUMN_RECIPE_ID, '<>' , $this->id]
+            ])->first();
+            if ($data) {
+                $c = 0;
+                if (preg_match('/(?P<slug>.+)\-(?P<inc>[0-9])+$/', $sanity, $match)
+                    && ! empty($match['inc'])
+                ) {
+                    $sanity = $match['slug'];
+                    $c      = $match['inc'];
+                }
+                while ($data) {
+                    $c++;
+                    $sanity    = substr($sanity, 0, $length - ($c + 1));
+                    $newSanity = "{$sanity}-{$c}";
+                    $data      = self::where([
+                        [self::COLUMN_RECIPE_SLUG, '=', $newSanity],
+                        [self::COLUMN_RECIPE_ID, '<>', $this->id]
+                    ])->first();
+                }
+            }
+
+            self::$performCheckSlug = false;
+            return $newSanity;
+        }
+
+        $data = self::where(
+            self::COLUMN_RECIPE_SLUG,
+            '=',
+            $sanity
+        )->first();
+
+        if ($data) {
+            $c = 0;
+            if (preg_match('/(?P<slug>.+)\-(?P<inc>[0-9])+$/', $sanity, $match)
+                && ! empty($match['inc'])
+            ) {
+                $sanity = $match['slug'];
+                $c      = $match['inc'];
+            }
+            while ($data) {
+                $c++;
+                $sanity    = substr($sanity, 0, $length - ($c + 1));
+                $newSanity = "{$sanity}-{$c}";
+                $data      = self::where(
+                    self::COLUMN_RECIPE_SLUG,
+                    '=',
+                    $newSanity
+                )->first();
+            }
+        }
+
+        self::$performCheckSlug = false;
+        return $newSanity;
+    }
+
+    /**
+     * @param array $attributes
+     *
+     * @return array
+     */
+    protected function performCheckSlug(array $attributes) : array
+    {
+        $slug = isset($attributes[self::COLUMN_RECIPE_SLUG])
+                && is_string($attributes[self::COLUMN_RECIPE_SLUG])
+            ? $attributes[self::COLUMN_RECIPE_SLUG]
+            : null;
+        if (is_null($slug)) {
+            $slug = isset($attributes[self::COLUMN_RECIPE_TITLE])
+                    && is_string($attributes[self::COLUMN_RECIPE_TITLE])
+                ? $attributes[self::COLUMN_RECIPE_TITLE]
+                : '';
+        }
+
+        $attributes[self::COLUMN_RECIPE_SLUG] = $this->checkUniqueSlug($slug);
+        return $attributes;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function save(array $options = [])
+    {
+        $attributes = $this->getAttributes();
+        if (!isset($attributes[self::COLUMN_RECIPE_SLUG])) {
+            $attributes = $this->performCheckSlug($attributes);
+            $this[self::COLUMN_RECIPE_SLUG] = $attributes[self::COLUMN_RECIPE_SLUG];
+        }
+
+        return parent::save($options);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function update(array $attributes = [], array $options = [])
+    {
+        if (!empty($attributes)) {
+            $attributes = $this->performCheckSlug($attributes);
+        }
+
+        return parent::update($attributes, $options);
+    }
 
     /**
      * Example Limiting Page On Result

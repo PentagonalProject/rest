@@ -33,6 +33,7 @@ namespace PentagonalProject\Modules\Recipicious\Task;
 use Apatis\ArrayStorage\CollectionFetch;
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
 use PentagonalProject\App\Rest\Generator\ResponseStandard;
+use PentagonalProject\Model\Validator\EditorialStatus;
 use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
 use PentagonalProject\Modules\Recipicious\Model\Validator\RecipeValidator;
 use Psr\Http\Message\ResponseInterface;
@@ -84,7 +85,10 @@ class RecipeRoute
                 $request,
                 $response,
                 Recipe::filterByPage(
-                    Recipe::query()->where('user_id', '!=', null),
+                    Recipe::where([
+                        [Recipe::COLUMN_RECIPE_USER_ID, '!=', null],
+                        [Recipe::COLUMN_RECIPE_STATUS, '=', EditorialStatus::PUBLISHED],
+                    ]),
                     is_null($requestParams['page']) ? 1 : (int)$requestParams['page']
                 )
             );
@@ -186,11 +190,24 @@ class RecipeRoute
         try {
             // validate
             self::validateAccess($request, $response, self::LEVEL_GET);
+            $data = Recipe::where([
+                [Recipe::COLUMN_RECIPE_ID, '=', $params['id']],
+                [Recipe::COLUMN_RECIPE_STATUS, '=', EditorialStatus::PUBLISHED]
+            ])->first();
+            if (!$data) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'Recipe with id %d has not found.',
+                        $params['id']
+                    ),
+                    E_NOTICE
+                );
+            }
 
             return ResponseStandard::withData(
                 $request,
                 $response,
-                Recipe::query()->findOrFail($params['id'])
+                $data
             );
         } catch (UnauthorizedException $exception) {
             // unauthorized

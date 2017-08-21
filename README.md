@@ -1,6 +1,7 @@
 # REST PROJECT 
 
 [![Build Status](https://travis-ci.org/PentagonalProject/rest.svg?branch=master)](https://travis-ci.org/PentagonalProject/rest)
+[![Coverage Status](https://coveralls.io/repos/github/PentagonalProject/rest/badge.svg?branch=master)](https://coveralls.io/github/PentagonalProject/rest?branch=master)
 
 Being on Development Progress
 That fixing `RETIRED` previous project.

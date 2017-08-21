@@ -69,7 +69,9 @@ class AbstractsTest extends TestCase
         };
 
         $this->container = new Container([
-            'test' => $this->fallBackClosure
+            'test' => $this->fallBackClosure,
+            'toUnset' => function () {
+            }
         ]);
     }
 
@@ -102,6 +104,46 @@ class AbstractsTest extends TestCase
             )
         );
 
+        $this->assertTrue(
+            isset($class['test']),
+            'Object container has key test'
+        );
+
+        $this->assertTrue(
+            isset($class['toUnset']),
+            'Object container has key toUnset'
+        );
+
+        $this->assertTrue(
+            isset($class->toUnset),
+            'Object container has magic method property test'
+        );
+
+        $this->assertTrue(
+            isset($class->toUnset),
+            'Object container has magic method property toUnset'
+        );
+
+        unset($class['toUnset']);
+
+        $this->assertFalse(
+            isset($class['toUnset']),
+            'Object container has no key toUnset after unset'
+        );
+
+        $this->assertFalse(
+            isset($class->toUnset),
+            'Object container has no magic method property toUnset after unset'
+        );
+        // test set
+        $class['setAccess'] = function () {
+            // pass
+            return true;
+        };
+        $this->assertTrue(
+            isset($class->setAccess),
+            'Object container have property setAccess after dynamic set container array access'
+        );
         $this->assertAttributeSame(
             $this->container,
             'container',
@@ -111,6 +153,12 @@ class AbstractsTest extends TestCase
         $this->assertNotSame(
             $class['test'],
             $this->fallBackClosure,
+            'Object container array access is a return value of closure'
+        );
+
+        $this->assertSame(
+            $class['test'],
+            $class->test,
             'Object container array access is a return value of closure'
         );
 

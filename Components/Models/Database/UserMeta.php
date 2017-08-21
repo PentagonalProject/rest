@@ -71,6 +71,7 @@ class UserMeta extends DatabaseBaseModel
      * @var array
      */
     protected $fillable = [
+        self::COLUMN_USER_ID,
         self::COLUMN_NAME,
         self::COLUMN_VALUE
     ];

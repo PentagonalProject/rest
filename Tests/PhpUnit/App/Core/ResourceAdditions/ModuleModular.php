@@ -41,7 +41,8 @@ class ModuleModular extends ModularAbstract
     protected $modular_author = 'pentagonal';
     protected $modular_author_uri = 'https://www.pentagonal.org/';
     protected $modular_description = 'Description';
-    protected $modular_name = 'Anonymous';
+    // make sure to test invalid name
+    protected $modular_name = ['invalid'];
     protected $modular_uri = 'https://www.pentagonal.org';
 
     /**

@@ -204,7 +204,7 @@ class AbstractsTest extends TestCase
             'Modular Selector as a string must be anonymous'
         );
         $this->assertStringStartsWith(
-            'Anonymous',
+            $module->getReflection()->getName(),
             $module->getModularName(),
             'Modular Name must be as a string'
         );

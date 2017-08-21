@@ -32,7 +32,7 @@
         "ext-mcrypt": "For compatibility any package.",
         "ext-iconv": "For better sanitation characters & text output."
     },
-    "license": "BSD",
+    "license": "MIT",
     "authors": [
         {
             "name": "pentagonal",

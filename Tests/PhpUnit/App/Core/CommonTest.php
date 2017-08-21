@@ -25,13 +25,17 @@
  * @author pentagonal <org@pentagonal.org>
  */
 
-namespace PentagonalProject\Tests\PhpUnit\Core;
+declare(strict_types=1);
+
+namespace PentagonalProject\Tests\PhpUnit\App\Core;
+
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class CommonTest
- * @package PentagonalProject\Tests\PhpUnit\Core
+ * @package PentagonalProject\Tests\PhpUnit\App\Core
  */
-class CommonTest extends \PHPUnit_Framework_TestCase
+class CommonTest extends TestCase
 {
     public function testNoOperation()
     {

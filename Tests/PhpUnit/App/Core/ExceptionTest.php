@@ -27,7 +27,7 @@
 
 declare(strict_types=1);
 
-namespace PentagonalProject\Tests\PhpUnit\Core;
+namespace PentagonalProject\Tests\PhpUnit\App\Core;
 
 use PentagonalProject\App\Rest\Exceptions\EmptyFileException;
 use PentagonalProject\App\Rest\Exceptions\FileNotFoundException;
@@ -36,13 +36,41 @@ use PentagonalProject\App\Rest\Exceptions\InvalidPathException;
 use PentagonalProject\App\Rest\Exceptions\ModularNotFoundException;
 use PentagonalProject\App\Rest\Exceptions\StreamConnectionException;
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ExceptionTest
- * @package PentagonalProject\Tests\PhpUnit\Core
+ * @package PentagonalProject\Tests\PhpUnit\App\Core
  */
-class ExceptionTest extends \PHPUnit_Framework_TestCase
+class ExceptionTest extends TestCase
 {
+
+    public function testInvalidPathException()
+    {
+        $exception = new InvalidPathException(__FILE__, 'Test');
+        $this->assertInstanceOf(
+            \Exception::class,
+            $exception,
+            sprintf(
+                '%1$s instance of %2$s',
+                InvalidPathException::class,
+                \Exception::class
+            )
+        );
+        $this->assertSame(
+            $exception->getPath(),
+            __FILE__
+        );
+        $this->assertSame(
+            $exception->getMessage(),
+            'Test'
+        );
+        $this->assertEquals(
+            $exception->getCode(),
+            0
+        );
+    }
+
     public function testEmptyFileException()
     {
         $this->assertInstanceOf(
@@ -77,19 +105,6 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
             sprintf(
                 '%1$s instance of %2$s',
                 InvalidModularException::class,
-                \Exception::class
-            )
-        );
-    }
-
-    public function testInvalidPathException()
-    {
-        $this->assertInstanceOf(
-            \Exception::class,
-            new InvalidPathException(__FILE__),
-            sprintf(
-                '%1$s instance of %2$s',
-                InvalidPathException::class,
                 \Exception::class
             )
         );

@@ -13,12 +13,25 @@ php:
   - 7.0
   - 7.1
 
+services:
+  - postgresql
+
+addons:
+  postgresql: "9.5"
+
+test:
+  adapter: postgresql
+  database: recipicious
+
 before_script:
-    - composer install -o -vv
+  - psql -c 'create database recipicious;' -U postgres
+  - psql -d recipicious -U postgres -f ./Database.pgsql
+  - psql -c "ALTER USER "posgtres" WITH PASSWORD 'posgtres';" -U postgres
+  - composer install -o -vv
 
 script:
-    - ./vendor/bin/phpcs
-    - ./vendor/bin/phpunit --configuration phpunit.xml.dist --coverage-text
+  - ./vendor/bin/phpcs
+  - ./vendor/bin/phpunit --configuration phpunit.xml.dist --coverage-text
 
 matrix:
   fast_finish: true

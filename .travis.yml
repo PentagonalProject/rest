@@ -26,7 +26,7 @@ test:
 before_script:
   - psql -c 'create database recipicious;' -U postgres
   - psql -d recipicious -U postgres -f ./Database.pgsql
-  - psql -c "ALTER USER "posgtres" WITH PASSWORD 'posgtres';" -U postgres
+  - psql -c "ALTER USER "postgres" WITH PASSWORD 'posgtres';" -U postgres
   - composer install -o -vv
 
 script:

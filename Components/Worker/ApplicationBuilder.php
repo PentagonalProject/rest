@@ -30,7 +30,6 @@ declare(strict_types=1);
 namespace {
 
     use PentagonalProject\App\Rest\Record\AppFacade;
-    use PentagonalProject\App\Rest\Util\ComposerLoaderPSR4;
     use Slim\Container;
 
     /**
@@ -39,12 +38,6 @@ namespace {
     if (!isset($this) || ! $this instanceof AppFacade) {
         return;
     }
-
-    // register AutoLoader
-    $loader = new ComposerLoaderPSR4();
-    $loader->add("PentagonalProject\\Exceptions\\", __DIR__ . "/../Exceptions/");
-    $loader->add("PentagonalProject\\Model\\", __DIR__ . "/../Models/");
-    $loader->register();
 
     /**
      * Container Lists

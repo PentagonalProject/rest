@@ -29,6 +29,14 @@ declare(strict_types=1);
 
 namespace {
 
-    // require Vendor Auto Load
-    return require_once __DIR__ . '/../vendor/autoload.php';
+    use Composer\Autoload\ClassLoader;
+
+    /**
+     * @var ClassLoader $loader
+     */
+    $loader = require __DIR__ .'/../vendor/autoload.php';
+    $loader->addPsr4("PentagonalProject\\App\\Rest\\", __DIR__ . "/");
+    $loader->register();
+
+    return $loader;
 }

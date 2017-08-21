@@ -29,17 +29,15 @@ declare(strict_types=1);
 
 namespace {
 
-    use PentagonalProject\App\Rest\Record\AppFacade;
-    use Slim\App;
+    use Composer\Autoload\ClassLoader;
 
-    // require BootStrap
-    require_once __DIR__ . '/../../Components/bootstrap.php';
-    $facade = AppFacade::register('public');
-    $facade->setArgument('config', $facade->includeScope(__DIR__ . '/../../Configuration.php'));
     /**
-     * AppFacade Scope Returning @uses \Slim\App
-     * @var App $app
+     * @var ClassLoader $loader
      */
-    $app = $facade->includeScopeBind(__DIR__ . '/../../Components/Worker/Public.php', $facade);
-    return $app->run();
+    $loader = require __DIR__ .'/../App/bootstrap.php';
+    $loader->addPsr4("PentagonalProject\\Exceptions\\", __DIR__ . "/Exceptions/");
+    $loader->addPsr4("PentagonalProject\\Model\\", __DIR__ . "/Models/");
+    $loader->register();
+
+    return $loader;
 }

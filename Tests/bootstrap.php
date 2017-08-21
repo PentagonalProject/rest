@@ -25,10 +25,17 @@
  * @author pentagonal <org@pentagonal.org>
  */
 
-// Set timezone
-date_default_timezone_set('America/New_York');
+namespace {
 
-// require Composer autoload.php
-$autoLoader = require __DIR__ .'/../vendor/autoload.php';
-// add Loader
-$autoLoader->addPsr4('PentagonalProject\\Tests\\', __DIR__);
+    // Set timezone
+    use Composer\Autoload\ClassLoader;
+
+    date_default_timezone_set('America/New_York');
+
+    /**
+     * @var ClassLoader $autoLoader
+     */
+    $autoLoader = require __DIR__ . '/../Components/bootstrap.php';
+    // add Loader
+    $autoLoader->addPsr4('PentagonalProject\\Tests\\', __DIR__);
+}

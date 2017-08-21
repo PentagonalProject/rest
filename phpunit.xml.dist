@@ -42,8 +42,8 @@
             <directory suffix=".php">./</directory>
         </blacklist>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory>./App/Core/</directory>
-            <directory>./App/ClassOverride/</directory>
+            <directory>./App/</directory>
+            <directory>./Components/</directory>
         </whitelist>
     </filter>
 </phpunit>

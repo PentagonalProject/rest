@@ -33,7 +33,7 @@ namespace {
     use Slim\App;
 
     // require BootStrap
-    require_once __DIR__ . '/../../App/Bootstrap.php';
+    require_once __DIR__ . '/../../Components/bootstrap.php';
     $facade = AppFacade::register('rest');
     $facade->setArgument('config', $facade->includeScope(__DIR__ . '/../../Configuration.php'));
     /**

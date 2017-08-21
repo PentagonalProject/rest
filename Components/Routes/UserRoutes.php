@@ -8,6 +8,11 @@ namespace {
     use PentagonalProject\Model\Validator\UserValidator;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
+    use Slim\App;
+
+    if (!isset($this) || ! $this instanceof App) {
+        return;
+    }
 
     $this->post('/users', function (ServerRequestInterface $request, ResponseInterface $response) {
         /**

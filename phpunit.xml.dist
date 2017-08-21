@@ -37,13 +37,16 @@
     <testsuite name="Pentagonal Project Test Case Suite">
         <directory>Tests/</directory>
     </testsuite>
+    <logging>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+    </logging>
     <filter>
         <blacklist>
             <directory suffix=".php">./</directory>
         </blacklist>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory>./App/</directory>
-            <directory>./Components/</directory>
+            <directory suffix=".php">./App/</directory>
+            <directory suffix=".php">./Components/</directory>
         </whitelist>
     </filter>
 </phpunit>

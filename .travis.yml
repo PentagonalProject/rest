@@ -3,7 +3,7 @@ sudo: false
 # Operating System
 os : linux
 group: stable
-dist: precise
+dist: trusty
 
 # Script Language
 language: php
@@ -22,3 +22,6 @@ script:
 
 matrix:
   fast_finish: true
+
+after_success:
+  - travis_retry php vendor/bin/coveralls -v --exclude-no-stmt

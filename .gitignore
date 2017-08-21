@@ -87,6 +87,9 @@ composer.phar
 # add exclude vendor
 vendor
 
+# Ignore Build
+/build
+
 /Storage/*/*
 
 # Always Include .gitkeep & .htaccess files

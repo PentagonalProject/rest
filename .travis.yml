@@ -1,3 +1,4 @@
+# Grant
 sudo: false
 
 # Operating System
@@ -13,28 +14,41 @@ php:
   - 7.0
   - 7.1
 
+# Add PostGreSQL & Redis Services
 services:
   - postgresql
+  - redis-server
 
+# Set PostGreSQL to use version 9.5
 addons:
   postgresql: "9.5"
 
-test:
-  adapter: postgresql
-  database: recipicious
-
+# Before Run Scripts
+# Add PostGreSQL Database & Change Password
+# & Install Dependency
+# 1. Create Database
+# 2. Import Database
+# 3. Change Password
+# 4. Install Dependency With Composer
 before_script:
   - psql -c 'create database recipicious;' -U postgres
   - psql -d recipicious -U postgres -f ./Database.pgsql
-  - psql -c "ALTER USER "postgres" WITH PASSWORD 'posgtres';" -U postgres
+  - psql -c "ALTER USER "postgres" WITH PASSWORD 'postgres';" -U postgres
   - composer install -o -vv
 
+# At Run Scripts
+# Tests
+# 1. Php CodeSniffer
+# 2. PhpUnit Testing
 script:
   - ./vendor/bin/phpcs
   - ./vendor/bin/phpunit --configuration phpunit.xml.dist --coverage-text
 
+# Matrix RULES
 matrix:
   fast_finish: true
 
+# After Succeeded
+# Execute Coverall
 after_success:
   - travis_retry php vendor/bin/coveralls -v --exclude-no-stmt

@@ -45,6 +45,7 @@ use PentagonalProject\App\Rest\Util\Sanitizer;
  * @method static Collection|static[]|static|null find(mixed $id, array $columns = ['*'])
  * @method static \Illuminate\Database\Eloquent\Model\|Collection findMany(mixed $id, array $columns = ['*'])
  * @method static Collection|Model findOrFail($id, $columns = ['*'])
+ * @method static Model create(array $attributes)
  * @method static Model findOrNew($id, $columns = ['*'])
  * @method static Model firstOrNew(array $attributes, array $values = [])
  * @method static Model firstOrCreate(array $attributes, array $values = [])

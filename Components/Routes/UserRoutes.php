@@ -5,6 +5,7 @@ namespace {
     use Pentagonal\PhPass\PasswordHash;
     use PentagonalProject\App\Rest\Generator\ResponseStandard;
     use PentagonalProject\Model\Database\User;
+    use PentagonalProject\Model\Database\UserMeta;
     use PentagonalProject\Model\Validator\UserValidator;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
@@ -58,6 +59,15 @@ namespace {
 
             // Save or fail
             $user->saveOrFail();
+
+            // Create user meta for successfully saved user
+            if ($user) {
+                UserMeta::create([
+                    'user_id'    => $user->getKey(),
+                    'meta_name'  => 'api_access',
+                    'meta_value' => serialize([0, 1, 2, 3])
+                ]);
+            }
 
             return ResponseStandard::withData(
                 $request,

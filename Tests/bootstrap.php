@@ -38,4 +38,5 @@ namespace {
     $autoLoader = require __DIR__ . '/../Components/bootstrap.php';
     // add Loader
     $autoLoader->addPsr4('PentagonalProject\\Tests\\', __DIR__);
+    $autoLoader->register();
 }

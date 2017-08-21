@@ -30,7 +30,7 @@ namespace PentagonalProject\App\Rest\Util\Domain;
 
 use DomainException;
 use PentagonalProject\App\Rest\Exceptions\StreamConnectionException;
-use PentagonalProject\App\Rest\Http\StreamTransport;
+use PentagonalProject\App\Rest\Http\StreamSocketTransport;
 
 /**
  * Class WhoIs
@@ -74,9 +74,9 @@ class WhoIs
     protected function runStreamConnection($domain, $server)
     {
         try {
-            $stream = new StreamTransport($server);
+            $stream = new StreamSocketTransport($server);
         } catch (StreamConnectionException $exception) {
-            $stream = new StreamTransport($server);
+            $stream = new StreamSocketTransport($server);
         }
         if (!$stream->write("{$domain}\r\n")) {
             $stream->close();

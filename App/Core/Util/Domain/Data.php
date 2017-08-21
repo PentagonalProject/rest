@@ -66,9 +66,10 @@ class Data
     {
         $string = '';
         while (!$stream->eof()) {
-            $string .= $stream->getContents();
+            $string .= $stream->read(2048);
         }
-
+        // close
+        $stream->close();
         return preg_replace(
             [
                 '/(\/\/|\#)[^\n]+/',
@@ -110,7 +111,6 @@ class Data
     private function callBackFilterArrayTLDS(ResponseInterface $response, $type)
     {
         $objectThis = $this;
-        $this->tldList = [];
         array_filter(
             array_map(
                 function ($data) use ($objectThis, $type) {
@@ -168,10 +168,17 @@ class Data
                         if ($jsonExists && is_writeable(self::TLD_JSON_FILE)
                             || ! $jsonExists && is_dir($dir) && is_writeable($dir)
                         ) {
-                            @file_put_contents(
-                                self::TLD_JSON_FILE,
-                                json_encode($objectThis->tldList, JSON_PRETTY_PRINT)
-                            );
+                            $socket = fopen(self::TLD_JSON_FILE, 'w+');
+                            $data   = json_encode($this->tldList, JSON_PRETTY_PRINT);
+                            $length = strlen($data);
+                            $written = 0;
+                            while ($length > $written) {
+                                $fWrite = fwrite($socket, substr($data, $written, ($written+1024)));
+                                $written += (int) $fWrite;
+                                if (!$fWrite) {
+                                    break;
+                                }
+                            }
                         }
                     })->wait();
             })->wait();

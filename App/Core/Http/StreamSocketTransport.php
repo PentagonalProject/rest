@@ -6,7 +6,7 @@ use GuzzleHttp\Psr7\Stream;
 use GuzzleHttp\Psr7\Uri;
 
 /**
- * Class StreamTransport
+ * Class StreamSocketTransport
  * @package PentagonalProject\App\Rest\Http
  *
  * @method void close();
@@ -24,7 +24,7 @@ use GuzzleHttp\Psr7\Uri;
  * @method string getContents();
  * @method mixed getMetadata(string $key = null);
  */
-class StreamTransport
+class StreamSocketTransport
 {
     /**
      * @var Stream

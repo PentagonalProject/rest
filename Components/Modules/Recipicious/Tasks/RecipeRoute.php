@@ -33,6 +33,7 @@ namespace PentagonalProject\Modules\Recipicious\Task;
 use Apatis\ArrayStorage\CollectionFetch;
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
 use PentagonalProject\App\Rest\Generator\ResponseStandard;
+use PentagonalProject\Model\Database\UserMeta;
 use PentagonalProject\Model\Validator\EditorialStatus;
 use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
 use PentagonalProject\Modules\Recipicious\Model\Validator\RecipeValidator;
@@ -72,7 +73,7 @@ class RecipeRoute
     ) : ResponseInterface {
         try {
             // validate
-            self::validateAccess($request, $response, self::LEVEL_GET);
+            self::validateAccess($request, self::LEVEL_GET);
 
             /**
              * Make request params fetch able.
@@ -121,7 +122,7 @@ class RecipeRoute
     ) : ResponseInterface {
         try {
             // validate
-            self::validateAccess($request, $response, self::LEVEL_CREATE);
+            self::validateAccess($request, self::LEVEL_CREATE);
 
             /**
              * Make request body fetch able.
@@ -145,7 +146,7 @@ class RecipeRoute
 
             // Instantiate recipe
             $recipe = new Recipe([
-                'name'         => $requestBody['name'],
+                'title'        => $requestBody['title'],
                 'instructions' => $requestBody['instructions'],
                 'user_id'      => $requestBody['user_id']
             ]);
@@ -189,7 +190,7 @@ class RecipeRoute
     ): ResponseInterface {
         try {
             // validate
-            self::validateAccess($request, $response, self::LEVEL_GET);
+            self::validateAccess($request, self::LEVEL_GET);
             $data = Recipe::where([
                 [Recipe::COLUMN_RECIPE_ID, '=', $params['id']],
                 [Recipe::COLUMN_RECIPE_STATUS, '=', EditorialStatus::PUBLISHED]
@@ -240,7 +241,7 @@ class RecipeRoute
     ) : ResponseInterface {
         try {
             // validate
-            self::validateAccess($request, $response, self::LEVEL_UPDATE);
+            self::validateAccess($request, self::LEVEL_UPDATE);
 
             /**
              * Make request body fetch able.
@@ -308,7 +309,7 @@ class RecipeRoute
     ) : ResponseInterface {
         try {
             // validate
-            self::validateAccess($request, $response, self::LEVEL_DELETE);
+            self::validateAccess($request, self::LEVEL_DELETE);
 
             // Get a recipe by id
             $recipe = Recipe::query()->findOrFail($params['id']);
@@ -340,20 +341,25 @@ class RecipeRoute
 
     /**
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
      * @param int $level
      *
      * @throws UnauthorizedException
      */
     private static function validateAccess(
         ServerRequestInterface $request,
-        ResponseInterface $response,
         int $level
     ) {
-        /*
-        throw new UnauthorizedException(
-            "Not enough access"
-        );*/
-        // do validation
+        $grantedAccesses = UserMeta::where(
+            'user_id',
+            $request->getParsedBody()['user_id']
+        )
+            ->where('meta_name', 'api_access')
+            ->first();
+
+        if (!in_array($level, $grantedAccesses->meta_value)) {
+            throw new UnauthorizedException(
+                "Not enough access"
+            );
+        };
     }
 }

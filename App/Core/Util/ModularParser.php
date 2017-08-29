@@ -126,15 +126,17 @@ class ModularParser
     {
         if (file_exists($file)) {
             $spl = new SplFileInfo($file);
+            // check if is as a symlink
             if ($spl->isLink()) {
                 throw new InvalidArgumentException(
-                    "Arguments could not as a symlink.",
+                    "Argument that given could not as a symlink path.",
                     E_WARNING
                 );
             }
+            // check if as a file
             if (!$spl->isFile()) {
                 throw new InvalidArgumentException(
-                    "Arguments is not a file.",
+                    "Argument that given is not a file.",
                     E_WARNING
                 );
             }
@@ -189,37 +191,49 @@ class ModularParser
      * Get Directory
      *
      * @return string
+     * @throws RuntimeException
      */
     public function getDirectory() : string
     {
+        if (! is_string($this->file)) {
+            throw new RuntimeException(
+                'Module file to parse has not determined yet.',
+                E_WARNING
+            );
+        }
+
         return dirname($this->file);
     }
 
     /**
      * @return bool
+     * @throws RuntimeException
      */
     public function isValid() : bool
     {
+        if (! is_bool($this->valid)) {
+            throw new RuntimeException(
+                'Parser has not being process.',
+                E_WARNING
+            );
+        }
+
         return $this->valid;
     }
 
     /**
-     * @return ModularAbstract|null
-     */
-     //public function getInstance()
-     //{
-     //   if ($this->valid && $this->class && !$this->instance) {
-     //       $this->instance = new $this->class($this->container);
-     //   }
-     //
-     //  return $this->instance;
-     //}
-
-    /**
      * @return string
+     * @throws RuntimeException
      */
     public function getClassName() : string
     {
+        if (! is_string($this->class)) {
+            throw new RuntimeException(
+                'Parser has not being process.',
+                E_WARNING
+            );
+        }
+
         return $this->class;
     }
 
@@ -258,6 +272,7 @@ class ModularParser
      * @return ModularParser
      * @throws EmptyFileException
      * @throws InvalidModularException
+     * @throws RuntimeException
      */
     private function validate() : ModularParser
     {
@@ -267,7 +282,7 @@ class ModularParser
                     'Invalid Parent %s Class. %s extends must be as class name and string.',
                     $this->getName()
                 ),
-                E_COMPILE_ERROR
+                E_WARNING
             );
         }
 
@@ -380,7 +395,7 @@ class ModularParser
         if (empty($class['class']) || empty($class['extends'])) {
             throw new InvalidModularException(
                 sprintf(
-                    'File %1$s does not contain valid class or not extends to `%2$s`.',
+                    'File %1$s does not contain valid class extends to `%2$s` for parser logic.',
                     $this->getName(),
                     $modularClass
                 ),

@@ -47,7 +47,14 @@ The writing code procedure must be readable and reusable.
 ```bash
 vendor/bin/phpcs
 ```
-3. `Well Documented` or written in valuable code:
+3. Writing `Database Query Syntax` must be compatible between `MySQL` & `PostgreSQL`.
+<br/>
+If there are additional database SQL Structure to add on core / SQL file must be add also for PostgreSQL & MySQL Query Properties.
+
+- [Database.sql](Database.sql) for MySQL
+- [Database.pg.sql](Database.pg.sql) for PostgreSQL.
+  
+4. `Well Documented` or written in valuable code:
 - Writing Function & Method should use `PhpDoc` as well
 <br/>see: [https://www.phpdoc.org/](https://www.phpdoc.org/)
 - Must be contain `@return` tag if there are return value (optional if method returning void)

@@ -37,11 +37,11 @@ composer dump-autoload --optimize-autoloader
 
 ## CONTRIBUTE
 
-See [CONTRIBUTE.md](CONTRIBUTE.md)
+See [How To Contribute](CONTRIBUTE.md)
 
 ## VERSION
 
-See [VERSION](VERSION)
+See [Version](VERSION)
 
 ## LICENSE
 

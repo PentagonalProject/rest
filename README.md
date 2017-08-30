@@ -37,7 +37,7 @@ composer dump-autoload --optimize-autoloader
 
 ## CONTRIBUTE
 
-see [CONTRIBUTE.md](CONTRIBUTE.md)
+See [CONTRIBUTE.md](CONTRIBUTE.md)
 
 ## VERSION
 

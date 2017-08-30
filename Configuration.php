@@ -38,28 +38,28 @@ return [
         'extension' => dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Extensions',
     ],
     'database' => [
-        'driver'    => isset($_SERVER['OPENSHIFT_MYSQL_DB_DRIVER'])
-            ? $_SERVER['OPENSHIFT_MYSQL_DB_DRIVER']
+        'driver'    => isset($_SERVER['SQL_DB_DRIVER'])
+            ? $_SERVER['SQL_DB_DRIVER']
             : 'pgsql',
         // example database host
-        'host'      => isset($_SERVER['OPENSHIFT_MYSQL_DB_HOST'])
-            ? $_SERVER['OPENSHIFT_MYSQL_DB_HOST']
+        'host'      => isset($_SERVER['SQL_DB_HOST'])
+            ? $_SERVER['SQL_DB_HOST']
             : 'localhost',
-        'port'      => isset($_SERVER['OPENSHIFT_MYSQL_DB_PORT'])
-            ? $_SERVER['OPENSHIFT_MYSQL_DB_PORT']
+        'port'      => isset($_SERVER['SQL_DB_PORT'])
+            ? $_SERVER['SQL_DB_PORT']
             : 5432,
         // example database user
-        'username'  => isset($_SERVER['OPENSHIFT_MYSQL_DB_USERNAME'])
-            ? $_SERVER['OPENSHIFT_MYSQL_DB_USERNAME']
+        'username'  => isset($_SERVER['SQL_DB_USERNAME'])
+            ? $_SERVER['SQL_DB_USERNAME']
             : 'postgres',
         // example database user password
-        'password'  => isset($_SERVER['OPENSHIFT_MYSQL_DB_PASSWORD'])
-            ? $_SERVER['OPENSHIFT_MYSQL_DB_PASSWORD']
+        'password'  => isset($_SERVER['SQL_DB_PASSWORD'])
+            ? $_SERVER['SQL_DB_PASSWORD']
             : 'postgres',
         'charset'   => 'utf8',
         // Database Name
-        'database'  => isset($_SERVER['OPENSHIFT_MYSQL_DB_NAME'])
-            ? $_SERVER['OPENSHIFT_MYSQL_DB_NAME']
+        'database'  => isset($_SERVER['SQL_DB_NAME'])
+            ? $_SERVER['SQL_DB_NAME']
             : 'recipicious',
         'collation' => 'utf8_unicode_ci',
         'prefix'    => '',
@@ -74,14 +74,14 @@ return [
             /**
              * Redis Config
              */
-            'port' => isset($_SERVER['OPENSHIFT_REDIS_PORT'])
-                ? $_SERVER['OPENSHIFT_REDIS_PORT']
+            'port' => isset($_SERVER['REDIS_PORT'])
+                ? $_SERVER['REDIS_PORT']
                 : null,
-            'host' => isset($_SERVER['OPENSHIFT_REDIS_HOST'])
-                ? $_SERVER['OPENSHIFT_REDIS_HOST']
+            'host' => isset($_SERVER['REDIS_HOST'])
+                ? $_SERVER['REDIS_HOST']
                 : '127.0.0.1',
-            'password' => isset($_SERVER['OPENSHIFT_REDIS_PASSWORD'])
-                ? $_SERVER['OPENSHIFT_REDIS_PASSWORD']
+            'password' => isset($_SERVER['REDIS_PASSWORD'])
+                ? $_SERVER['REDIS_PASSWORD']
                 : null,
             // common config
             'securityKey' => 'auto',

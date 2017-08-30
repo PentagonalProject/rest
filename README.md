@@ -35,7 +35,12 @@ If there was additional file on App/(`Core`) directory, please update composer a
 composer dump-autoload --optimize-autoloader
 ```
 
+## CONTRIBUTE
+
+see [CONTRIBUTE.md](CONTRIBUTE.md)
+
 ## VERSION
+
 See [VERSION](VERSION)
 
 ## LICENSE

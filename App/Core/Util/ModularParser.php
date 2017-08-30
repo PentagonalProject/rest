@@ -29,7 +29,6 @@ declare(strict_types=1);
 
 namespace PentagonalProject\App\Rest\Util;
 
-use Exception;
 use InvalidArgumentException;
 use PentagonalProject\App\Rest\Abstracts\ModularAbstract;
 use PentagonalProject\App\Rest\Exceptions\EmptyFileException;
@@ -74,6 +73,11 @@ class ModularParser
      * @var ContainerInterface
      */
     protected $container;
+
+    /**
+     * @var array[] cached Parsed Results
+     */
+    private static $cachedClassesParsed = [];
 
     /**
      * ModularParser constructor.
@@ -174,6 +178,9 @@ class ModularParser
     public function create(string $file) : ModularParser
     {
         $clone = clone $this;
+        $clone->valid = null;
+        $clone->file = false;
+        $clone->class = null;
         return $clone->setFileToLoad($file);
     }
 
@@ -240,7 +247,6 @@ class ModularParser
     /**
      * @return ModularParser
      * @throws InvalidPathException
-     * @throws Exception
      */
     public function process() : ModularParser
     {
@@ -273,6 +279,7 @@ class ModularParser
      * @throws EmptyFileException
      * @throws InvalidModularException
      * @throws RuntimeException
+     * @throws \Throwable
      */
     private function validate() : ModularParser
     {
@@ -297,6 +304,34 @@ class ModularParser
                     $this->getName(),
                     ModularAbstract::class
                 )
+            );
+        }
+
+        $modularClass = ltrim($this->modularClass, '\\');
+        $file = $this->getFile();
+        /**
+         * Try to get From Cache
+         */
+        if (isset(self::$cachedClassesParsed[$file])) {
+            $class = isset(self::$cachedClassesParsed[$file][$modularClass])
+                ? self::$cachedClassesParsed[$file][$modularClass]
+                : null;
+            if ($class && is_string($class)) {
+                $this->valid = true;
+                $this->class = $class;
+                return $this;
+            }
+            if ($class && $class instanceof \Throwable) {
+                throw $class;
+            }
+
+            throw new InvalidModularException(
+                sprintf(
+                    'File %1$s does not contain valid class extends to `%2$s` for parser logic.',
+                    $this->getName(),
+                    $modularClass
+                ),
+                E_ERROR
             );
         }
 
@@ -355,7 +390,6 @@ class ModularParser
             );
         }
 
-        $modularClass = $this->modularClass;
         preg_match(
             '/use\s+
                 (?:\\\{1})?(?P<extended>'.preg_quote($modularClass, '/').')
@@ -370,29 +404,70 @@ class ModularParser
             : null;
         if (!$alias && isset($asAlias['extended'])) {
             $asAlias['extended'] = explode('\\', $asAlias['extended']);
-            $alias = end($asAlias['extended']);
+            $alias               = end($asAlias['extended']);
         }
+        $content = preg_replace(
+            '`^\<\?php\s+(?:namespace\s+([^;\{])*[;\{]\s*)?`smi',
+            '$2',
+            $content
+        );
 
+        $oldContent = $content;
         // replace for unused text
         $content = preg_replace(
-            [
-                '`^\<\?php\s+(?:namespace\s+([^;\{])*[;\{]\s*)?`smi',
-                '`(use[^;]+;\s*)*\s*(class)`smi'
-            ],
+            '`(use[^;]+;\s*)*\s*(class)`smi',
             '$2',
             $content
         );
 
         $regexNameSpace = $alias
             ? '(?P<extends>('.preg_quote($alias, '/').'))\s*'
-            : '(?P<extends>('.preg_quote("\\{$modularClass}", '/') . '|' . preg_quote($alias, '/').'))\s*';
+            : '(?P<extends>('.preg_quote("\\{$modularClass}", '/') .'))\s*';
         preg_match(
             "`class\s+(?P<class>[a-z_][a-z0-9\_]+)\s+extends\s+{$regexNameSpace}`smi",
             $content,
             $class
         );
 
-        if (empty($class['class']) || empty($class['extends'])) {
+        /**
+         * Try To get Use of Modular As extends Nested Name Space
+         * eg :
+         * Use NS1\NS2\NS3;
+         * class Module extends NS3\OfModularClass;
+         */
+        if (empty($class['extends']) && stripos($content, ' extends ')) {
+            $modularClassArray = explode('\\', ltrim($modularClass, '\\'));
+            $newModularClassArray = $modularClassArray;
+            array_pop($newModularClassArray);
+            // check first
+            $quoted = preg_quote(implode('\\', $newModularClassArray), '/');
+            if (!preg_match("`use\s+\\\?(?P<alias>{$quoted}([^\s]*)?)`smi", $oldContent, $newAlias)
+                || empty($newAlias['alias'])
+            ) {
+                $quoted = preg_quote(reset($modularClassArray), '/');
+                preg_match(
+                    "`use\s+\\\?(?P<alias>{$quoted}([^\s]*)?)\;`smi",
+                    $oldContent,
+                    $newAlias
+                );
+            }
+
+            if (!empty($newAlias['alias']) && strpos($newAlias['alias'], '\\\\') === false) {
+                $xpl = explode('\\', $newAlias['alias']);
+                if (count($xpl) < count($modularClassArray)) {
+                    $realExtendArray = array_slice($modularClassArray, count($xpl)-1);
+                    $realExtend = implode('\\', $realExtendArray);
+                    $regexNameSpace = '(?P<extends>('.preg_quote($realExtend, '/').'))\s*';
+                    preg_match(
+                        "`class\s+(?P<class>[a-z_][a-z0-9\_]+)\s+extends\s+{$regexNameSpace}`smi",
+                        $content,
+                        $class
+                    );
+                }
+            }
+        }
+
+        if (empty($class['class']) || empty($class['extends']) || strpos($class['extends'], '\\\\') !== false) {
             throw new InvalidModularException(
                 sprintf(
                     'File %1$s does not contain valid class extends to `%2$s` for parser logic.',
@@ -404,23 +479,29 @@ class ModularParser
         }
 
         if (strtolower(pathinfo($this->file, PATHINFO_FILENAME)) !== strtolower($class['class'])) {
-            throw new InvalidModularException(
+            $exception = new InvalidModularException(
                 sprintf(
                     'File %s does not match between file name & class.',
                     $this->getName()
                 ),
                 E_ERROR
             );
+
+            self::$cachedClassesParsed[$file] = [$modularClass => $exception];
+            throw $exception;
         }
 
         if (! preg_match('/(public\s+)?function\s+init\([^\)]*\)\s*\{/smi', $content, $match)) {
-            throw new InvalidModularException(
+            $exception = new InvalidModularException(
                 sprintf(
                     'File %s does not contain method `init`.',
                     $this->getName()
                 ),
                 E_ERROR
             );
+
+            self::$cachedClassesParsed[$file] = [$modularClass => $exception];
+            throw $exception;
         }
 
         $class = $class['class'];
@@ -428,7 +509,7 @@ class ModularParser
         $class = "{$namespace}\\{$class}";
         // prevent multiple include file if class has been loaded
         if (class_exists($class)) {
-            throw new InvalidModularException(
+            $exception = new InvalidModularException(
                 sprintf(
                     'Object class %1$s for %2$s has been loaded.',
                     $class,
@@ -436,6 +517,9 @@ class ModularParser
                 ),
                 E_ERROR
             );
+
+            self::$cachedClassesParsed[$file] = [$modularClass => $exception];
+            throw $exception;
         }
 
         // start buffer
@@ -445,26 +529,30 @@ class ModularParser
         (function ($file) {
             /** @noinspection PhpIncludeInspection */
             require_once $file;
-        })->bindTo(null)($this->file); // binding to None of $this
-        if ($error = error_get_last() && !empty($error) && $error['file'] == $this->file) {
+        })->bindTo(null)($file); // binding to None of $this
+        if ($error = error_get_last() && !empty($error) && $error['file'] == $file) {
             if ($error['type'] === E_ERROR) {
                 @ob_end_clean();
-                throw new InvalidModularException(
+                $exception =  new InvalidModularException(
                     sprintf(
                         'File %s contains fatal error.',
                         $this->getName()
                     ),
                     E_ERROR
                 );
+
+                self::$cachedClassesParsed[$file] = [$modularClass => $exception];
+                throw $exception;
             }
         }
-        // check observer
+
+        // check observer and clean output buffer if there exists on module
         if (ob_get_length()) {
             @ob_end_clean();
         }
 
         if (!class_exists($class)) {
-            throw new InvalidModularException(
+            $exception = new InvalidModularException(
                 sprintf(
                     'File %1$s does not contain class %2$s.',
                     $this->getName(),
@@ -472,33 +560,26 @@ class ModularParser
                 ),
                 E_ERROR
             );
+            self::$cachedClassesParsed[$file] = [$modularClass => $exception];
+            throw $exception;
         }
 
         if (! method_exists($class, 'init')) {
-            throw new InvalidModularException(
+            $exception = new InvalidModularException(
                 sprintf(
                     'File %1$s does not contain method `init`.',
                     $this->getName()
                 ),
                 E_ERROR
             );
+            self::$cachedClassesParsed[$file] = [$modularClass => $exception];
+            throw $exception;
         }
 
         $this->valid = true;
         // trim start of class name space
-        $this->class = ltrim($class, '\\');
+        $this->class                      = ltrim($class, '\\');
+        self::$cachedClassesParsed[$file] = [$modularClass => $this->class];
         return $this;
-    }
-
-    /**
-     * Magic Method Clone
-     *
-     * Reset Properties if Being Clone
-     */
-    public function __clone()
-    {
-        $this->valid = null;
-        $this->file = false;
-        $this->class = null;
     }
 }

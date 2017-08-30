@@ -32,7 +32,7 @@ addons:
 # 4. Install Dependency With Composer
 before_script:
   - psql -c 'create database recipicious;' -U postgres
-  - psql -d recipicious -U postgres -f ./Database.pgsql
+  - psql -d recipicious -U postgres -f ./Database.pg.sql
   - psql -c "ALTER USER "postgres" WITH PASSWORD 'postgres';" -U postgres
   - composer install -o -vv
 

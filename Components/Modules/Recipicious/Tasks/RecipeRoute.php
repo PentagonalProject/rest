@@ -35,6 +35,7 @@ use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
 use PentagonalProject\App\Rest\Generator\ResponseStandard;
 use PentagonalProject\Model\Validator\EditorialStatus;
 use PentagonalProject\Modules\Recipicious\Lib\AccessValidator;
+use PentagonalProject\Modules\Recipicious\Lib\UserAuthenticator;
 use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
 use PentagonalProject\Modules\Recipicious\Model\Validator\RecipeValidator;
 use Psr\Http\Message\ResponseInterface;
@@ -72,6 +73,12 @@ class RecipeRoute
         ResponseInterface $response
     ) : ResponseInterface {
         try {
+            // Authenticate request
+            UserAuthenticator::confirm(
+                $request->getHeader('PHP_AUTH_USER')[0],
+                $request->getHeader('PHP_AUTH_PW')[0]
+            );
+
             // Validate access
             // AccessValidator::check($request, self::LEVEL_GET);
 
@@ -121,6 +128,12 @@ class RecipeRoute
         ResponseInterface $response
     ) : ResponseInterface {
         try {
+            // Authenticate request
+            UserAuthenticator::confirm(
+                $request->getHeader('PHP_AUTH_USER')[0],
+                $request->getHeader('PHP_AUTH_PW')[0]
+            );
+
             // Validate access
             AccessValidator::check($request, self::LEVEL_CREATE);
 
@@ -189,6 +202,12 @@ class RecipeRoute
         array $params
     ): ResponseInterface {
         try {
+            // Authenticate request
+            UserAuthenticator::confirm(
+                $request->getHeader('PHP_AUTH_USER')[0],
+                $request->getHeader('PHP_AUTH_PW')[0]
+            );
+
             // Validate access
             // AccessValidator::check($request, self::LEVEL_GET);
 
@@ -241,6 +260,12 @@ class RecipeRoute
         array $params
     ) : ResponseInterface {
         try {
+            // Authenticate request
+            UserAuthenticator::confirm(
+                $request->getHeader('PHP_AUTH_USER')[0],
+                $request->getHeader('PHP_AUTH_PW')[0]
+            );
+
             // Validate access
             AccessValidator::check($request, self::LEVEL_UPDATE);
 
@@ -309,6 +334,12 @@ class RecipeRoute
         array $params
     ) : ResponseInterface {
         try {
+            // Authenticate request
+            UserAuthenticator::confirm(
+                $request->getHeader('PHP_AUTH_USER')[0],
+                $request->getHeader('PHP_AUTH_PW')[0]
+            );
+
             // Validate access
             AccessValidator::check($request, self::LEVEL_DELETE);
 

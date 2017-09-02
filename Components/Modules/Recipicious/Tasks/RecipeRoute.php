@@ -73,14 +73,14 @@ class RecipeRoute
         ResponseInterface $response
     ) : ResponseInterface {
         try {
-            // Authenticate request
-            UserAuthenticator::confirm(
-                $request->getHeader('PHP_AUTH_USER')[0],
-                $request->getHeader('PHP_AUTH_PW')[0]
+            // Authenticate request and validate access
+            AccessValidator::check(
+                UserAuthenticator::confirm(
+                    $request->getHeader('PHP_AUTH_USER')[0],
+                    $request->getHeader('PHP_AUTH_PW')[0]
+                ),
+                self::LEVEL_GET
             );
-
-            // Validate access
-            // AccessValidator::check($request, self::LEVEL_GET);
 
             /**
              * Make request params fetch able.
@@ -128,14 +128,14 @@ class RecipeRoute
         ResponseInterface $response
     ) : ResponseInterface {
         try {
-            // Authenticate request
-            UserAuthenticator::confirm(
-                $request->getHeader('PHP_AUTH_USER')[0],
-                $request->getHeader('PHP_AUTH_PW')[0]
+            // Authenticate request and validate access
+            AccessValidator::check(
+                UserAuthenticator::confirm(
+                    $request->getHeader('PHP_AUTH_USER')[0],
+                    $request->getHeader('PHP_AUTH_PW')[0]
+                ),
+                self::LEVEL_CREATE
             );
-
-            // Validate access
-            AccessValidator::check($request, self::LEVEL_CREATE);
 
             /**
              * Make request body fetch able.
@@ -202,14 +202,14 @@ class RecipeRoute
         array $params
     ): ResponseInterface {
         try {
-            // Authenticate request
-            UserAuthenticator::confirm(
-                $request->getHeader('PHP_AUTH_USER')[0],
-                $request->getHeader('PHP_AUTH_PW')[0]
+            // Authenticate request and validate access
+            AccessValidator::check(
+                UserAuthenticator::confirm(
+                    $request->getHeader('PHP_AUTH_USER')[0],
+                    $request->getHeader('PHP_AUTH_PW')[0]
+                ),
+                self::LEVEL_GET
             );
-
-            // Validate access
-            // AccessValidator::check($request, self::LEVEL_GET);
 
             $data = Recipe::where([
                 [Recipe::COLUMN_RECIPE_ID, '=', $params['id']],
@@ -260,14 +260,14 @@ class RecipeRoute
         array $params
     ) : ResponseInterface {
         try {
-            // Authenticate request
-            UserAuthenticator::confirm(
-                $request->getHeader('PHP_AUTH_USER')[0],
-                $request->getHeader('PHP_AUTH_PW')[0]
+            // Authenticate request and validate access
+            AccessValidator::check(
+                UserAuthenticator::confirm(
+                    $request->getHeader('PHP_AUTH_USER')[0],
+                    $request->getHeader('PHP_AUTH_PW')[0]
+                ),
+                self::LEVEL_UPDATE
             );
-
-            // Validate access
-            AccessValidator::check($request, self::LEVEL_UPDATE);
 
             /**
              * Make request body fetch able.
@@ -334,14 +334,14 @@ class RecipeRoute
         array $params
     ) : ResponseInterface {
         try {
-            // Authenticate request
-            UserAuthenticator::confirm(
-                $request->getHeader('PHP_AUTH_USER')[0],
-                $request->getHeader('PHP_AUTH_PW')[0]
+            // Authenticate request and validate access
+            AccessValidator::check(
+                UserAuthenticator::confirm(
+                    $request->getHeader('PHP_AUTH_USER')[0],
+                    $request->getHeader('PHP_AUTH_PW')[0]
+                ),
+                self::LEVEL_DELETE
             );
-
-            // Validate access
-            AccessValidator::check($request, self::LEVEL_DELETE);
 
             // Get a recipe by id
             $recipe = Recipe::query()->findOrFail($params['id']);

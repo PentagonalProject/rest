@@ -64,11 +64,13 @@ class UserAuthenticator
      *
      * @param null|string $username
      * @param null|string $password
+     * @return int
      */
-    public static function confirm($username, $password)
+    public static function confirm($username, $password) : int
     {
         $authenticator = new static($username, $password);
-        $authenticator->run();
+
+        return $authenticator->run();
     }
 
     /**
@@ -87,10 +89,10 @@ class UserAuthenticator
     /**
      * Check whether user is exist
      *
-     * @param User $user
+     * @param $user
      * @throws UnauthorizedException
      */
-    private function isExist(User $user)
+    private function isExist($user)
     {
         if (is_null($user)) {
             throw new UnauthorizedException('Not enough access');
@@ -115,8 +117,10 @@ class UserAuthenticator
 
     /**
      * Run the authenticator
+     *
+     * @return int
      */
-    private function run()
+    private function run() : int
     {
         $this->isGiven($this->username);
 
@@ -125,5 +129,7 @@ class UserAuthenticator
         $this->isExist($user);
 
         $this->verify($this->password, $user->password);
+
+        return $user->id;
     }
 }

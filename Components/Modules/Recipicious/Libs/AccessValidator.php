@@ -31,7 +31,6 @@ namespace PentagonalProject\Modules\Recipicious\Lib;
 
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
 use PentagonalProject\Model\Database\UserMeta;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Class AccessValidator
@@ -52,24 +51,24 @@ class AccessValidator
     /**
      * AccessValidator constructor
      *
-     * @param ServerRequestInterface $request
-     * @param int                    $level
+     * @param int $userId
+     * @param int $level
      */
-    private function __construct(ServerRequestInterface $request, int $level)
+    private function __construct(int $userId, int $level)
     {
-        $this->userId = (int) $request->getParsedBody()['user_id'];
+        $this->userId = $userId;
         $this->level = $level;
     }
 
     /**
      * Check the given request and access level
      *
-     * @param ServerRequestInterface $request
-     * @param int                    $level
+     * @param int $userId
+     * @param int $level
      */
-    public static function check(ServerRequestInterface $request, int $level)
+    public static function check(int $userId, int $level)
     {
-        $accessValidator = new static($request, $level);
+        $accessValidator = new static($userId, $level);
         $accessValidator->run();
     }
 

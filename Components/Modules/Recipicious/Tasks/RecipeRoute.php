@@ -23,7 +23,6 @@
  * SOFTWARE.
  *
  * @author pentagonal <org@pentagonal.org>
- * @author Zahroul Ulum <zahroul.ulum@gmail.com>
  */
 
 declare(strict_types=1);
@@ -33,9 +32,9 @@ namespace PentagonalProject\Modules\Recipicious\Task;
 use Apatis\ArrayStorage\CollectionFetch;
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
 use PentagonalProject\App\Rest\Generator\ResponseStandard;
+use PentagonalProject\Model\Handler\UserAuthenticator;
 use PentagonalProject\Model\Validator\AccessValidator;
 use PentagonalProject\Model\Validator\EditorialStatus;
-use PentagonalProject\Modules\Recipicious\Lib\UserAuthenticator;
 use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
 use PentagonalProject\Modules\Recipicious\Model\Validator\RecipeValidator;
 use Psr\Http\Message\ResponseInterface;

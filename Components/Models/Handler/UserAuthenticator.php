@@ -25,7 +25,7 @@
  * @author pentagonal <org@pentagonal.org>
  */
 
-namespace PentagonalProject\Modules\Recipicious\Lib;
+namespace PentagonalProject\Model\Handler;
 
 use Pentagonal\PhPass\PasswordHash;
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
@@ -33,7 +33,7 @@ use PentagonalProject\Model\Database\User;
 
 /**
  * Class UserAuthenticator
- * @package PentagonalProject\Modules\Recipicious\Lib
+ * @package PentagonalProject\Model\Handler
  */
 class UserAuthenticator
 {
@@ -66,7 +66,7 @@ class UserAuthenticator
      * @param null|string $password
      * @return int
      */
-    public static function confirm($username, $password) : int
+    public static function confirm($username, $password): int
     {
         $authenticator = new static($username, $password);
 
@@ -120,7 +120,7 @@ class UserAuthenticator
      *
      * @return int
      */
-    private function run() : int
+    private function run(): int
     {
         $this->isGiven($this->username);
 

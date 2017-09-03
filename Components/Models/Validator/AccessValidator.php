@@ -27,14 +27,14 @@
 
 declare(strict_types=1);
 
-namespace PentagonalProject\Modules\Recipicious\Lib;
+namespace PentagonalProject\Model\Validator;
 
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
 use PentagonalProject\Model\Database\UserMeta;
 
 /**
  * Class AccessValidator
- * @package PentagonalProject\Modules\Recipicious\Lib
+ * @package PentagonalProject\Model\Validator
  */
 class AccessValidator
 {

@@ -72,11 +72,13 @@ class RecipeRoute
         ResponseInterface $response
     ) : ResponseInterface {
         try {
+            $authUser = $request->getHeader('PHP_AUTH_USER');
+            $authPass = $request->getHeader('PHP_AUTH_PW');
             // Authenticate request and validate access
             AccessValidator::check(
                 UserAuthenticator::confirm(
-                    $request->getHeader('PHP_AUTH_USER')[0],
-                    $request->getHeader('PHP_AUTH_PW')[0]
+                    isset($authUser[0]) ? $authUser[0] : null,
+                    isset($authPass[0]) ? $authPass[0] : null
                 ),
                 self::LEVEL_GET
             );

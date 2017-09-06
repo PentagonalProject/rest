@@ -64,6 +64,25 @@ class RecipeRoute
 
     /**
      * @param ServerRequestInterface $request
+     * @param int $level
+     * @throws UnauthorizedException
+     */
+    public static function validateAuth(ServerRequestInterface $request, int $level)
+    {
+        $authUser = $request->getHeader('PHP_AUTH_USER');
+        $authPass = $request->getHeader('PHP_AUTH_PW');
+        // Authenticate request and validate access
+        AccessValidator::check(
+            UserAuthenticator::confirm(
+                isset($authUser[0]) ? $authUser[0] : null,
+                isset($authPass[0]) ? $authPass[0] : null
+            ),
+            $level
+        );
+    }
+
+    /**
+     * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @return ResponseInterface
      */
@@ -72,16 +91,8 @@ class RecipeRoute
         ResponseInterface $response
     ) : ResponseInterface {
         try {
-            $authUser = $request->getHeader('PHP_AUTH_USER');
-            $authPass = $request->getHeader('PHP_AUTH_PW');
             // Authenticate request and validate access
-            AccessValidator::check(
-                UserAuthenticator::confirm(
-                    isset($authUser[0]) ? $authUser[0] : null,
-                    isset($authPass[0]) ? $authPass[0] : null
-                ),
-                self::LEVEL_GET
-            );
+            self::validateAuth($request, self::LEVEL_GET);
 
             /**
              * Make request params fetch able.
@@ -130,13 +141,7 @@ class RecipeRoute
     ) : ResponseInterface {
         try {
             // Authenticate request and validate access
-            AccessValidator::check(
-                UserAuthenticator::confirm(
-                    $request->getHeader('PHP_AUTH_USER')[0],
-                    $request->getHeader('PHP_AUTH_PW')[0]
-                ),
-                self::LEVEL_CREATE
-            );
+            self::validateAuth($request, self::LEVEL_CREATE);
 
             /**
              * Make request body fetch able.
@@ -145,6 +150,11 @@ class RecipeRoute
              */
             $requestBody = new CollectionFetch($request->getParsedBody());
 
+            /**
+             * @todo input $requestBody->all() is not always string[]
+             * will be thrown notice on : line -> 163
+             * just try to post with: tile[]=title&title[]=title2
+             */
             // Trim every inputs
             $requestBody->replace(
                 array_map(
@@ -204,13 +214,7 @@ class RecipeRoute
     ): ResponseInterface {
         try {
             // Authenticate request and validate access
-            AccessValidator::check(
-                UserAuthenticator::confirm(
-                    $request->getHeader('PHP_AUTH_USER')[0],
-                    $request->getHeader('PHP_AUTH_PW')[0]
-                ),
-                self::LEVEL_GET
-            );
+            self::validateAuth($request, self::LEVEL_GET);
 
             $data = Recipe::where([
                 [Recipe::COLUMN_RECIPE_ID, '=', $params['id']],
@@ -262,13 +266,7 @@ class RecipeRoute
     ) : ResponseInterface {
         try {
             // Authenticate request and validate access
-            AccessValidator::check(
-                UserAuthenticator::confirm(
-                    $request->getHeader('PHP_AUTH_USER')[0],
-                    $request->getHeader('PHP_AUTH_PW')[0]
-                ),
-                self::LEVEL_UPDATE
-            );
+            self::validateAuth($request, self::LEVEL_UPDATE);
 
             /**
              * Make request body fetch able.
@@ -336,13 +334,7 @@ class RecipeRoute
     ) : ResponseInterface {
         try {
             // Authenticate request and validate access
-            AccessValidator::check(
-                UserAuthenticator::confirm(
-                    $request->getHeader('PHP_AUTH_USER')[0],
-                    $request->getHeader('PHP_AUTH_PW')[0]
-                ),
-                self::LEVEL_DELETE
-            );
+            self::validateAuth($request, self::LEVEL_DELETE);
 
             // Get a recipe by id
             $recipe = Recipe::query()->findOrFail($params['id']);

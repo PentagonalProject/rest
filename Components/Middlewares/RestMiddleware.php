@@ -31,14 +31,16 @@ namespace {
 
     use PentagonalProject\App\Rest\Generator\ResponseStandard;
     use PentagonalProject\App\Rest\Util\Hook;
-    use PentagonalProject\Model\Handler\PhpError;
+    use PentagonalProject\Model\Handler\ErrorHandler;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;
     use Slim\Handlers\AbstractHandler;
     use Slim\Handlers\NotAllowed;
     use Slim\Handlers\NotFound;
+    use Slim\Http\Request;
     use Slim\MiddlewareAwareTrait;
+    use Whoops\Run;
 
     if (! isset($this) || ! $this instanceof App) {
         return;
@@ -117,7 +119,7 @@ namespace {
              * instanceof @uses AbstractError is important to hook not found
              * @hook container.phpErrorHandler
              */
-            return new class() extends PhpError {
+            return new class($this['settings']['displayErrorDetails'], $this) extends ErrorHandler {
                 /**
                  * @param ServerRequestInterface $request
                  * @param ResponseInterface $response
@@ -130,6 +132,61 @@ namespace {
                     ResponseInterface $response,
                     Throwable $error
                 ) : ResponseInterface {
+                    // add for debugging
+                    if (!empty($this->displayErrorDetails)) {
+                        /**
+                         * @var Run $whoops
+                         * @var Request $request
+                         */
+                        $whoops = $this->container['whoops'];
+                        $whoops->allowQuit(true);
+                        $whoops->writeToOutput(true); // allow quit
+                        $response = parent::__invoke($request, $response, $error);
+                        return $response;
+                    }
+
+                    return ResponseStandard::withException(
+                        $request,
+                        $response->withStatus(500),
+                        $error
+                    );
+                }
+            };
+        });
+
+        // add Hook For PhpError
+        $hook->add('container.errorHandler', function () {
+            /**
+             * Invoke Hook with anonymous class extends to @uses PhpError
+             * instanceof @uses AbstractError is important to hook not found
+             * @hook container.phpErrorHandler
+             */
+            return new class($this['settings']['displayErrorDetails'], $this) extends ErrorHandler {
+                /**
+                 * @param ServerRequestInterface $request
+                 * @param ResponseInterface $response
+                 * @param Throwable $error
+                 *
+                 * @return ResponseInterface
+                 */
+                public function __invoke(
+                    ServerRequestInterface $request,
+                    ResponseInterface $response,
+                    Throwable $error
+                ) : ResponseInterface {
+                    // add for debugging
+                    if (!empty($this->displayErrorDetails)) {
+                        /**
+                         * @var Run $whoops
+                         * @var Request $request
+                         */
+                        $whoops = $this->container['whoops'];
+                        $whoops->allowQuit(true);
+                        $whoops->writeToOutput(true); // allow quit
+                        $response = parent::__invoke($request, $response, $error);
+                        return $response;
+                    }
+
                     return ResponseStandard::withException(
                         $request,
                         $response->withStatus(500),

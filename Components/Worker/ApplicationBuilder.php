@@ -51,6 +51,7 @@ namespace {
         'environment' => $this->includeScope("{$containerDirectory}/Global/Environment.php"),
         'hook'        => $this->includeScope("{$containerDirectory}/Global/Hook.php"),
         'log'         => $this->includeScope("{$containerDirectory}/Global/Log.php"),
+        'whoops'      => $this->includeScope("{$containerDirectory}/Global/Whoops.php"),
         'module'      => $this->includeScope("{$containerDirectory}/Global/Module.php"),
         'notAllowedHandler' => $this->includeScope("{$containerDirectory}/Global/NotAllowedHandler.php"),
         'notFoundHandler'   => $this->includeScope("{$containerDirectory}/Global/NotFoundHandler.php"),

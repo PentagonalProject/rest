@@ -38,9 +38,9 @@ namespace {
      * Not Allowed Handler
      *
      * @param ContainerInterface $container
-     * @return AbstractHandler
+     * @return callable|AbstractHandler
      */
-    return function (ContainerInterface $container) : AbstractHandler {
+    return function (ContainerInterface $container) {
         /**
          * @var Hook $hook
          */
@@ -51,12 +51,9 @@ namespace {
             $container
         );
 
-        if (! $notAllowedHandler instanceof AbstractHandler) {
+        if (! is_callable($notAllowedHandler)) {
             throw new RuntimeException(
-                sprintf(
-                    "Invalid Hook for Not Allowed Handler. Not Allowed Handler must be instance of %s",
-                    AbstractHandler::class
-                ),
+                "Invalid Hook for Not Allowed Handler. Not Allowed Handler must be callable.",
                 E_ERROR
             );
         }

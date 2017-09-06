@@ -38,9 +38,9 @@ namespace {
      * Not Found Handler
      *
      * @param ContainerInterface $container
-     * @return AbstractHandler
+     * @return callable|AbstractHandler
      */
-    return function (ContainerInterface $container) : AbstractHandler {
+    return function (ContainerInterface $container) {
         /**
          * @var Hook $hook
          */
@@ -51,12 +51,9 @@ namespace {
             $container
         );
 
-        if (! $notFoundHandler instanceof AbstractHandler) {
+        if (! is_callable($notFoundHandler)) {
             throw new RuntimeException(
-                sprintf(
-                    "Invalid Hook for Not Found Handler. Not Found Handler must be instance of %s",
-                    AbstractHandler::class
-                ),
+                "Invalid Hook for Not Found Handler. Not Found Handler must be callable.",
                 E_ERROR
             );
         }

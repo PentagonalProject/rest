@@ -31,8 +31,8 @@ namespace PentagonalProject\Modules\Recipicious\Task;
 
 use Apatis\ArrayStorage\CollectionFetch;
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
+use PentagonalProject\App\Rest\Generator\AccessToken;
 use PentagonalProject\App\Rest\Generator\ResponseStandard;
-use PentagonalProject\Model\Handler\UserAuthenticator;
 use PentagonalProject\Model\Validator\AccessValidator;
 use PentagonalProject\Model\Validator\EditorialStatus;
 use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
@@ -69,14 +69,9 @@ class RecipeRoute
      */
     public static function validateAuth(ServerRequestInterface $request, int $level)
     {
-        $authUser = $request->getHeader('PHP_AUTH_USER');
-        $authPass = $request->getHeader('PHP_AUTH_PW');
         // Authenticate request and validate access
         AccessValidator::check(
-            UserAuthenticator::confirm(
-                isset($authUser[0]) ? $authUser[0] : null,
-                isset($authPass[0]) ? $authPass[0] : null
-            ),
+            (int) AccessToken::fromRequest($request)->decryptData(),
             $level
         );
     }

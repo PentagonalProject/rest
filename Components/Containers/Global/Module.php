@@ -25,6 +25,8 @@
  * @author pentagonal <org@pentagonal.org>
  */
 
+declare(strict_types=1);
+
 namespace {
 
     use PentagonalProject\App\Rest\Record\ModularCollection;

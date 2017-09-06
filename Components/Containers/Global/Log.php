@@ -51,7 +51,7 @@ namespace {
             $type = is_int($config['log'])
                 ? $config['log']
                 : ($config['debug']
-                    ? 'deb.log'
+                    ? 'debug.log'
                     : Logger::WARNING
                 );
             $type = Validator::getConvertAliasLogLevel($type);

@@ -41,16 +41,22 @@ class AccessToken
     const REST_PUBLIC_KEY = 'b3Ny43g';
 
     /**
+     * The access token salt
+     *
      * @var string
      */
     private $salt;
 
     /**
+     * The access token sign
+     *
      * @var string
      */
     private $sign;
 
     /**
+     * The access token encrypted data
+     *
      * @var string
      */
     private $encryptedData;
@@ -73,10 +79,11 @@ class AccessToken
     }
 
     /**
-     * Create access token from given data
+     * Create access token instance from given data
      *
      * @param string $data
      * @return static
+     * @throws \Exception
      */
     public static function fromData(string $data)
     {
@@ -115,7 +122,7 @@ class AccessToken
     }
 
     /**
-     * Create access token from given request
+     * Create access token instance from given request
      *
      * @param ServerRequestInterface $request
      * @return static
@@ -139,6 +146,7 @@ class AccessToken
      * Decrypt itself data
      *
      * @return string
+     * @throws UnauthorizedException
      */
     public function decryptData()
     {

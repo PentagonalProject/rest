@@ -32,15 +32,50 @@ namespace {
     use Illuminate\Database\Capsule\Manager;
     use PentagonalProject\App\Rest\Record\AppFacade;
     use PentagonalProject\App\Rest\Record\ModularCollection;
+    use PentagonalProject\App\Rest\Util\Hook;
+    use PentagonalProject\Model\CookieSession;
+    use Psr\Container\ContainerInterface;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;
+    use Slim\Http\Cookies;
 
     if (!isset($this) || ! $this instanceof App) {
         return;
     }
 
     // register Middleware
+
+    /**
+     * Middle ware to register Container
+     */
+    $this->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+        if (isset($this['cookie'])) {
+            unset($this['cookie']);
+        }
+
+        /**
+         * @return CookieSession
+         */
+        $this['cookie'] = function () use ($request) : CookieSession {
+            $cookies = new Cookies($request->getCookieParams());
+            $cookieSession = new CookieSession($cookies);
+            return $cookieSession;
+        };
+
+        /**
+         * Add End Cookie for response
+         * @var Hook[] $this
+         */
+        $this['hook']->add('response.end', function (ResponseInterface $response, ContainerInterface $container) {
+            /**
+             * @var CookieSession[] $container
+             */
+            return $response->withAddedHeader('Set-Cookie', $container['cookie']->toHeaders());
+        });
+
+        return $next($request, $response);
+    });
 
     /**
      * Middle ware to register Module persistent

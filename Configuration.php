@@ -105,6 +105,15 @@ return [
         'httponly' => null,
         'secure'   => null,
     ],
+    'security' => [
+        // use to login method
+        'auth_salt'     => 'random salt string',
+        // use to auth method
+        'auth_key'      => 'random key string',
+        // use to secure / any process validation encryption
+        'secure_salt'   => 'secure salt string',
+        'secure_key'    => 'secure key string',
+    ],
     // beware debug log will be make your disk full, use this for dev only
     'debug'    => false,
     'log_mode' => E_NOTICE,

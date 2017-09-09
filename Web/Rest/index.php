@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace {
 
     use PentagonalProject\App\Rest\Record\AppFacade;
+    use PentagonalProject\App\Rest\Util\Hook;
     use Slim\App;
 
     // require BootStrap
@@ -41,5 +42,18 @@ namespace {
      * @var App $app
      */
     $app = $facade->includeScopeBind(__DIR__ . '/../../Components/Worker/Rest.php', $facade);
-    return $app->run();
+
+    /**
+     * @var Hook $hook
+     */
+    $response = $app->run(true);
+    $container = $app->getContainer();
+    if (isset($container['hook']) && $container['hook'] instanceof Hook) {
+        $hook     = $container['hook'];
+        // hook for end
+        $response = $hook->apply('response.end', $response, $container);
+    }
+
+    $app->respond($response);
+    return $response;
 }

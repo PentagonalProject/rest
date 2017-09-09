@@ -37,6 +37,7 @@ namespace {
     use PentagonalProject\Model\Database\User;
     use PentagonalProject\Model\Database\UserMeta;
     use PentagonalProject\Model\Handler\UserAuthenticator;
+    use PentagonalProject\Model\Validator\CommonHeaderValidator;
     use PentagonalProject\Model\Validator\UserValidator;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
@@ -50,18 +51,21 @@ namespace {
         '/authenticate',
         function (ServerRequestInterface $request, ResponseInterface $response) {
             try {
-                $requestBody = new CollectionFetch($request->getParsedBody());
+                $requestBody = new CollectionFetch((array) $request->getParsedBody());
+                // generate common validator
+                $newRequest = $request
+                    ->withHeader(CommonHeaderValidator::AUTH_USER, $requestBody['username'])
+                    ->withHeader(CommonHeaderValidator::AUTH_KEY, $requestBody['password'])
+                    ->withoutHeader(CommonHeaderValidator::ACCESS_KEY)
+                    ->withoutHeader(CommonHeaderValidator::ACCESS_TOKEN);
+
+                $access = AccessToken::fromRequest($newRequest, false, false);
 
                 return ResponseStandard::withData(
                     $request,
                     $response,
                     [
-                        'access_token' => (string) AccessToken::fromData(
-                            (string) UserAuthenticator::confirm(
-                                $requestBody['username'],
-                                $requestBody['password']
-                            )
-                        )
+                        'access_token' => $access->generateToken()
                     ]
                 );
             } catch (UnauthorizedException $exception) {

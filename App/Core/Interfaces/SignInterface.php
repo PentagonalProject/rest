@@ -27,36 +27,23 @@
 
 declare(strict_types=1);
 
-namespace PentagonalProject\App\Rest\Generator;
-
-use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
-use PentagonalProject\Model\Validator\CommonHeaderValidator;
-use Psr\Http\Message\ServerRequestInterface;
+namespace PentagonalProject\App\Rest\Interfaces;
 
 /**
- * Class AccessToken
- * @package PentagonalProject\App\Rest\Generator
+ * Interface SignInterface
+ * @package PentagonalProject\App\Rest\Interfaces
  */
-class AccessToken
+interface SignInterface
 {
+    /**
+     * @param mixed $data
+     *
+     * @return SignInterface
+     */
+    public static function fromData($data) : SignInterface;
 
     /**
-     * @param ServerRequestInterface $request
-     * @param bool $useToken
-     * @param bool $useKey
-     *
-     * @return CommonHeaderValidator
-     * @throws UnauthorizedException
+     * @return string
      */
-    public static function fromRequest(ServerRequestInterface $request, $useToken = true, $useKey = true) : CommonHeaderValidator
-    {
-        $validator = CommonHeaderValidator::fromRequest($request);
-        $useToken === false && $validator->withoutToken();
-        $useKey === false && $validator->withoutAccessKey();
-        if ($validator->getGrant()->isDeny()) {
-            throw new UnauthorizedException('Not enough access');
-        }
-
-        return $validator;
-    }
+    public function getSignedString() : string;
 }

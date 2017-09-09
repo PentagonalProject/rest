@@ -99,8 +99,14 @@ class GrantValidation implements GrantInterface
         }
 
         $granted = ($grant | $this->currentSetGranted);
-        return $granted === $this->currentSetGranted
+        $granted = $granted === $this->currentSetGranted
             || ($grant | $this->currentSetGranted) <= $this->currentSetGranted;
+
+        if ($grant === self::DENY) {
+            return $granted < self::ONLY_READ;
+        }
+
+        return $granted;
     }
 
     /**

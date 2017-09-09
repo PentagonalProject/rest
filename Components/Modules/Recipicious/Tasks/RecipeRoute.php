@@ -31,9 +31,10 @@ namespace PentagonalProject\Modules\Recipicious\Task;
 
 use Apatis\ArrayStorage\CollectionFetch;
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
-use PentagonalProject\App\Rest\Generator\AccessToken;
 use PentagonalProject\App\Rest\Generator\ResponseStandard;
+use PentagonalProject\Model\Database\User;
 use PentagonalProject\Model\Validator\AccessValidator;
+use PentagonalProject\Model\Validator\CommonHeaderValidator;
 use PentagonalProject\Model\Validator\EditorialStatus;
 use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
 use PentagonalProject\Modules\Recipicious\Model\Validator\RecipeValidator;
@@ -69,9 +70,14 @@ class RecipeRoute
      */
     public static function validateAuth(ServerRequestInterface $request, int $level)
     {
+        $validator = CommonHeaderValidator::fromRequest($request);
+        if (!$validator->getGrant()->isDeny() || ! $validator->getUser()) {
+            throw new UnauthorizedException("Not enough access");
+        }
+        $user = $validator->getUser();
         // Authenticate request and validate access
         AccessValidator::check(
-            (int) AccessToken::fromRequest($request)->decryptData(),
+            (int) $user[User::COLUMN_ID],
             $level
         );
     }
@@ -86,6 +92,7 @@ class RecipeRoute
         ResponseInterface $response
     ) : ResponseInterface {
         try {
+
             // Authenticate request and validate access
             self::validateAuth($request, self::LEVEL_GET);
 

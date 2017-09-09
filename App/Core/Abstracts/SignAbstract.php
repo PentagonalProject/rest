@@ -27,36 +27,53 @@
 
 declare(strict_types=1);
 
-namespace PentagonalProject\App\Rest\Generator;
+namespace PentagonalProject\App\Rest\Abstracts;
 
-use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
-use PentagonalProject\Model\Validator\CommonHeaderValidator;
-use Psr\Http\Message\ServerRequestInterface;
+use PentagonalProject\App\Rest\Interfaces\SignInterface;
 
 /**
- * Class AccessToken
- * @package PentagonalProject\App\Rest\Generator
+ * Class SignAbstract
+ * @package PentagonalProject\App\Rest\Abstracts
  */
-class AccessToken
+abstract class SignAbstract implements SignInterface
 {
+    /**
+     * @var string
+     */
+    protected $signedString;
 
     /**
-     * @param ServerRequestInterface $request
-     * @param bool $useToken
-     * @param bool $useKey
+     * SignAbstract constructor.
      *
-     * @return CommonHeaderValidator
-     * @throws UnauthorizedException
+     * @param mixed $data
      */
-    public static function fromRequest(ServerRequestInterface $request, $useToken = true, $useKey = true) : CommonHeaderValidator
+    public function __construct($data)
     {
-        $validator = CommonHeaderValidator::fromRequest($request);
-        $useToken === false && $validator->withoutToken();
-        $useKey === false && $validator->withoutAccessKey();
-        if ($validator->getGrant()->isDeny()) {
-            throw new UnauthorizedException('Not enough access');
-        }
+        $this->sign($data);
+    }
 
-        return $validator;
+    /**
+     * @param mixed $data
+     *
+     * @return void
+     */
+    abstract protected function sign($data);
+
+    /**
+     * @return string
+     */
+    public function getSignedString() : string
+    {
+        return $this->signedString;
+    }
+
+    /**
+     * @param mixed $data
+     *
+     * @return SignInterface
+     */
+    public static function fromData($data) : SignInterface
+    {
+        return new static($data);
     }
 }

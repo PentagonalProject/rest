@@ -33,7 +33,7 @@ namespace {
     use PentagonalProject\App\Rest\Record\AppFacade;
     use PentagonalProject\App\Rest\Record\ModularCollection;
     use PentagonalProject\App\Rest\Util\Hook;
-    use PentagonalProject\Model\CookieSession;
+    use PentagonalProject\Model\Http\CookieSession;
     use Psr\Container\ContainerInterface;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
@@ -72,7 +72,7 @@ namespace {
              * @var CookieSession[] $container
              */
             return $response->withAddedHeader('Set-Cookie', $container['cookie']->toHeaders());
-        });
+        }, 10, 2);
 
         return $next($request, $response);
     });

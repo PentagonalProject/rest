@@ -27,7 +27,7 @@
 
 declare(strict_types=1);
 
-namespace PentagonalProject\Model;
+namespace PentagonalProject\Model\Http;
 
 use Slim\Http\Cookies;
 

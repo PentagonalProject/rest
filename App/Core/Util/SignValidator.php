@@ -27,69 +27,61 @@
 
 declare(strict_types=1);
 
-namespace PentagonalProject\Model\Validator;
+namespace PentagonalProject\App\Rest\Util;
 
-use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
-use PentagonalProject\Model\Database\UserMeta;
+use PentagonalProject\App\Rest\Interfaces\SignInterface;
+use PentagonalProject\App\Rest\Interfaces\SignValidatorInterface;
 
 /**
- * Class AccessValidator
- * @package PentagonalProject\Model\Validator
+ * Class SignValidator
+ * @package PentagonalProject\App\Rest\Util
  */
-class AccessValidator
+class SignValidator implements SignValidatorInterface
 {
     /**
-     * @var int
+     * @var mixed
      */
-    private $userId;
+    protected $data;
 
     /**
-     * @var int
+     * @var mixed
      */
-    private $level;
+    protected $securityKey;
 
     /**
-     * AccessValidator constructor
+     * @var SignInterface
+     */
+    protected $signed;
+
+    /**
+     * SignValidator constructor.
      *
-     * @param int $userId
-     * @param int $level
+     * @param $data
+     * @param null $securityKey
      */
-    private function __construct(int $userId, int $level)
+    public function __construct($data, $securityKey = null)
     {
-        $this->userId = $userId;
-        $this->level = $level;
+        $this->data = $data;
+        $this->securityKey = $securityKey;
     }
 
     /**
-     * Check the given request and access level
-     *
-     * @param int $userId
-     * @param int $level
+     * @return SignInterface
      */
-    public static function check(int $userId, int $level)
+    public function getSign(): SignInterface
     {
-        $accessValidator = new static($userId, $level);
-        $accessValidator->run();
+        return isset($this->signed)
+            ? $this->signed
+            : ($this->signed = SignSha256::fromData($this->data));
     }
 
     /**
-     * Run the validator
+     * @param SignInterface $sign
      *
-     * @throws UnauthorizedException
+     * @return bool
      */
-    private function run()
+    public function verify(SignInterface $sign): bool
     {
-        // Find the user granted accesses
-        $grantedAccesses = UserMeta::where('user_id', $this->userId)
-            ->where('meta_name', 'api_access')
-            ->first();
-
-        // Check whether the given level access is listed in the user
-        // granted accesses
-        if (!$grantedAccesses || !in_array($this->level, (array) $grantedAccesses->meta_value)) {
-            throw new UnauthorizedException(
-                "Not enough access"
-            );
-        };
+        return $this->getSign()->getSignedString() === $sign->getSignedString();
     }
 }

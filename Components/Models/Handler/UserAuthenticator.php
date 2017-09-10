@@ -29,6 +29,7 @@ namespace PentagonalProject\Model\Handler;
 
 use Pentagonal\PhPass\PasswordHash;
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
+use PentagonalProject\App\Rest\Record\AppFacade;
 use PentagonalProject\Model\Database\User;
 
 /**
@@ -60,6 +61,14 @@ class UserAuthenticator
     }
 
     /**
+     * @throws UnauthorizedException
+     */
+    public static function throwUnauthorized()
+    {
+        throw new UnauthorizedException(AppFacade::access('lang')->trans('Not enough access'));
+    }
+
+    /**
      * Confirm the given username and password
      *
      * @param null|string $username
@@ -82,7 +91,7 @@ class UserAuthenticator
     private function isGiven($username)
     {
         if (is_null($username)) {
-            throw new UnauthorizedException('Not enough access');
+            $this->throwUnauthorized();
         }
     }
 
@@ -95,7 +104,7 @@ class UserAuthenticator
     private function isExist($user)
     {
         if (is_null($user)) {
-            throw new UnauthorizedException('Not enough access');
+            $this->throwUnauthorized();
         }
     }
 
@@ -111,7 +120,7 @@ class UserAuthenticator
         $passwordHash = new PasswordHash();
 
         if (!$passwordHash->verify(sha1($password), $storedPassword)) {
-            throw new UnauthorizedException('Not enough access');
+            $this->throwUnauthorized();
         }
     }
 

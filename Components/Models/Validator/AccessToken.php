@@ -27,19 +27,18 @@
 
 declare(strict_types=1);
 
-namespace PentagonalProject\App\Rest\Generator;
+namespace PentagonalProject\Model\Validator;
 
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
-use PentagonalProject\Model\Validator\CommonHeaderValidator;
+use PentagonalProject\Model\Handler\UserAuthenticator;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Class AccessToken
- * @package PentagonalProject\App\Rest\Generator
+ * @package PentagonalProject\Model\Validator
  */
 class AccessToken
 {
-
     /**
      * @param ServerRequestInterface $request
      * @param bool $useToken
@@ -48,13 +47,16 @@ class AccessToken
      * @return CommonHeaderValidator
      * @throws UnauthorizedException
      */
-    public static function fromRequest(ServerRequestInterface $request, $useToken = true, $useKey = true) : CommonHeaderValidator
-    {
+    public static function fromRequest(
+        ServerRequestInterface $request,
+        $useToken = true,
+        $useKey = true
+    ) : CommonHeaderValidator {
         $validator = CommonHeaderValidator::fromRequest($request);
         $useToken === false && $validator->withoutToken();
         $useKey === false && $validator->withoutAccessKey();
         if ($validator->getGrant()->isDeny()) {
-            throw new UnauthorizedException('Not enough access');
+            UserAuthenticator::throwUnauthorized();
         }
 
         return $validator;

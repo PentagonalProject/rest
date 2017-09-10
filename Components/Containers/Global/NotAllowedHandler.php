@@ -33,6 +33,7 @@ namespace {
     use Psr\Container\ContainerInterface;
     use Slim\Handlers\AbstractHandler;
     use Slim\Handlers\NotAllowed;
+    use Symfony\Component\Translation\Translator;
 
     /**
      * Not Allowed Handler
@@ -52,8 +53,11 @@ namespace {
         );
 
         if (! is_callable($notAllowedHandler)) {
+            /**
+             * @var Translator[] $this
+             */
             throw new RuntimeException(
-                "Invalid Hook for Not Allowed Handler. Not Allowed Handler must be callable.",
+                $this['lang']->trans("Invalid Hook for Not Allowed Handler. Not Allowed Handler must be callable."),
                 E_ERROR
             );
         }

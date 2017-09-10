@@ -33,6 +33,7 @@ namespace {
     use Psr\Container\ContainerInterface;
     use Slim\Handlers\AbstractHandler;
     use Slim\Handlers\NotFound;
+    use Symfony\Component\Translation\Translator;
 
     /**
      * Not Found Handler
@@ -52,8 +53,11 @@ namespace {
         );
 
         if (! is_callable($notFoundHandler)) {
+            /**
+             * @var Translator[] $this
+             */
             throw new RuntimeException(
-                "Invalid Hook for Not Found Handler. Not Found Handler must be callable.",
+                $this['lang']->trans("Invalid Hook for Not Found Handler. Not Found Handler must be callable."),
                 E_ERROR
             );
         }

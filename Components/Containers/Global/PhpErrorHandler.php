@@ -33,6 +33,7 @@ namespace {
     use PentagonalProject\Model\Handler\ErrorHandler;
     use Psr\Container\ContainerInterface;
     use Slim\Handlers\AbstractError;
+    use Symfony\Component\Translation\Translator;
 
     /**
      * @param ContainerInterface $container
@@ -53,8 +54,11 @@ namespace {
         );
 
         if (! is_callable($errorPhpHandler)) {
+            /**
+             * @var Translator[] $this
+             */
             throw new RuntimeException(
-                "Invalid Hook for Php Error Handler. Php Error Handler must be callable.",
+                $this['lang']->trans("Invalid Hook for Php Error Handler. Php Error Handler must be callable."),
                 E_ERROR
             );
         }

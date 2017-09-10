@@ -30,7 +30,10 @@ declare(strict_types=1);
 namespace PentagonalProject\Model\Validator;
 
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
-use PentagonalProject\Model\Database\UserMeta;
+use PentagonalProject\Model\Database\User;
+use PentagonalProject\Model\Handler\Role;
+use PentagonalProject\Model\Handler\UserAuthenticator;
+use PentagonalProject\Model\Handler\UserRole;
 
 /**
  * Class AccessValidator
@@ -38,10 +41,15 @@ use PentagonalProject\Model\Database\UserMeta;
  */
 class AccessValidator
 {
+    const LEVEL_GET    = 0;
+    const LEVEL_UPDATE = 1;
+    const LEVEL_DELETE = 2;
+    const LEVEL_CREATE = 3;
+
     /**
      * @var int
      */
-    private $userId;
+    private $user;
 
     /**
      * @var int
@@ -49,26 +57,26 @@ class AccessValidator
     private $level;
 
     /**
-     * AccessValidator constructor
+     * AccessValidator constructor.
      *
-     * @param int $userId
+     * @param User $user
      * @param int $level
      */
-    private function __construct(int $userId, int $level)
+    private function __construct(User $user, int $level)
     {
-        $this->userId = $userId;
+        $this->user = $user;
         $this->level = $level;
     }
 
     /**
      * Check the given request and access level
      *
-     * @param int $userId
+     * @param User $user
      * @param int $level
      */
-    public static function check(int $userId, int $level)
+    public static function check(User $user, int $level)
     {
-        $accessValidator = new static($userId, $level);
+        $accessValidator = new static($user, $level);
         $accessValidator->run();
     }
 
@@ -79,17 +87,31 @@ class AccessValidator
      */
     private function run()
     {
+        $defaultGrant = [self::LEVEL_GET];
+        $adminGrant = [
+            self::LEVEL_GET,
+            self::LEVEL_UPDATE,
+            self::LEVEL_DELETE,
+            self::LEVEL_CREATE,
+        ];
+
         // Find the user granted accesses
-        $grantedAccesses = UserMeta::where('user_id', $this->userId)
-            ->where('meta_name', 'api_access')
-            ->first();
+        $grantedAccesses = $this->user->getMetaValueOrCreate('api_access', $defaultGrant);
+        // create dummy role for super admin
+        $dummyRole = new UserRole($this->user, new Role());
+        if ($dummyRole->isSuperAdmin()) {
+            $defaultGrant = $adminGrant;
+        }
+
+        if (!is_array($grantedAccesses) || $dummyRole->isSuperAdmin()) {
+            $this->user->updateMeta('api_access', $defaultGrant);
+            $grantedAccesses = $defaultGrant;
+        }
 
         // Check whether the given level access is listed in the user
         // granted accesses
-        if (!$grantedAccesses || !in_array($this->level, (array) $grantedAccesses->meta_value)) {
-            throw new UnauthorizedException(
-                "Not enough access"
-            );
+        if (!$grantedAccesses || !in_array($this->level, (array) $grantedAccesses, true)) {
+            UserAuthenticator::throwUnauthorized();
         };
     }
 }

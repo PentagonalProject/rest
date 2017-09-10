@@ -32,7 +32,7 @@ namespace PentagonalProject\Modules\Recipicious\Task;
 use Apatis\ArrayStorage\CollectionFetch;
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
 use PentagonalProject\App\Rest\Generator\ResponseStandard;
-use PentagonalProject\Model\Database\User;
+use PentagonalProject\App\Rest\Record\AppFacade;
 use PentagonalProject\Model\Validator\AccessValidator;
 use PentagonalProject\Model\Validator\CommonHeaderValidator;
 use PentagonalProject\Model\Validator\EditorialStatus;
@@ -50,10 +50,10 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class RecipeRoute
 {
-    const LEVEL_GET    = 0;
-    const LEVEL_UPDATE = 1;
-    const LEVEL_DELETE = 2;
-    const LEVEL_CREATE = 3;
+    const LEVEL_GET    = AccessValidator::LEVEL_GET;
+    const LEVEL_UPDATE = AccessValidator::LEVEL_UPDATE;
+    const LEVEL_DELETE = AccessValidator::LEVEL_DELETE;
+    const LEVEL_CREATE = AccessValidator::LEVEL_CREATE;
 
     /**
      * RecipeRoute constructor.
@@ -71,15 +71,14 @@ class RecipeRoute
     public static function validateAuth(ServerRequestInterface $request, int $level)
     {
         $validator = CommonHeaderValidator::fromRequest($request);
-        if (!$validator->getGrant()->isDeny() || ! $validator->getUser()) {
-            throw new UnauthorizedException("Not enough access");
+        if ($validator->getGrant()->isDeny() || ! $validator->getUser()) {
+            throw new UnauthorizedException(
+                AppFacade::access('lang')->trans("Not enough access")
+            );
         }
-        $user = $validator->getUser();
+
         // Authenticate request and validate access
-        AccessValidator::check(
-            (int) $user[User::COLUMN_ID],
-            $level
-        );
+        AccessValidator::check($validator->getUser(), $level);
     }
 
     /**
@@ -92,7 +91,6 @@ class RecipeRoute
         ResponseInterface $response
     ) : ResponseInterface {
         try {
-
             // Authenticate request and validate access
             self::validateAuth($request, self::LEVEL_GET);
 

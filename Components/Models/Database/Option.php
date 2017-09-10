@@ -78,6 +78,14 @@ class Option extends DatabaseBaseModel
     protected $keyType = 'string';
 
     /**
+     * @var array
+     */
+    protected $fillable = [
+        self::COLUMN_OPTION_NAME,
+        self::COLUMN_OPTION_VALUE
+    ];
+
+    /**
      * @param string $name
      * @param mixed $default
      * @return mixed

@@ -33,12 +33,14 @@ namespace {
     use PentagonalProject\App\Rest\Record\AppFacade;
     use PentagonalProject\App\Rest\Record\ModularCollection;
     use PentagonalProject\App\Rest\Util\Hook;
+    use PentagonalProject\Model\Database\Option;
     use PentagonalProject\Model\Http\CookieSession;
     use Psr\Container\ContainerInterface;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;
     use Slim\Http\Cookies;
+    use Symfony\Component\Translation\Translator;
 
     if (!isset($this) || ! $this instanceof App) {
         return;
@@ -53,6 +55,46 @@ namespace {
         if (isset($this['cookie'])) {
             unset($this['cookie']);
         }
+        /**
+         * @var Translator $lang
+         */
+        $lang = $this['lang'];
+        $languageSelection = Option::getFrom('selected_language', null);
+        if (!is_string($languageSelection)) {
+            $newLanguageSelection = 'en_US';
+        } else {
+            $newLanguageSelection = preg_match('/(?P<l>[a-z]{2})(?:_(?P<s>[a-z]+))?/i', $languageSelection, $match);
+            if (empty($match)) {
+                $newLanguageSelection = 'en_US';
+            }
+            if (!empty($match) && $newLanguageSelection != 'en_US') {
+                $newLanguageSelection = strtolower($match['l']);
+                if (!empty($match['s'])) {
+                    $suffix = strtoupper($match['s']);
+                    if (strlen($suffix) < 2) {
+                        $suffix = strtolower($suffix[0]) == $newLanguageSelection[0]
+                            ? strtoupper($newLanguageSelection)
+                            : ($newLanguageSelection === 'en' ? 'US' : $suffix);
+                    } elseif ($newLanguageSelection === 'en') {
+                        $suffix = stripos($suffix, $newLanguageSelection) === 0
+                            ? strtoupper($newLanguageSelection)
+                            : $suffix;
+                    }
+
+                    $newLanguageSelection .= "_{$suffix}";
+                }
+            }
+        }
+
+        if ($newLanguageSelection != $languageSelection) {
+            Option::updateOrCreate([
+                Option::COLUMN_OPTION_NAME => 'selected_language',
+            ], [
+                Option::COLUMN_OPTION_VALUE => $newLanguageSelection
+            ]);
+        }
+
+        $lang->setLocale($newLanguageSelection);
 
         /**
          * @return CookieSession

@@ -13,9 +13,24 @@
     <rule ref="Generic.Files.LineEndings"/>
     <!-- array must be use short syntax array() == [] -->
     <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
-    <!-- Path To Check -->
+    <!--//
+        = Path To Check
+        //-->
+    <!-- Applications -->
     <file>App</file>
-    <file>Components</file>
+    <!--//
+        component lists
+        - Languages exclude
+    //-->
+    <file>Components/Containers</file>
+    <file>Components/Exceptions</file>
+    <file>Components/Middlewares</file>
+    <file>Components/Models</file>
+    <file>Components/Routes</file>
+    <file>Components/Worker</file>
+    <file>Components/bootstrap.php</file>
+    <!-- Unit Test -->
     <file>Tests</file>
+    <!-- Public Web -->
     <file>Web</file>
 </ruleset>

@@ -32,6 +32,8 @@ namespace PentagonalProject\Model\Validator;
 use Pentagonal\PhPass\PasswordHash;
 use PentagonalProject\App\Rest\Util\GrantValidation;
 use PentagonalProject\Model\Database\User;
+use PentagonalProject\Model\Handler\Role;
+use PentagonalProject\Model\Handler\UserRole;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Headers;
 use Slim\Interfaces\Http\HeadersInterface;
@@ -42,10 +44,12 @@ use Slim\Interfaces\Http\HeadersInterface;
  */
 class CommonHeaderValidator
 {
+    const REASON_VALID          = 0;
     const REASON_USER_EMPTY     = 1;
     const REASON_USER_INVALID   = 2;
     const REASON_TOKEN_EMPTY    = 3;
-    const REASON_TOKEN_INVALID = 4;
+    const REASON_TOKEN_INVALID  = 4;
+    const REASON_USER_INACTIVE  = 5;
 
     const AUTH_USER     = 'X-Auth-User';
     const AUTH_KEY      = 'X-Auth-Key';
@@ -73,7 +77,7 @@ class CommonHeaderValidator
     /**
      * @var int
      */
-    protected $reason;
+    protected $reason = self::REASON_VALID;
 
     /**
      * @var GrantValidation
@@ -171,12 +175,21 @@ class CommonHeaderValidator
             return $this->grant;
         }
 
+        //dummy
+        $dummyRole = new UserRole($this->user, new Role());
+        if (!$dummyRole->isActive()) {
+            $this->reason = self::REASON_USER_INACTIVE;
+            return $this->grant;
+        }
+
         $authKey = $this->currentHeaders[self::AUTH_KEY];
         $passwordHash = new PasswordHash();
-        $pasToken = is_string($authKey) && $authKey && $passwordHash->verify(sha1($authKey), $this->user[User::COLUMN_PASSWORD]);
+        $pasToken = is_string($authKey)
+                    && $authKey
+                    && $passwordHash->verify(sha1($authKey), $this->user[User::COLUMN_PASSWORD]);
         if (!$pasToken && $this->withToken) {
             // verify
-            if ( !is_string($token) || ! $this->validateToken($token, $this->user)) {
+            if (!is_string($token) || ! $this->validateToken($token, $this->user)) {
                 $this->reason = self::REASON_TOKEN_INVALID;
                 return $this->grant;
             }
@@ -236,6 +249,14 @@ class CommonHeaderValidator
         }
 
         return self::generateTokenFromUser($this->user);
+    }
+
+    /**
+     * @return int
+     */
+    public function getReason() : int
+    {
+        return $this->reason;
     }
 
     /**

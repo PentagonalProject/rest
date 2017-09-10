@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace PentagonalProject\Model\Database;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Pentagonal\PhPass\PasswordHash;
@@ -184,6 +185,96 @@ class User extends DatabaseBaseModel
             UserMetaByUserId::COLUMN_NAME,
             UserMetaByUserId::COLUMN_VALUE
         );
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return UserMeta|null|Model
+     */
+    public function getMeta(string $name)
+    {
+        return UserMeta::where(UserMeta::COLUMN_NAME, $name)
+            ->where(UserMeta::COLUMN_USER_ID, $this['id'])
+            ->first();
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $default
+     *
+     * @return mixed
+     */
+    public function getMetaValue(string $name, $default = null)
+    {
+        $meta  = $this->getMeta($name);
+        if (!$meta) {
+            return $default;
+        }
+
+        return $meta[UserMeta::COLUMN_VALUE];
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    public function getMetaValueOrCreate(string $name, $value)
+    {
+        $meta = $this->getMeta($name);
+        if (!$meta) {
+            $this->insertMeta($name, $value);
+            return $value;
+        }
+
+        return $meta[UserMeta::COLUMN_VALUE];
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return bool|mixed
+     */
+    public function updateMeta(string $name, $value)
+    {
+        $meta = $this->getMeta($name);
+        if (!$meta) {
+            return $this->insertMeta($name, $value);
+        }
+
+        return $meta->update([UserMeta::COLUMN_VALUE => $value]);
+    }
+
+    /**
+     * @param array $values
+     *
+     * @return array
+     */
+    public function updateMetas(array $values)
+    {
+        foreach ($values as $key => $value) {
+            $values[$key] = $this->updateMeta($key, $values);
+        }
+
+        return $values;
+    }
+
+    /**
+     * @param string $name
+     * @param $value
+     *
+     * @return UserMeta|Model
+     */
+    public function insertMeta(string $name, $value)
+    {
+        return UserMeta::create([
+            UserMeta::COLUMN_USER_ID => $this['id'],
+            UserMeta::COLUMN_NAME => $name,
+            UserMeta::COLUMN_VALUE => serialize($value)
+        ]);
     }
 
     /**

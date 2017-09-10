@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace {
 
     use PentagonalProject\App\Rest\Generator\ResponseStandard;
+    use PentagonalProject\App\Rest\Record\AppFacade;
     use PentagonalProject\App\Rest\Util\Hook;
     use PentagonalProject\Model\Handler\ErrorHandler;
     use Psr\Http\Message\ResponseInterface;
@@ -74,7 +75,7 @@ namespace {
                         $request,
                         $response->withStatus(404),
                         new Exception(
-                            "Target API endpoint is invalid."
+                            AppFacade::access('lang')->trans("Target API endpoint has invalid")
                         )
                     );
                 }
@@ -105,7 +106,7 @@ namespace {
                         $request,
                         $response->withStatus(405),
                         new Exception(
-                            "Method not allowed on current target API."
+                            AppFacade::access('lang')->trans("Method not allowed on current target API")
                         )
                     );
                 }

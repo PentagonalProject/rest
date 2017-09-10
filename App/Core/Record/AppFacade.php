@@ -161,6 +161,26 @@ class AppFacade
     }
 
     /**
+     * @return AppFacadeAccessor
+     */
+    public static function getCurrentAccessor() : AppFacadeAccessor
+    {
+        return self::current()->getAccessor();
+    }
+
+    /**
+     * Getting Current Accessor instance container Application
+     *
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public static function access(string $name)
+    {
+        return self::getCurrentAccessor()->getContainer()[$name];
+    }
+
+    /**
      * Get Current AppFacade
      *
      * @return AppFacade

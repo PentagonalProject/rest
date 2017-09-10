@@ -29,7 +29,8 @@ declare(strict_types=1);
 
 namespace PentagonalProject\Model\Validator;
 
-use PentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
+use ZPentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
+use PentagonalProject\App\Rest\Record\AppFacade;
 use PentagonalProject\App\Rest\Traits\ModelValidatorTrait;
 use PentagonalProject\App\Rest\Util\Domain\Verify;
 use PentagonalProject\Exceptions\ValueUsedException;
@@ -76,6 +77,16 @@ class UserValidator extends ModelValidatorAbstract
     }
 
     /**
+     * @param string $lang
+     *
+     * @return mixed
+     */
+    private function trans(string $lang)
+    {
+        return AppFacade::access('lang')->trans($lang);
+    }
+
+    /**
      * Check whether data is already used
      *
      * @param $attribute
@@ -86,7 +97,7 @@ class UserValidator extends ModelValidatorAbstract
         if (User::query()->where($attribute, $this->data[$attribute])->first()) {
             throw new ValueUsedException(
                 sprintf(
-                    "%s is already used",
+                    $this->trans("%s is already used"),
                     ucwords($attribute)
                 ),
                 E_USER_ERROR
@@ -107,7 +118,7 @@ class UserValidator extends ModelValidatorAbstract
         )
         ) {
             throw new \InvalidArgumentException(
-                "Invalid username",
+                $this->trans("Invalid username"),
                 E_USER_ERROR
             );
         }
@@ -128,7 +139,7 @@ class UserValidator extends ModelValidatorAbstract
         // Check whether email is valid
         if (!$email) {
             throw new \InvalidArgumentException(
-                "Invalid email address",
+                $this->trans("Invalid email address"),
                 E_USER_ERROR
             );
         }

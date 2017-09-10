@@ -4,7 +4,7 @@ sudo: false
 # Operating System
 os : linux
 group: stable
-dist: trusty
+# dist: trusty
 
 # Script Language
 language: php

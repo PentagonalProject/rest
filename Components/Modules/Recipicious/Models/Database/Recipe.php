@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace PentagonalProject\Modules\Recipicious\Model\Database;
 
 use Illuminate\Database\Eloquent\Builder;
+use PentagonalProject\App\Rest\Record\AppFacade;
 use PentagonalProject\Model\DatabaseBaseModel;
 use stdClass;
 
@@ -112,7 +113,7 @@ class Recipe extends DatabaseBaseModel
             if (!is_int(abs($this->id))) {
                 throw new \LogicException(
                     sprintf(
-                        'Id must be as a integer %s given.',
+                        AppFacade::access('lang')->trans('id must be as a integer %s given'),
                         gettype($this->id)
                     )
                 );

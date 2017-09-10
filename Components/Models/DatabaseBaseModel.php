@@ -127,17 +127,59 @@ class DatabaseBaseModel extends Model
     }
 
     /**
-     * {@inheritdoc}
-     * Perform Serialize
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return Model|static
      */
-    public function getDirty()
+    public function setAttribute($key, $value)
     {
-        $dirty = parent::getDirty();
-        foreach ($dirty as $key => $value) {
-            $dirty[$key] = $this->resolveResult($value);
+        return parent::setAttribute($key, $this->resolveSet($value));
+    }
+
+    ///**
+    // * {@inheritdoc}
+    // * Perform Serialize
+    // */
+    //public function getDirty()
+    //{
+    //    $dirty = parent::getDirty();
+    //    foreach ($dirty as $key => $value) {
+    //        $dirty[$key] = $this->resolveResult($value);
+    //    }
+    //
+    //    return $dirty;
+    //}
+
+    /**
+     * Get an attribute from the $attributes array.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    protected function getAttributeFromArray($key)
+    {
+        $value = parent::getAttributeFromArray($key);
+        return $this->resolveResult($value);
+    }
+
+    /**
+     * Get the value of an attribute using its mutator for array conversion.
+     *
+     * @param  string  $key
+     * @param  mixed  $value
+     * @return mixed
+     */
+    protected function mutateAttributeForArray($key, $value)
+    {
+        $result = parent::mutateAttributeForArray($key, $value);
+        if (is_array($result)) {
+            foreach ($result as $key => $v) {
+                $result[$key] = $this->resolveResult($v);
+            }
         }
 
-        return $dirty;
+        return $result;
     }
 
     ///**

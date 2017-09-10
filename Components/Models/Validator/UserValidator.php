@@ -29,7 +29,7 @@ declare(strict_types=1);
 
 namespace PentagonalProject\Model\Validator;
 
-use ZPentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
+use PentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
 use PentagonalProject\App\Rest\Record\AppFacade;
 use PentagonalProject\App\Rest\Traits\ModelValidatorTrait;
 use PentagonalProject\App\Rest\Util\Domain\Verify;

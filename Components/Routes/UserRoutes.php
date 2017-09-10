@@ -32,16 +32,18 @@ namespace {
     use Apatis\ArrayStorage\CollectionFetch;
     use Pentagonal\PhPass\PasswordHash;
     use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
-    use PentagonalProject\App\Rest\Generator\AccessToken;
+    use PentagonalProject\Model\Handler\Role;
+    use PentagonalProject\Model\Handler\UserRole;
+    use PentagonalProject\Model\Validator\AccessToken;
     use PentagonalProject\App\Rest\Generator\ResponseStandard;
     use PentagonalProject\Model\Database\User;
-    use PentagonalProject\Model\Database\UserMeta;
-    use PentagonalProject\Model\Handler\UserAuthenticator;
+    use PentagonalProject\Model\Validator\AccessValidator;
     use PentagonalProject\Model\Validator\CommonHeaderValidator;
     use PentagonalProject\Model\Validator\UserValidator;
     use Psr\Http\Message\ResponseInterface;
     use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;
+    use Symfony\Component\Translation\Translator;
 
     if (!isset($this) || ! $this instanceof App) {
         return;
@@ -54,12 +56,29 @@ namespace {
                 $requestBody = new CollectionFetch((array) $request->getParsedBody());
                 // generate common validator
                 $newRequest = $request
+                    // add username & password
                     ->withHeader(CommonHeaderValidator::AUTH_USER, $requestBody['username'])
                     ->withHeader(CommonHeaderValidator::AUTH_KEY, $requestBody['password'])
+                    // remove access key & token
                     ->withoutHeader(CommonHeaderValidator::ACCESS_KEY)
                     ->withoutHeader(CommonHeaderValidator::ACCESS_TOKEN);
 
                 $access = AccessToken::fromRequest($newRequest, false, false);
+                /**
+                 * @var Role $role
+                 */
+                $role = $this['role'];
+                // create User Role
+                $userRole = new UserRole($access->getUser(), $role);
+                // check if user does not active
+                if (!$userRole->isActive()) {
+                    /**
+                     * @var Translator[] $this
+                     */
+                    throw new UnauthorizedException(
+                        $this['lang']->trans('Not enough access')
+                    );
+                }
 
                 return ResponseStandard::withData(
                     $request,
@@ -93,18 +112,18 @@ namespace {
              *
              * -> $requestBody[keyName]
              */
-            $requestBody = new CollectionFetch($request->getParsedBody());
+            $requestBody = new CollectionFetch((array) $request->getParsedBody());
 
             try {
+                $newRequestBody = $requestBody->all();
+                foreach ($newRequestBody as $key => $value) {
+                    if (is_string($value)) {
+                        $newRequestBody[$key] = trim($value);
+                    }
+                }
+
                 // Trim every inputs
-                $requestBody->replace(
-                    array_map(
-                        function ($value) {
-                            return trim($value);
-                        },
-                        $requestBody->all()
-                    )
-                );
+                $requestBody->replace($newRequestBody);
 
                 // Validate request body
                 $userValidator = UserValidator::check($requestBody);
@@ -117,26 +136,30 @@ namespace {
 
                 // Instantiate user
                 $user = new User([
-                    'first_name'  => $requestBody['first_name'],
-                    'last_name'   => $requestBody['last_name'],
-                    'username'    => $requestBody['username'],
-                    'email'       => $requestBody['email'],
-                    'password'    => $passwordHash->hash(sha1($requestBody['password'])),
+                    User::COLUMN_FIRST_NAME  => $requestBody['first_name'],
+                    User::COLUMN_LAST_NAME   => $requestBody['last_name'],
+                    User::COLUMN_USERNAME    => $requestBody['username'],
+                    User::COLUMN_EMAIL       => $requestBody['email'],
+                    User::COLUMN_PASSWORD    => $passwordHash->hash(sha1($requestBody['password'])),
                     /**
                      * @uses microtime() has enough to generate very unique data double float
                      */
-                    'private_key' => hash('sha512', microtime())
+                    User::COLUMN_PRIVATE_KEY => hash('sha512', microtime())
                 ]);
 
                 // Save or fail
                 $user->saveOrFail();
-
+                /**
+                 * @var Role $role
+                 */
+                $role = $this['role'];
                 // Create user meta for successfully saved user
                 if ($user) {
-                    UserMeta::create([
-                        'user_id'    => $user->getKey(),
-                        'meta_name'  => 'api_access',
-                        'meta_value' => serialize([0, 1, 2, 3])
+                    // default for only read
+                    $user->updateMetas([
+                        UserRole::STATUS_META_SELECTOR => $role->getDefaultStatus(),
+                        UserRole::ROLE_META_SELECTOR   => $role->getDefaultRole(),
+                        'api_access' => [AccessValidator::LEVEL_GET]
                     ]);
                 }
 

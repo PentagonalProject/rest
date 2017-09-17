@@ -264,7 +264,7 @@ class Hook
         /**
          * Sorting
          */
-        if ($this->merged->has($hookName)) {
+        if (! $this->merged->get($hookName)) {
             $this->filters[$hookName]->kSort();
             $this->merged->set($hookName, true);
         }
@@ -331,7 +331,7 @@ class Hook
         }
 
         // Sort
-        if (! $this->merged->has($hookName)) {
+        if (! $this->merged->get($hookName)) {
             $this->filters[$hookName]->kSort();
             $this->merged->set($hookName, true);
         }

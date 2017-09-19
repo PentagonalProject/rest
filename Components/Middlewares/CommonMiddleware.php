@@ -40,13 +40,33 @@ namespace {
     use Psr\Http\Message\ServerRequestInterface;
     use Slim\App;
     use Slim\Http\Cookies;
+    use Slim\Http\Environment;
+    use Slim\Http\Uri;
     use Symfony\Component\Translation\Translator;
 
     if (!isset($this) || ! $this instanceof App) {
         return;
     }
 
-    // register Middleware
+    /**
+     * Add Rewrite Script Name Fixer
+     * for http://host/index.php/target === http://host/target
+     * @see Uri::createFromEnvironment() line 209
+     */
+    $this->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+        /**
+         * @var Environment $env
+         */
+        $env = $this['environment'];
+        $requestScriptName = $env->get('SCRIPT_NAME');
+        $requestUri = parse_url('http://example.com' . $env->get('REQUEST_URI'), PHP_URL_PATH);
+        if (stripos($requestUri, $requestScriptName) === 0) {
+            $env['SCRIPT_NAME'] = dirname($requestScriptName);
+            $request = $request->withUri(Uri::createFromEnvironment($env));
+        }
+
+        return $next($request, $response);
+    });
 
     /**
      * Middle ware to register Container

@@ -42,10 +42,10 @@ use PentagonalProject\App\Rest\Util\Sanitizer;
  *
  * // list magic method @uses Builder
  *
- * @method static Collection|static[]|static|null find(mixed $id, array $columns = ['*'])
- * @method static \Illuminate\Database\Eloquent\Model\|Collection findMany(mixed $id, array $columns = ['*'])
+ * @method static Collection|static[]|static|null find($id, $columns = ['*'])
+ * @method static Model|Collection findMany($id, $columns = ['*'])
  * @method static Collection|Model findOrFail($id, $columns = ['*'])
- * @method static Model create(array $attributes)
+ * @method static Model create(array $attributes = [])
  * @method static Model findOrNew($id, $columns = ['*'])
  * @method static Model firstOrNew(array $attributes, array $values = [])
  * @method static Model firstOrCreate(array $attributes, array $values = [])
@@ -54,7 +54,7 @@ use PentagonalProject\App\Rest\Util\Sanitizer;
  * @method static Model|static|mixed firstOr($columns = ['*'], \Closure $callback = null)
  * @method static mixed value($column)
  * @method static Builder where($column, $operator = null, $value = null, $boolean = 'and')
- * @method static static[]|Collection get(array $columns = ['*'])
+ * @method static static[]|Collection get($columns = ['*'])
  * ... @method static mixed *
  *
  * @uses Builder for more usage
@@ -68,6 +68,14 @@ class DatabaseBaseModel extends Model
      * Y-m-d H:i:s.u
      */
     protected $checkDateFormat = [
+        self::UPDATED_AT,
+        self::CREATED_AT
+    ];
+
+    /**
+     * @var array
+     */
+    protected $noFixation = [
         self::UPDATED_AT,
         self::CREATED_AT
     ];
@@ -119,7 +127,9 @@ class DatabaseBaseModel extends Model
             if (in_array($key, $this->checkDateFormat)) {
                 $value = $this->fixMaybeTimeStamp($value);
             }
-
+            if (in_array($key, $this->noFixation)) {
+                continue;
+            }
             $attributes[$key] = $this->resolveResult($value);
         }
 
@@ -160,6 +170,9 @@ class DatabaseBaseModel extends Model
     protected function getAttributeFromArray($key)
     {
         $value = parent::getAttributeFromArray($key);
+        if (in_array($key, $this->noFixation)) {
+            return $value;
+        }
         return $this->resolveResult($value);
     }
 
@@ -175,6 +188,9 @@ class DatabaseBaseModel extends Model
         $result = parent::mutateAttributeForArray($key, $value);
         if (is_array($result)) {
             foreach ($result as $key => $v) {
+                if (in_array($key, $this->noFixation)) {
+                    continue;
+                }
                 $result[$key] = $this->resolveResult($v);
             }
         }

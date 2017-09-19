@@ -109,6 +109,20 @@ class User extends DatabaseBaseModel
     const PASSWORD_PLAIN = 3;
 
     /**
+     * @var array
+     */
+    protected $noFixation = [
+        self::COLUMN_CREATED_AT,
+        self::COLUMN_UPDATED_AT,
+        self::COLUMN_FIRST_NAME,
+        self::COLUMN_LAST_NAME,
+        self::COLUMN_USERNAME,
+        self::COLUMN_EMAIL,
+        self::COLUMN_PASSWORD,
+        self::COLUMN_PRIVATE_KEY
+    ];
+
+    /**
      * @param string $password
      * @return bool
      */
@@ -195,8 +209,8 @@ class User extends DatabaseBaseModel
     public function getMeta(string $name)
     {
         return UserMeta::where(UserMeta::COLUMN_NAME, $name)
-            ->where(UserMeta::COLUMN_USER_ID, $this['id'])
-            ->first();
+                       ->where(UserMeta::COLUMN_USER_ID, $this['id'])
+                       ->first();
     }
 
     /**

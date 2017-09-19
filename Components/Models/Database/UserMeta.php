@@ -75,4 +75,12 @@ class UserMeta extends DatabaseBaseModel
         self::COLUMN_NAME,
         self::COLUMN_VALUE
     ];
+
+    /**
+     * @var array
+     */
+    protected $noFixation = [
+        self::COLUMN_USER_ID,
+        self::COLUMN_NAME,
+    ];
 }

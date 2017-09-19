@@ -41,6 +41,8 @@ use PentagonalProject\Model\Handler\UserRole;
  */
 class AccessValidator
 {
+    const API_ACCESS_SELECTOR = 'api_access';
+
     const LEVEL_GET    = 0;
     const LEVEL_UPDATE = 1;
     const LEVEL_DELETE = 2;
@@ -96,21 +98,25 @@ class AccessValidator
         ];
 
         // Find the user granted accesses
-        $grantedAccesses = $this->user->getMetaValueOrCreate('api_access', $defaultGrant);
+        $grantedAccesses = $this
+            ->user
+            ->getMetaValueOrCreate(self::API_ACCESS_SELECTOR, $defaultGrant);
         // create dummy role for super admin
         $dummyRole = new UserRole($this->user, new Role());
+        // allow super admin grant as all
         if ($dummyRole->isSuperAdmin()) {
             $defaultGrant = $adminGrant;
         }
 
-        if (!is_array($grantedAccesses) || $dummyRole->isSuperAdmin()) {
-            $this->user->updateMeta('api_access', $defaultGrant);
+        // if has no granted access or grant is super admin & is not same value for default
+        if (!is_array($grantedAccesses) || $dummyRole->isSuperAdmin() && $defaultGrant !== $grantedAccesses) {
+            $this->user->updateMeta(self::API_ACCESS_SELECTOR, $defaultGrant);
             $grantedAccesses = $defaultGrant;
         }
 
         // Check whether the given level access is listed in the user
         // granted accesses
-        if (!$grantedAccesses || !in_array($this->level, (array) $grantedAccesses, true)) {
+        if (empty($grantedAccesses) || ! in_array($this->level, $grantedAccesses, true)) {
             UserAuthenticator::throwUnauthorized();
         };
     }

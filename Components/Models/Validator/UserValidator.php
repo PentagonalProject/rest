@@ -42,14 +42,26 @@ use PentagonalProject\Model\Database\User;
  */
 class UserValidator extends ModelValidatorAbstract
 {
+    /**
+     * Use trait for build Model Validator
+     */
     use ModelValidatorTrait;
 
+    /**
+     * regex for username
+     * -> length must be between or same as 3 and 64
+     * -> only may contain alpha numeric and underscore
+     * -> start with alpha numeric & ending with alpha numeric
+     */
+    const REGEX_USERNAME = '/(?=^[a-z0-9_]{3,64}$)^[a-z0-9]+[_]?(?:[a-z0-9]+[_]?)?[a-z0-9]+$/';
+
     // Attributes
-    const ATTRIBUTE_FIRST_NAME = 'first_name';
-    const ATTRIBUTE_LAST_NAME  = 'last_name';
-    const ATTRIBUTE_USERNAME   = 'username';
-    const ATTRIBUTE_EMAIL      = 'email';
-    const ATTRIBUTE_PASSWORD   = 'password';
+    const ATTRIBUTE_FIRST_NAME = User::COLUMN_FIRST_NAME;
+    const ATTRIBUTE_LAST_NAME  = User::COLUMN_LAST_NAME;
+    const ATTRIBUTE_USERNAME   = User::COLUMN_USERNAME;
+    const ATTRIBUTE_EMAIL      = User::COLUMN_EMAIL;
+    const ATTRIBUTE_PASSWORD   = User::COLUMN_PASSWORD;
+
     // Rules
     const RULE_FIRST_NAME_MAX_LENGTH = 64;
     const RULE_LAST_NAME_MAX_LENGTH  = 64;
@@ -92,7 +104,7 @@ class UserValidator extends ModelValidatorAbstract
      * @param $attribute
      * @throws ValueUsedException
      */
-    private function isAlreadyUsed($attribute)
+    private function mustBeNotAlreadyUsed($attribute)
     {
         if (User::query()->where($attribute, $this->data[$attribute])->first()) {
             throw new ValueUsedException(
@@ -110,13 +122,9 @@ class UserValidator extends ModelValidatorAbstract
      *
      * @throws \InvalidArgumentException
      */
-    private function isValidUsername()
+    private function trackUsername()
     {
-        if (!preg_match(
-            '/(?=^[a-z0-9_]{3,64}$)^[a-z0-9]+[_]?(?:[a-z0-9]+[_]?)?[a-z0-9]+$/',
-            $this->data[self::ATTRIBUTE_USERNAME]
-        )
-        ) {
+        if (!preg_match(self::REGEX_USERNAME, $this->data[self::ATTRIBUTE_USERNAME])) {
             throw new \InvalidArgumentException(
                 $this->trans("Invalid username"),
                 E_USER_ERROR
@@ -129,7 +137,7 @@ class UserValidator extends ModelValidatorAbstract
      *
      * @throws \InvalidArgumentException
      */
-    private function isValidEmail()
+    private function trackEmail()
     {
         $domain = new Verify();
         $email = $domain->validateEmail(
@@ -147,6 +155,12 @@ class UserValidator extends ModelValidatorAbstract
         $this->caseFixedEmail = $email;
     }
 
+    /**
+     * Run Validator
+     *
+     * @throws \InvalidArgumentException
+     * @throws ValueUsedException
+     */
     protected function run()
     {
         foreach ($this->toCheck() as $toCheck => $value) {
@@ -158,17 +172,17 @@ class UserValidator extends ModelValidatorAbstract
 
             // Specific validation for username or email attributes
             if ($toCheck === self::ATTRIBUTE_USERNAME || $toCheck === self::ATTRIBUTE_EMAIL) {
-                $this->isAlreadyUsed($toCheck);
+                $this->mustBeNotAlreadyUsed($toCheck);
             }
 
             // Specific validation for username attribute
             if ($toCheck === self::ATTRIBUTE_USERNAME) {
-                $this->isValidUsername();
+                $this->trackUsername();
             }
 
             // Specific validation for email attribute
             if ($toCheck === self::ATTRIBUTE_EMAIL) {
-                $this->isValidEmail();
+                $this->trackEmail();
             }
         }
     }

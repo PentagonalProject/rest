@@ -86,21 +86,25 @@ class Option extends DatabaseBaseModel
     ];
 
     /**
+     * @var array
+     */
+    protected $noFixation = [
+        self::COLUMN_OPTION_ID,
+        self::COLUMN_OPTION_NAME,
+    ];
+
+    /**
      * @param string $name
      * @param mixed $default
      * @return mixed
      */
     public static function getFrom(string $name, $default = null)
     {
-        /**
-         * @var Option $model
-         */
         $model = self::find($name);
         if (! $model || ! $model instanceof Model) {
             return $default;
         }
 
-        $model = new Collection($model->toArray());
-        return $model->get(self::COLUMN_OPTION_VALUE, $default);
+        return $model[self::COLUMN_OPTION_VALUE];
     }
 }

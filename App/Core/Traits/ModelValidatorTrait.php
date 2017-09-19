@@ -153,22 +153,26 @@ trait ModelValidatorTrait
         }
     }
 
-    protected function determineLength($value)
+    /**
+     * @param mixed $value
+     *
+     * @return int
+     * @throws \TypeError
+     */
+    protected function determineLength($value) : int
     {
-        if ($value instanceof \Countable || is_array($value)) {
-            return count($value);
-        }
-        if ($value instanceof \Iterator) {
-            $lg = 0;
-            $value = clone $value;
-            foreach ($value as $val) {
-                $lg++;
-            }
-            return $lg;
-        }
         if (!$value) {
             return 0;
         }
+
+        if ($value instanceof \Countable || is_array($value)) {
+            return count($value);
+        }
+
+        if ($value instanceof \Iterator) {
+            return iterator_count($value);
+        }
+
         if (is_string($value) || is_bool($value)) {
             return strlen((string) $value); # casting
         }

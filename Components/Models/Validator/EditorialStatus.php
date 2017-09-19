@@ -69,7 +69,7 @@ class EditorialStatus implements TypeStatusInterface
      */
     public function is(int $type): bool
     {
-        return $this->currentStatus ==- $type;
+        return $this->currentStatus === $type;
     }
 
     /**

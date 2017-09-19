@@ -268,9 +268,11 @@ class CommonHeaderValidator
     public static function validateToken(string $token, User $user)
     {
         $encode = base64_decode($token);
+        // (0-9a-z./) base on range of characters on password hash
         if (preg_match('/[^0-9a-z\.\/]/i', $encode)) {
             return false;
         }
+
         $length = self::HASH_LENGTH < 10 ? "0".self::HASH_LENGTH : self::HASH_LENGTH;
         $encode = "\$2a\${$length}\${$encode}";
         $passwordHash = new PasswordHash();

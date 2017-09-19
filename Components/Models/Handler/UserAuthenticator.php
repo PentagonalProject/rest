@@ -36,12 +36,17 @@ use PentagonalProject\Model\Database\User;
  * Class UserAuthenticator
  * @package PentagonalProject\Model\Handler
  */
-class UserAuthenticator
+final class UserAuthenticator
 {
+    const BY_USERNAME = User::COLUMN_USERNAME;
+    const BY_EMAIL    = User::COLUMN_EMAIL;
+
+    private $methodBy = self::BY_USERNAME;
+
     /**
      * @var null|string
      */
-    private $username;
+    private $authBase;
 
     /**
      * @var null|string
@@ -49,15 +54,23 @@ class UserAuthenticator
     private $password;
 
     /**
+     * @var User
+     */
+    private $currentUser;
+
+    /**
      * UserAuthenticator constructor.
      *
-     * @param null|string $username
+     * @param null|string $authBase
      * @param null|string $password
+     * @param string $by
      */
-    private function __construct($username, $password)
+    private function __construct($authBase, $password, $by = self::BY_USERNAME)
     {
-        $this->username = $username;
+        $this->authBase = $authBase;
         $this->password = $password;
+        // by default change on by username
+        $this->methodBy = $by === self::BY_EMAIL ? self::BY_EMAIL : self::BY_USERNAME;
     }
 
     /**
@@ -73,72 +86,75 @@ class UserAuthenticator
      *
      * @param null|string $username
      * @param null|string $password
+     * @param string      $by
+     * @return UserAuthenticator
+     */
+    public static function confirm($username, $password, $by = self::BY_USERNAME) : UserAuthenticator
+    {
+        return (new static($username, $password, $by))->authenticate();
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser() : User
+    {
+        return $this->currentUser;
+    }
+
+    /**
      * @return int
      */
-    public static function confirm($username, $password): int
+    public function getUserId() : int
     {
-        $authenticator = new static($username, $password);
-
-        return $authenticator->run();
+        return (int) $this->getUser()[User::COLUMN_ID];
     }
 
     /**
-     * Check whether username is given
-     *
-     * @param null|string $username
-     * @throws UnauthorizedException
+     * @return string
      */
-    private function isGiven($username)
+    public function getUseName() : string
     {
-        if (is_null($username)) {
-            $this->throwUnauthorized();
-        }
+        return (string) $this->getUser()[User::COLUMN_USERNAME];
     }
 
     /**
-     * Check whether user is exist
-     *
-     * @param $user
-     * @throws UnauthorizedException
+     * @return int
      */
-    private function isExist($user)
+    public function getEmail() : int
     {
-        if (is_null($user)) {
-            $this->throwUnauthorized();
-        }
-    }
-
-    /**
-     * Verify the password with the stored one.
-     *
-     * @param null|string $password
-     * @param string      $storedPassword
-     * @throws UnauthorizedException
-     */
-    private function verify($password, $storedPassword)
-    {
-        $passwordHash = new PasswordHash();
-
-        if (!$passwordHash->verify(sha1($password), $storedPassword)) {
-            $this->throwUnauthorized();
-        }
+        return (int) $this->getUser()[User::COLUMN_EMAIL];
     }
 
     /**
      * Run the authenticator
      *
-     * @return int
+     * @return UserAuthenticator
      */
-    private function run(): int
+    private function authenticate() : UserAuthenticator
     {
-        $this->isGiven($this->username);
+        if (! is_string($this->password)
+            || trim($this->password) == '' # never allowed password by whitespace only
+            || ! is_string($this->authBase)
+            || trim($this->authBase) == ''
+        ) {
+            $this->throwUnauthorized();
+        }
 
-        $user = User::where('username', $this->username)->first();
+        if (! is_string($this->authBase) || trim($this->authBase) == '') {
+            $this->throwUnauthorized();
+        }
 
-        $this->isExist($user);
+        $this->currentUser = User::where($this->methodBy, $this->authBase)->first();
+        if (! $this->currentUser instanceof User) {
+            $this->throwUnauthorized();
+        }
 
-        $this->verify($this->password, $user->password);
+        $passwordHash = new PasswordHash();
+        if (!$passwordHash->verify(sha1($this->password), $this->currentUser[User::COLUMN_PASSWORD])) {
+            $this->throwUnauthorized();
+        }
 
-        return $user->id;
+        return $this;
     }
 }

@@ -42,8 +42,8 @@ use PentagonalProject\App\Rest\Util\Sanitizer;
  *
  * // list magic method @uses Builder
  *
- * @method static Collection|static[]|static|null find($id, $columns = ['*'])
- * @method static Model|Collection findMany($id, $columns = ['*'])
+ * @method static Collection|static[]|static|null find($id, array $columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Model\|Collection findMany(mixed $id, array $columns = ['*'])
  * @method static Collection|Model findOrFail($id, $columns = ['*'])
  * @method static Model create(array $attributes = [])
  * @method static Model findOrNew($id, $columns = ['*'])
@@ -125,11 +125,14 @@ class DatabaseBaseModel extends Model
     {
         foreach ($attributes as $key => $value) {
             if (in_array($key, $this->checkDateFormat)) {
-                $value = $this->fixMaybeTimeStamp($value);
+                $attributes[$key] = $this->fixMaybeTimeStamp($value);
+                continue;
             }
+
             if (in_array($key, $this->noFixation)) {
                 continue;
             }
+
             $attributes[$key] = $this->resolveResult($value);
         }
 

@@ -30,8 +30,10 @@ declare(strict_types=1);
 namespace PentagonalProject\Modules\Recipicious\Model\Database;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use PentagonalProject\App\Rest\Record\AppFacade;
 use PentagonalProject\Model\DatabaseBaseModel;
+use PentagonalProject\Model\Validator\EditorialStatus;
 use stdClass;
 
 /**
@@ -50,6 +52,23 @@ class Recipe extends DatabaseBaseModel
     const COLUMN_CREATED_AT          = self::CREATED_AT;
     const COLUMN_UPDATED_AT          = self::UPDATED_AT;
 
+    /**
+     * @var array
+     */
+    protected $noFixation = [
+        self::COLUMN_RECIPE_ID,
+        self::COLUMN_RECIPE_TITLE,
+        self::COLUMN_RECIPE_SLUG,
+        self::COLUMN_RECIPE_USER_ID,
+        self::COLUMN_RECIPE_STATUS,
+        self::COLUMN_CREATED_AT,
+        self::COLUMN_UPDATED_AT,
+        self::COLUMN_PUBLISHED_AT,
+    ];
+
+    /**
+     * @var string
+     */
     protected $primaryKey = self::COLUMN_RECIPE_ID;
 
     /**
@@ -60,7 +79,8 @@ class Recipe extends DatabaseBaseModel
         self::COLUMN_RECIPE_TITLE,
         self::COLUMN_RECIPE_INSTRUCTIONS,
         self::COLUMN_RECIPE_SLUG,
-        self::COLUMN_RECIPE_USER_ID
+        self::COLUMN_RECIPE_USER_ID,
+        self::COLUMN_PUBLISHED_AT
     ];
 
     /**
@@ -77,6 +97,27 @@ class Recipe extends DatabaseBaseModel
      * @var bool hanlde to prevent multiple looping
      */
     private static $performCheckSlug = false;
+
+    /**
+     * @param array $attributes
+     * @param bool $sync
+     *
+     * @return DatabaseBaseModel
+     */
+    public function setRawAttributes(array $attributes, $sync = false)
+    {
+        $data =  parent::setRawAttributes($attributes, $sync);
+        if ($data[self::COLUMN_RECIPE_STATUS] == EditorialStatus::PUBLISHED
+            && ! $data[self::COLUMN_PUBLISHED_AT]
+        ) {
+            $data->timestamps = false;
+            $data[self::COLUMN_PUBLISHED_AT] = $data[self::UPDATED_AT];
+            $data->save();
+            $data->timestamps = true;
+        }
+
+        return $data;
+    }
 
     /**
      * @param string $slug
@@ -105,7 +146,7 @@ class Recipe extends DatabaseBaseModel
         }
         $newSanity = $sanity;
         if (isset($this->id)) {
-            if ($this->slug == $sanity) {
+            if ($this[self::COLUMN_RECIPE_SLUG] == $sanity) {
                 self::$performCheckSlug = false;
                 return $sanity;
             }

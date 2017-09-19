@@ -48,7 +48,7 @@ namespace {
     $this->includeBindToSlim(__DIR__ . "/../Middlewares/CommonMiddleware.php");
     $this->includeBindToSlim(__DIR__ . "/../Middlewares/RestMiddleware.php");
     // add user routes
-    $this->includeBindToSlim(__DIR__ . "/../Routes/UserRoutes.php");
+    $this->includeBindToSlim(__DIR__ . "/../Routes/Rest/UserRoutes.php");
 
     // return \Slim\App
     return $app;

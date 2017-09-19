@@ -173,7 +173,7 @@ abstract class RouteMapperBaseAbstract
                         $this->lastRoutes[2][$key] = new $class($container);
                     }
                 } else {
-                    $this->lastRoutes[2][$key] = new $class();
+                    $this->lastRoutes[2][$key] = new $class($container);
                 }
             }
         }
@@ -183,7 +183,7 @@ abstract class RouteMapperBaseAbstract
      * @param callable $callback
      * @param \closure|null $routeCallback
      *
-     * @return mixed
+     * @return mixed|RouteGroupInterface
      */
     public function any(
         string $pattern,
@@ -199,7 +199,7 @@ abstract class RouteMapperBaseAbstract
      * @param string $name
      * @param array $arguments
      *
-     * @return mixed
+     * @return mixed|RouteGroupInterface
      */
     public function __call(string $name, array $arguments)
     {

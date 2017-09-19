@@ -46,7 +46,7 @@ namespace {
     $app = $this->includeScopeBind(__DIR__ . '/ApplicationBuilder.php', $this);
     // Include Files
     $this->includeBindToSlim(__DIR__ . "/../Middlewares/CommonMiddleware.php");
-    $this->includeBindToSlim(__DIR__ . "/../Middlewares/RestMiddleware.php");
+    $this->includeBindToSlim(__DIR__ . "/../Middlewares/PublicMiddleware.php");
 
     // return \Slim\App
     return $app;

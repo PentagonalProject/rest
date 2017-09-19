@@ -31,6 +31,7 @@ namespace PentagonalProject\Modules\Recipicious\Model\Validator;
 
 use PentagonalProject\App\Rest\Abstracts\ModelValidatorAbstract;
 use PentagonalProject\App\Rest\Traits\ModelValidatorTrait;
+use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
 
 /**
  * Class RecipeValidator
@@ -41,9 +42,10 @@ class RecipeValidator extends ModelValidatorAbstract
     use ModelValidatorTrait;
 
     // Attributes
-    const ATTRIBUTE_TITLE         = 'title';
-    const ATTRIBUTE_INSTRUCTIONS  = 'instructions';
-    const ATTRIBUTE_USER_ID       = 'user_id';
+    const ATTRIBUTE_TITLE         = Recipe::COLUMN_RECIPE_TITLE;
+    const ATTRIBUTE_INSTRUCTIONS  = Recipe::COLUMN_RECIPE_TITLE;
+    const ATTRIBUTE_USER_ID       = Recipe::COLUMN_RECIPE_USER_ID;
+
     // Rules
     const RULE_NAME_MAX_LENGTH   = 60;
 

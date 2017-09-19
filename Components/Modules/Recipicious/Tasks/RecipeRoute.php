@@ -32,12 +32,13 @@ namespace PentagonalProject\Modules\Recipicious\Task;
 use Apatis\ArrayStorage\CollectionFetch;
 use PentagonalProject\App\Rest\Exceptions\UnauthorizedException;
 use PentagonalProject\App\Rest\Generator\ResponseStandard;
-use PentagonalProject\App\Rest\Record\AppFacade;
+use PentagonalProject\Model\Handler\UserAuthenticator;
 use PentagonalProject\Model\Validator\AccessValidator;
 use PentagonalProject\Model\Validator\CommonHeaderValidator;
 use PentagonalProject\Model\Validator\EditorialStatus;
 use PentagonalProject\Modules\Recipicious\Model\Database\Recipe;
 use PentagonalProject\Modules\Recipicious\Model\Validator\RecipeValidator;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -56,11 +57,18 @@ class RecipeRoute
     const LEVEL_CREATE = AccessValidator::LEVEL_CREATE;
 
     /**
-     * RecipeRoute constructor.
+     * @var ContainerInterface
      */
-    public function __construct()
+    protected $container;
+
+    /**
+     * RecipeRoute constructor.
+     *
+     * @param ContainerInterface $container
+     */
+    public function __construct(ContainerInterface $container)
     {
-        // before init route
+        $this->container = $container;
     }
 
     /**
@@ -72,9 +80,7 @@ class RecipeRoute
     {
         $validator = CommonHeaderValidator::fromRequest($request);
         if ($validator->getGrant()->isDeny() || ! $validator->getUser()) {
-            throw new UnauthorizedException(
-                AppFacade::access('lang')->trans("Not enough access")
-            );
+            UserAuthenticator::throwUnauthorized();
         }
 
         // Authenticate request and validate access
@@ -86,13 +92,11 @@ class RecipeRoute
      * @param ResponseInterface $response
      * @return ResponseInterface
      */
-    public static function getIndex(
-        ServerRequestInterface $request,
-        ResponseInterface $response
-    ) : ResponseInterface {
+    public function getIndex(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    {
         try {
             // Authenticate request and validate access
-            self::validateAuth($request, self::LEVEL_GET);
+            $this->validateAuth($request, self::LEVEL_GET);
 
             /**
              * Make request params fetch able.
@@ -135,13 +139,11 @@ class RecipeRoute
      *
      * @return ResponseInterface
      */
-    public static function postIndex(
-        ServerRequestInterface $request,
-        ResponseInterface $response
-    ) : ResponseInterface {
+    public function postIndex(ServerRequestInterface $request, ResponseInterface $response) : ResponseInterface
+    {
         try {
             // Authenticate request and validate access
-            self::validateAuth($request, self::LEVEL_CREATE);
+            $this->validateAuth($request, self::LEVEL_CREATE);
 
             /**
              * Make request body fetch able.
@@ -207,14 +209,14 @@ class RecipeRoute
      *
      * @return ResponseInterface
      */
-    public static function getRecipeById(
+    public function getRecipeById(
         ServerRequestInterface $request,
         ResponseInterface $response,
         array $params
-    ): ResponseInterface {
+    ) : ResponseInterface {
         try {
             // Authenticate request and validate access
-            self::validateAuth($request, self::LEVEL_GET);
+            $this->validateAuth($request, self::LEVEL_GET);
 
             $data = Recipe::where([
                 [Recipe::COLUMN_RECIPE_ID, '=', $params['id']],
@@ -259,14 +261,14 @@ class RecipeRoute
      *
      * @return ResponseInterface
      */
-    public static function postRecipeById(
+    public function postRecipeById(
         ServerRequestInterface $request,
         ResponseInterface $response,
         array $params
     ) : ResponseInterface {
         try {
             // Authenticate request and validate access
-            self::validateAuth($request, self::LEVEL_UPDATE);
+            $this->validateAuth($request, self::LEVEL_UPDATE);
 
             /**
              * Make request body fetch able.
@@ -327,14 +329,14 @@ class RecipeRoute
      *
      * @return ResponseInterface
      */
-    public static function deleteRecipeById(
+    public function deleteRecipeById(
         ServerRequestInterface $request,
         ResponseInterface $response,
         array $params
     ) : ResponseInterface {
         try {
             // Authenticate request and validate access
-            self::validateAuth($request, self::LEVEL_DELETE);
+            $this->validateAuth($request, self::LEVEL_DELETE);
 
             // Get a recipe by id
             $recipe = Recipe::query()->findOrFail($params['id']);

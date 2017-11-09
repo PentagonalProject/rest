@@ -339,7 +339,7 @@ class ModularParser
          * strip white space is remove all new line and double spaces
          * and remove all comments
          * @see php_strip_whitespace()
-         * just het 204b byte to get content
+         * just get 204b byte to get content
          */
         $content = substr(php_strip_whitespace($this->getFile()), 0, 2048);
         if (!$content) {

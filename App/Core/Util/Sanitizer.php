@@ -92,6 +92,33 @@ class Sanitizer
 
         return $path;
     }
+    /**
+     * Sanitize Result to UTF-8
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    public static function sanitizeTotUTF8(string $string) : string
+    {
+        static $mbStringEnabled;
+        static $hasIconV;
+        if (!isset($hasIconV)) {
+            $hasIconV = function_exists('iconv');
+        }
+        if (!isset($mbStringEnabled)) {
+            $mbStringEnabled = function_exists('mb_strlen');
+        }
+
+        $mustBeConvert = $hasIconV && $mbStringEnabled
+                         && mb_strlen($string, 'UTF-8') !== strlen($string);
+
+        if ($mustBeConvert) {
+            return iconv('windows-1250', 'UTF-8', $string);
+        }
+
+        return $string;
+    }
 
     /**
      * Entities the Multi bytes deep string
@@ -143,7 +170,8 @@ class Sanitizer
         if ($entity) {
             $mixed = htmlentities(html_entity_decode($mixed));
         }
-
+        // convert to save utf8
+        $mixed = self::sanitizeTotUTF8($mixed);
         return $hasIconV
             ? (
                 preg_replace_callback(

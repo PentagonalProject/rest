@@ -40,13 +40,15 @@ namespace {
         /**
          * @var Configurator $config
          */
-        $config = $container['config'];
+        $config =& $container['config'];
         // add fix to prevent trigger error
-        if ($config['cache[driver]'] == 'Auto') {
+        if (!is_string($config['cache[driver]'])
+            || CacheManager::standardizeDriverName($config['cache[driver]']) == 'Auto'
+        ) {
             $availableDriver = CacheManager::getStaticSystemDrivers();
             foreach ($availableDriver as $driver) {
                 try {
-                    CacheManager::getInstance($driver, $config['cache[config]']);
+                    $cache = CacheManager::getInstance($driver, $config['cache[config]']);
                     $config['cache[driver]'] = $driver;
                     break;
                 } catch (phpFastCacheDriverCheckException $e) {
@@ -55,10 +57,11 @@ namespace {
             }
         }
 
-        $cache = CacheManager::getInstance(
-            $config['cache[driver]'],
-            $config['cache[config]']
-        );
+        (!isset($cache) || ! $cache instanceof ExtendedCacheItemPoolInterface)
+            && $cache = CacheManager::getInstance(
+                $config['cache[driver]'],
+                $config['cache[config]']
+            );
 
         /**
          * @var Logger[] $container
